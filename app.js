@@ -7,6 +7,8 @@ require("dotenv").config();
 
 const app = express();
 const neighborhoodRouter = require("./routes/neighborhood.route");
+const jobRouter = require("./routes/job.route");
+const technicianRouter = require("./routes/technician.route");
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -19,6 +21,8 @@ app.use(morgan("dev"));
 app.use(methodOverride("_method"));
 app.set("view engine", "ejs");
 app.use("/neighborhoods", neighborhoodRouter);
+app.use("/jobs", jobRouter);
+app.use("/technicians", technicianRouter);
 
 // Serve files from the uploads folder statically
 app.use('/uploads', express.static('uploads'));
