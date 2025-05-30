@@ -1,0 +1,15 @@
+<h1>All Neighborhoods</h1>
+<!-- <a href="/neighborhoods/new">Add New</a> -->
+<ul>
+    <% neighborhoods.forEach(n=> { %>
+        <li>
+            <p>
+                <%= n.name %>
+            </p>
+            <a href="/neighborhoods/<%= n._id %>/edit">Edit</a>
+            <form action="/neighborhoods/<%= n._id %>?_method=DELETE" method="POST">
+                <button type="submit">Delete</button>
+            </form>
+        </li>
+        <% }) %>
+</ul>

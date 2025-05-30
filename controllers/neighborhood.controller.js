@@ -1,0 +1,61 @@
+const Neighborhood = require("../models/neighborhood");
+const Job = require("../models/job");
+const Technician = require("../models/technician");
+
+// Get all neighborhoods
+const getAllNeighborhoods = async (req, res) => {
+  try {
+    const neighborhoods = await Neighborhood.find();
+    res.render("neighborhoods", { neighborhoods });
+  } catch (err) {
+    console.error(err);
+    res.redirect("/neighborhoods");
+  }
+};
+
+const deleteAllNeighborhoods = async (req, res) => {
+  await Neighborhood.deleteMany({});
+  res.redirct("/neighborhoods");
+};
+
+const deleteNeighborhood = async (req, res) => {
+  await Neighborhood.findByIdAndDelete(req.params.id);
+  res.redirect("/neighborhoods");
+};
+
+const editNeighborhood = async (req, res) => {
+  try {
+    const neighborhood = await Neighborhood.findById(req.params.id);
+    res.render("neighborhoodsForm", { neighborhood });
+  } catch (err) {
+    console.error(err);
+    res.redirect("/neighborhoods");
+  }
+};
+
+const updateNeighborhood = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const update = { name };
+    console.log(req.file);
+
+    if (req.file) {
+      console.log(`File uploaded: ${req.file.filename}`);
+
+      update.neighborhoodPhoto = req.file.filename;
+    }
+    await Neighborhood.findByIdAndUpdate(req.params.id, update, { new: true });
+    res.redirect(`/neighborhoods`);
+  } catch (err) {
+    console.error(err);
+    res.redirect("/neighborhoods");
+  }
+};
+
+module.exports = {
+  deleteAllNeighborhoods,
+  deleteNeighborhood,
+  editNeighborhood,
+  updateNeighborhood,
+  getAllNeighborhoods,
+};
