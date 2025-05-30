@@ -1,18 +1,25 @@
-const express = require('express');
-const createError = require('http-errors');
-const morgan = require('morgan');
-require('dotenv').config();
+const express = require("express");
+const createError = require("http-errors");
+const morgan = require("morgan");
+const mongoose = require("mongoose");
+require("dotenv").config();
 
 const app = express();
+// Connect to MongoDB
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("MongoDB connection error:", err));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(morgan('dev'));
+app.use(morgan("dev"));
 
-app.get('/', async (req, res, next) => {
-  res.send({ message: 'Awesome it works 🐻' });
+app.get("/", async (req, res, next) => {
+  res.send({ message: "Awesome it works 🐻" });
 });
 
-app.use('/api', require('./routes/api.route'));
+app.use("/api", require("./routes/api.route"));
 
 app.use((req, res, next) => {
   next(createError.NotFound());
