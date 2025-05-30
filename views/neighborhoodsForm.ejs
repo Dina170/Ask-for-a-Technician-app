@@ -1,0 +1,9 @@
+<h1>
+    <%= neighborhood ? 'Edit' : 'Add' %> Neighborhood
+</h1>
+<form action="<%= neighborhood ? '/neighborhoods/' + neighborhood._id + '?_method=PUT' : '/neighborhoods' %>"
+    method="POST" enctype="multipart/form-data">
+    <input type="text" name="name" placeholder="Name" value="<%= neighborhood?.name || '' %>" required>
+    <input type="file" name="neighborhoodPhoto" <%=neighborhood ? '' : 'required' %> >
+    <button type="submit">Submit</button>
+</form>
