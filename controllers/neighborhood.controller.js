@@ -13,6 +13,42 @@ const getAllNeighborhoods = async (req, res) => {
   }
 };
 
+// Get neighborhood by ID
+const getNeighborhoodById = async (req, res) => {
+  try {
+    const neighborhood = await Neighborhood.findById(req.params.id);
+    if (!neighborhood) {
+      return res.status(404).send("Neighborhood not found");
+    }
+    res.render("neighborhoodDetails", { neighborhood });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+};
+
+const newNeighborhood = (req, res) => {
+  res.render("neighborhoodsForm", { neighborhood: null });
+};
+
+// Create a new neighborhood
+const createNeighborhood = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const neighborhood = new Neighborhood({
+      name,
+      neighborhoodPhoto: req.file ? req.file.filename : null,
+    });
+    await neighborhood.save();
+    res.redirect("/neighborhoods");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/neighborhoods");
+  }
+};
+
+
+
 const deleteAllNeighborhoods = async (req, res) => {
   await Neighborhood.deleteMany({});
   res.redirct("/neighborhoods");
@@ -58,4 +94,7 @@ module.exports = {
   editNeighborhood,
   updateNeighborhood,
   getAllNeighborhoods,
+  createNeighborhood,
+  getNeighborhoodById,
+  newNeighborhood
 };

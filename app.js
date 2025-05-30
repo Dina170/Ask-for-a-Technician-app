@@ -20,6 +20,9 @@ app.use(methodOverride("_method"));
 app.set("view engine", "ejs");
 app.use("/neighborhoods", neighborhoodRouter);
 
+// Serve files from the uploads folder statically
+app.use('/uploads', express.static('uploads'));
+
 // app.get("/", async (req, res, next) => {
 //   res.send({ message: "Awesome it works 🐻" });
 // });

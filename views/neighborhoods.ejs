@@ -1,6 +1,6 @@
-<h1>All Neighborhoods</h1>
+<!-- <h1>All Neighborhoods</h1> -->
 <!-- <a href="/neighborhoods/new">Add New</a> -->
-<ul>
+<!-- <ul>
     <% neighborhoods.forEach(n=> { %>
         <li>
             <p>
@@ -12,4 +12,25 @@
             </form>
         </li>
         <% }) %>
+</ul> -->
+
+
+<h1>All Neighborhoods</h1>
+<a href="/neighborhoods/new">Add New Neighborhood</a>
+<ul>
+  <% neighborhoods.forEach(n => { %>
+    <li>
+      <h3><%= n.name %></h3>
+      <% if (n.neighborhoodPhoto) { %>
+        <img src="/uploads/neighborhoods/<%= n.neighborhoodPhoto %>" alt="Neighborhood Photo" width="150">
+      <% } %>
+      <div>
+        <a href="/neighborhoods/<%= n._id %>">View</a>
+        <a href="/neighborhoods/<%= n._id %>/edit">Edit</a>
+        <form action="/neighborhoods/<%= n._id %>?_method=DELETE" method="POST" style="display:inline;">
+          <button type="submit" onclick="return confirm('Delete this neighborhood?')">Delete</button>
+        </form>
+      </div>
+    </li>
+  <% }) %>
 </ul>

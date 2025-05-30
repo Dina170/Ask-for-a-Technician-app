@@ -1,4 +1,4 @@
-<h1>
+<!-- <h1>
     <%= neighborhood ? 'Edit' : 'Add' %> Neighborhood
 </h1>
 <form action="<%= neighborhood ? '/neighborhoods/' + neighborhood._id + '?_method=PUT' : '/neighborhoods' %>"
@@ -6,4 +6,25 @@
     <input type="text" name="name" placeholder="Name" value="<%= neighborhood?.name || '' %>" required>
     <input type="file" name="neighborhoodPhoto" <%=neighborhood ? '' : 'required' %> >
     <button type="submit">Submit</button>
+</form> -->
+
+<h1><%= neighborhood ? "Edit" : "Add" %> Neighborhood</h1>
+
+<form action="<%= neighborhood ? '/neighborhoods/' + neighborhood._id + '?_method=PUT' : '/neighborhoods' %>"
+      method="POST"
+      enctype="multipart/form-data">
+  
+  <label for="name">Name:</label>
+  <input type="text" name="name" value="<%= neighborhood?.name || '' %>" required>
+
+  <% if (neighborhood && neighborhood.neighborhoodPhoto) { %>
+    <p>Current Photo:</p>
+    <img src="/uploads/neighborhoods/<%= neighborhood.neighborhoodPhoto %>" width="150">
+  <% } %>
+
+  <label for="neighborhoodPhoto">Upload Photo:</label>
+  <input type="file" name="neighborhoodPhoto" <%= neighborhood ? '' : 'required' %>>
+
+  <button type="submit"><%= neighborhood ? "Update" : "Add" %></button>
 </form>
+
