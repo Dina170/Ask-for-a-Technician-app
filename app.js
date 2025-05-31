@@ -9,6 +9,9 @@ const app = express();
 const neighborhoodRouter = require("./routes/dashboard/neighborhood.route");
 const jobRouter = require("./routes/dashboard/job.route");
 const technicianRouter = require("./routes/dashboard/technician.route");
+const publicHomeRouter = require("./routes/public/home.route");
+const publicTechnicianRouter = require("./routes/public/technician.route");
+
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -20,14 +23,17 @@ app.use(express.urlencoded({ extended: false }));
 app.use(morgan("dev"));
 app.use(methodOverride("_method"));
 app.set("view engine", "ejs");
+
+// Serve files from the uploads folder statically
+app.use('/uploads', express.static('uploads'));
+
 app.use("/dashboard/neighborhoods", neighborhoodRouter);
 app.use("/dashboard/jobs", jobRouter);
 app.use("/dashboard/technicians", technicianRouter);
 
+app.use("/", publicHomeRouter); // homepage + job-based filtering
+app.use("/technicians", publicTechnicianRouter); // technician + neighborhood pages
 
-
-// Serve files from the uploads folder statically
-app.use('/uploads', express.static('uploads'));
 
 // app.get("/", async (req, res, next) => {
 //   res.send({ message: "Awesome it works 🐻" });

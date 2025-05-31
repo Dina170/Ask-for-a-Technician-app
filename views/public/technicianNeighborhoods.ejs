@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Neighborhoods for <%= technician.mainTitle %></title>
+  <style>
+    .neighborhood-card {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      width: 250px;
+      padding: 15px;
+      margin: 10px;
+      display: inline-block;
+      vertical-align: top;
+      cursor: pointer;
+      text-align: center;
+      transition: box-shadow 0.3s ease;
+    }
+    .neighborhood-card:hover {
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    .neighborhood-card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Neighborhoods of <%= technician.mainTitle %></h1>
+
+  <div>
+    <% technician.neighborhoodNames.forEach(neigh => { %>
+      <div class="neighborhood-card">
+        <a href="/technicians/<%= technician._id %>/neighborhoods/<%= neigh._id %>">
+          <img src="/uploads/neighborhoods/<%= neigh.neighborhoodPhoto %>" alt="<%= neigh.name %>" />
+          <h3><%= neigh.name %></h3>
+          <p><%= technician.jobName ? technician.jobName.mainDescription : '' %></p>
+        </a>
+      </div>
+    <% }) %>
+  </div>
+</body>
+</html>
