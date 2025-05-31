@@ -2,24 +2,29 @@
 <a href="/jobs/new">Add New Job</a>
 
 <ul>
-  <% jobs.forEach(job => { %>
+  <% jobs.forEach(job=> { %>
     <li>
-      <h3><%= job.name %></h3>
+      <h3>
+        <%= job.name %>
+      </h3>
       <img src="/uploads/jobs/<%= job.jobPhoto %>" alt="<%= job.name %>" width="100" />
-      <p>Main Description: <%= job.mainDescription %></p>
-      <p>Sub Description: <%= job.subDescription %></p>
-      <p>Neighborhood: <%= job.neighborhoodName.name %></p>
-       <a href="/jobs/<%= job._id %>">
+      <p>Main Description: <%= job.mainDescription %>
+      </p>
+      <p>Sub Description: <%= job.subDescription %>
+      </p>
+      <p>Neighborhood: <%= job.neighborhoodName?.name %>
+      </p>
+      <a href="/jobs/<%= job._id %>">
         <button type="button">View</button>
       </a>
-       <a href="/jobs/<%= job._id %>/edit">
+      <a href="/jobs/<%= job._id %>/edit">
         <button type="button">Edit</button>
       </a>
       <form action="/jobs/<%= job._id %>?_method=DELETE" method="POST" style="display:inline;">
         <button type="submit">Delete</button>
       </form>
     </li>
-  <% }) %>
+    <% }) %>
 </ul>
 
 <form action="/jobs?_method=DELETE" method="POST">
