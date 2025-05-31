@@ -15,14 +15,27 @@
             <% }) %>
     </select>
 
-    <label for="neighborhoodNames">Neighborhoods:</label>
+    <!-- <label for="neighborhoodNames">Neighborhoods:</label>
     <select name="neighborhoodNames" multiple required>
         <% neighborhoods.forEach(n=> { %>
             <option value="<%= n._id %>" <%=technician && technician.neighborhoodNames?.some(nId=> nId.equals(n._id)) ?
                 'selected' : '' %>><%= n.name %>
             </option>
             <% }) %>
-    </select>
+    </select> -->
+
+    <!-- Neighborhoods (Multiple Select) -->
+    <div class="form-group">
+        <label for="neighborhoodNames">Neighborhoods (Hold Ctrl/Cmd to select multiple):</label>
+        <select name="neighborhoodNames" id="neighborhoodNames" multiple required>
+            <% neighborhoods.forEach(n=> { %>
+                <option value="<%= n._id %>" <%=technician && technician.neighborhoodNames?.some(nId=>
+                    nId.equals(n._id)) ? 'selected' : '' %>>
+                    <%= n.name %>
+                </option>
+                <% }) %>
+        </select>
+    </div>
 
     <label for="mainTitle">Main Title:</label>
     <input type="text" name="mainTitle" value="<%= technician?.mainTitle || '' %>" required>

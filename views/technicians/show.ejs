@@ -1,20 +1,80 @@
-<h1>
-    <%= technician.mainTitle %>
-</h1>
-<% if (technician.jobTechnicianPhoto) { %>
-    <img src="/uploads/technicians/<%= technician.jobTechnicianPhoto %>" width="200">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= technician.mainTitle || 'Technician Details' %></title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+    .tech-card { 
+      border: 1px solid #ddd; 
+      padding: 20px; 
+      border-radius: 8px; 
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+    }
+    .tech-photo { max-width: 200px; border-radius: 8px; }
+    .tech-field { margin-bottom: 10px; }
+    .actions { margin-top: 20px; }
+    .btn { 
+      padding: 8px 12px; 
+      text-decoration: none; 
+      border-radius: 4px; 
+      margin-right: 10px; 
+    }
+    .btn-edit { background: #4CAF50; color: white; }
+    .btn-delete { background: #f44336; color: white; border: none; cursor: pointer; }
+    .btn-back { background: #2196F3; color: white; }
+  </style>
+</head>
+<body>
+  <div class="tech-card">
+    <h1><%= technician.mainTitle %></h1>
+
+    <!-- Display Photo -->
+    <% if (technician.jobTechnicianPhoto) { %>
+      <img 
+        src="/uploads/technicians/<%= technician.jobTechnicianPhoto %>" 
+        class="tech-photo" 
+        alt="<%= technician.mainTitle %>"
+      >
     <% } %>
-        <p><strong>Description:</strong>
-            <%= technician.description %>
-        </p>
-        <p><strong>Phone:</strong>
-            <%= technician.phoneNumber %>
-        </p>
-        <!-- Add other fields as needed -->
-        <div>
-            <a href="/technicians/<%= technician._id %>/edit">Edit</a>
-            <form action="/technicians/<%= technician._id %>?_method=DELETE" method="POST" style="display:inline;">
-                <button type="submit" onclick="return confirm('Delete this technician?')">Delete</button>
-            </form>
-            <a href="/technicians">Back to List</a>
-        </div>
+
+    <!-- Job Name (Assuming it's populated) -->
+    <div class="tech-field">
+      <strong>Job:</strong> 
+      <%= technician.jobName?.name || "Not specified" %>
+    </div>
+
+    <!-- Neighborhoods (Array of IDs or names) -->
+    <div class="tech-field">
+      <strong>Neighborhoods:</strong>
+      <% if (technician.neighborhoodNames?.length > 0) { %>
+        <%= technician.neighborhoodNames.map(n => n.name).join(", ") %>
+      <% } else { %>
+        Not specified
+      <% } %>
+    </div>
+
+    <!-- Description -->
+    <div class="tech-field">
+      <strong>Description:</strong><br>
+      <%= technician.description %>
+    </div>
+
+    <!-- Phone (Clickable link) -->
+    <div class="tech-field">
+      <strong>Phone:</strong> 
+      <a href="tel:<%= technician.phoneNumber %>"><%= technician.phoneNumber %></a>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="actions">
+      <a href="/technicians/<%= technician._id %>/edit" class="btn btn-edit">Edit</a>
+      <form action="/technicians/<%= technician._id %>?_method=DELETE" method="POST" style="display:inline;">
+        <button type="submit" class="btn btn-delete" onclick="return confirm('Delete this technician?')">Delete</button>
+      </form>
+      <a href="/technicians" class="btn btn-back">Back to List</a>
+    </div>
+  </div>
+</body>
+</html>

@@ -5,7 +5,9 @@ const Technician = require("../models/technician");
 // Get all technicians
 const getAllTechnicians = async (req, res) => {
   try {
-    const technicians = await Technician.find();
+    const technicians = await Technician.find().populate("jobName")
+  .populate("neighborhoodNames");;
+    console.log(technicians)
     res.render("technicians/index", { technicians });
   } catch (err) {
     console.error(err);
@@ -16,7 +18,8 @@ const getAllTechnicians = async (req, res) => {
 // Get technician by ID
 const getTechnicianById = async (req, res) => {
   try {
-    const technician = await Technician.findById(req.params.id);
+    const technician = await Technician.findById(req.params.id).populate("jobName")
+  .populate("neighborhoodNames");
     if (!technician) {
       return res.status(404).send("Technician not found");
     }
@@ -52,7 +55,7 @@ const createTechnician = async (req, res) => {
       jobTechnicianPhoto: req.file ? req.file.filename : null,
     });
     await technician.save();
-    res.redirect("technicians");
+    res.redirect("/technicians");
   } catch (err) {
     console.error(err);
     res.redirect("/technicians");
