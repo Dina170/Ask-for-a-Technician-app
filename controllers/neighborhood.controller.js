@@ -6,7 +6,7 @@ const Technician = require("../models/technician");
 const getAllNeighborhoods = async (req, res) => {
   try {
     const neighborhoods = await Neighborhood.find();
-    res.render("neighborhoods", { neighborhoods });
+    res.render("neighborhoods/index", { neighborhoods });
   } catch (err) {
     console.error(err);
     res.redirect("/neighborhoods");
@@ -20,7 +20,7 @@ const getNeighborhoodById = async (req, res) => {
     if (!neighborhood) {
       return res.status(404).send("Neighborhood not found");
     }
-    res.render("neighborhoodDetails", { neighborhood });
+    res.render("neighborhoods/show", { neighborhood });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error");
@@ -28,7 +28,7 @@ const getNeighborhoodById = async (req, res) => {
 };
 
 const newNeighborhood = (req, res) => {
-  res.render("neighborhoodsForm", { neighborhood: null });
+  res.render("neighborhoods/form", { neighborhood: null });
 };
 
 // Create a new neighborhood
@@ -40,14 +40,12 @@ const createNeighborhood = async (req, res) => {
       neighborhoodPhoto: req.file ? req.file.filename : null,
     });
     await neighborhood.save();
-    res.redirect("/neighborhoods");
+    res.redirect("neighborhoods");
   } catch (err) {
     console.error(err);
     res.redirect("/neighborhoods");
   }
 };
-
-
 
 const deleteAllNeighborhoods = async (req, res) => {
   await Neighborhood.deleteMany({});
@@ -62,7 +60,7 @@ const deleteNeighborhood = async (req, res) => {
 const editNeighborhood = async (req, res) => {
   try {
     const neighborhood = await Neighborhood.findById(req.params.id);
-    res.render("neighborhoodsForm", { neighborhood });
+    res.render("neighborhoods/form", { neighborhood });
   } catch (err) {
     console.error(err);
     res.redirect("/neighborhoods");
@@ -73,15 +71,11 @@ const updateNeighborhood = async (req, res) => {
   try {
     const { name } = req.body;
     const update = { name };
-    console.log(req.file);
 
-    if (req.file) {
-      console.log(`File uploaded: ${req.file.filename}`);
+    if (req.file) update.neighborhoodPhoto = req.file.filename;
 
-      update.neighborhoodPhoto = req.file.filename;
-    }
     await Neighborhood.findByIdAndUpdate(req.params.id, update, { new: true });
-    res.redirect(`/neighborhoods`);
+    res.redirect("/neighborhoods");
   } catch (err) {
     console.error(err);
     res.redirect("/neighborhoods");
@@ -96,5 +90,5 @@ module.exports = {
   getAllNeighborhoods,
   createNeighborhood,
   getNeighborhoodById,
-  newNeighborhood
+  newNeighborhood,
 };

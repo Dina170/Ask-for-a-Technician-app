@@ -10,16 +10,16 @@ const {
   editNeighborhood,
   updateNeighborhood,
   getAllNeighborhoods,
-  newNeighborhood
+  newNeighborhood,
 } = require("../controllers/Neighborhood.controller");
 
 router.get("/", getAllNeighborhoods);
 router.get("/new", newNeighborhood);
 router.post("/", upload.single("neighborhoodPhoto"), createNeighborhood);
 router.delete("/", deleteAllNeighborhoods);
-router.delete("/:id", deleteNeighborhood);
 router.get("/:id/edit", editNeighborhood);
-router.put("/:id", upload.single("neighborhoodPhoto"), updateNeighborhood);
 router.get("/:id", getNeighborhoodById);
+router.put("/:id", upload.single("neighborhoodPhoto"), updateNeighborhood);
+router.delete("/:id", deleteNeighborhood);
 
 module.exports = router;
