@@ -7,10 +7,9 @@
     <input type="file" name="neighborhoodPhoto" <%=neighborhood ? '' : 'required' %> >
     <button type="submit">Submit</button>
 </form> -->
-
 <h1><%= neighborhood ? "Edit" : "Add" %> Neighborhood</h1>
 
-<form action="<%= neighborhood ? '/neighborhoods/' + neighborhood._id + '?_method=PUT' : '/neighborhoods' %>"
+<form action="<%= neighborhood ? '/dashboard/neighborhoods/' + neighborhood._id + '?_method=PUT' : '/dashboard/neighborhoods' %>"
       method="POST"
       enctype="multipart/form-data">
   
@@ -27,4 +26,3 @@
 
   <button type="submit"><%= neighborhood ? "Update" : "Add" %></button>
 </form>
-

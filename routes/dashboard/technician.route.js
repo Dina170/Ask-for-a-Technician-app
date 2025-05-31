@@ -11,7 +11,7 @@ const {
   updateTechnician,
   getAllTechnicians,
   newTechnician,
-} = require("../controllers/Technician.controller");
+} = require("../../controllers/dashboard/technician.controller");
 
 router.get("/", getAllTechnicians);
 router.get("/new", newTechnician);

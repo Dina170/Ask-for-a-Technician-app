@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title><%= technician.mainTitle || 'Technician Details' %></title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
@@ -69,11 +69,11 @@
 
     <!-- Action Buttons -->
     <div class="actions">
-      <a href="/technicians/<%= technician._id %>/edit" class="btn btn-edit">Edit</a>
-      <form action="/technicians/<%= technician._id %>?_method=DELETE" method="POST" style="display:inline;">
+      <a href="/dashboard/technicians/<%= technician._id %>/edit" class="btn btn-edit">Edit</a>
+      <form action="/dashboard/technicians/<%= technician._id %>?_method=DELETE" method="POST" style="display:inline;">
         <button type="submit" class="btn btn-delete" onclick="return confirm('Delete this technician?')">Delete</button>
       </form>
-      <a href="/technicians" class="btn btn-back">Back to List</a>
+      <a href="/dashboard/technicians" class="btn btn-back">Back to List</a>
     </div>
   </div>
 </body>

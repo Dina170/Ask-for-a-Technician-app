@@ -1,5 +1,5 @@
 <h1>All Technicians</h1>
-<a href="/technicians/new">Add New Technician</a>
+<a href="/dashboard/technicians/new">Add New Technician</a>
 
 <ul>
   <% technicians.forEach(t => { %>
@@ -22,12 +22,13 @@
       <p><strong>Phone Number:</strong> <%= t.phoneNumber %></p>
 
       <div>
-        <a href="/technicians/<%= t._id %>">View</a>
-        <a href="/technicians/<%= t._id %>/edit">Edit</a>
-        <form action="/technicians/<%= t._id %>?_method=DELETE" method="POST" style="display:inline;">
+        <a href="/dashboard/technicians/<%= t._id %>">View</a>
+        <a href="/dashboard/technicians/<%= t._id %>/edit">Edit</a>
+        <form action="/dashboard/technicians/<%= t._id %>?_method=DELETE" method="POST" style="display:inline;">
           <button type="submit" onclick="return confirm('Delete this technician?')">Delete</button>
         </form>
       </div>
     </li>
   <% }) %>
 </ul>
+

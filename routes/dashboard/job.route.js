@@ -11,7 +11,7 @@ const {
   updateJob,
   deleteJob,
   deleteAllJobs
-} = require("../controllers/job.controller");
+} = require("../../controllers/dashboard/job.controller");
 
 // GET all jobs
 router.get("/", getAllJobs);

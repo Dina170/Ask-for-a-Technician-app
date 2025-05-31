@@ -2,14 +2,13 @@
   <%= job ? 'Edit' : 'Add' %> Job
 </h1>
 
-<form action="<%= job ? '/jobs/' + job._id + '?_method=PUT' : '/jobs' %>" method="POST" enctype="multipart/form-data">
+<form action="<%= job ? '/dashboard/jobs/' + job._id + '?_method=PUT' : '/dashboard/jobs' %>" method="POST" enctype="multipart/form-data">
   <input type="text" name="name" placeholder="Job Name" value="<%= job?.name || '' %>" required>
 
   <select name="neighborhoodName" required>
     <% neighborhoods.forEach(n=> { %>
-      <option value="<%= n._id %>" <%=job && job.neighborhoodName?.equals(n._id) ? 'selected' : '' %>><%= n.name %>
-      </option>
-      <% }) %>
+      <option value="<%= n._id %>" <%=job && job.neighborhoodName?.equals(n._id) ? 'selected' : '' %>><%= n.name %></option>
+    <% }) %>
   </select>
 
   <input type="file" name="jobPhoto" <%=job ? '' : 'required' %> >

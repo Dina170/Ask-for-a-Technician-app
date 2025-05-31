@@ -11,7 +11,7 @@ const {
   updateNeighborhood,
   getAllNeighborhoods,
   newNeighborhood,
-} = require("../controllers/Neighborhood.controller");
+} = require("../../controllers/dashboard/neighborhood.controller");
 
 router.get("/", getAllNeighborhoods);
 router.get("/new", newNeighborhood);
