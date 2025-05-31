@@ -35,12 +35,17 @@
   <h1>Neighborhoods of <%= technician.mainTitle %></h1>
 
   <div>
-    <% technician.neighborhoodNames.forEach(neigh => { %>
+    <% neighborhoodsWithJobs.forEach(({ neighborhood, job }) => { %>
       <div class="neighborhood-card">
-        <a href="/technicians/<%= technician._id %>/neighborhoods/<%= neigh._id %>">
-          <img src="/uploads/neighborhoods/<%= neigh.neighborhoodPhoto %>" alt="<%= neigh.name %>" />
-          <h3><%= neigh.name %></h3>
-          <p><%= technician.jobName ? technician.jobName.mainDescription : '' %></p>
+        <a href="/technicians/<%= technician._id %>/neighborhoods/<%= neighborhood._id %>">
+          <img src="/uploads/neighborhoods/<%= neighborhood.neighborhoodPhoto %>" alt="<%= neighborhood.name %>" />
+          <h3><%= neighborhood.name %></h3>
+          <% if (job) { %>
+            <p><%= job.mainDescription %></p>
+            <!-- Add more job fields as you want -->
+          <% } else { %>
+            <p>No job details for this neighborhood.</p>
+          <% } %>
         </a>
       </div>
     <% }) %>

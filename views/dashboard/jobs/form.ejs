@@ -2,16 +2,24 @@
   <%= job ? 'Edit' : 'Add' %> Job
 </h1>
 
+<% if (typeof error !== 'undefined') { %>
+  <div style="color: red; margin-bottom: 1rem;">
+    <%= error %>
+  </div>
+<% } %>
+
 <form action="<%= job ? '/dashboard/jobs/' + job._id + '?_method=PUT' : '/dashboard/jobs' %>" method="POST" enctype="multipart/form-data">
   <input type="text" name="name" placeholder="Job Name" value="<%= job?.name || '' %>" required>
 
   <select name="neighborhoodName" required>
-    <% neighborhoods.forEach(n=> { %>
-      <option value="<%= n._id %>" <%=job && job.neighborhoodName?.equals(n._id) ? 'selected' : '' %>><%= n.name %></option>
+    <% neighborhoods.forEach(n => { %>
+      <option value="<%= n._id %>" <%= job && job.neighborhoodName?.equals(n._id) ? 'selected' : '' %>>
+        <%= n.name %>
+      </option>
     <% }) %>
   </select>
 
-  <input type="file" name="jobPhoto" <%=job ? '' : 'required' %> >
+  <input type="file" name="jobPhoto" <%= job ? '' : 'required' %>>
 
   <textarea name="mainDescription" placeholder="Main Description" required><%= job?.mainDescription || '' %></textarea>
   <textarea name="subDescription" placeholder="Sub Description"><%= job?.subDescription || '' %></textarea>
@@ -20,3 +28,4 @@
     <%= job ? 'Update' : 'Create' %>
   </button>
 </form>
+

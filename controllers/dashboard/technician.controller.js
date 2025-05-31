@@ -33,15 +33,34 @@ const getTechnicianById = async (req, res) => {
   }
 };
 
+// Helper function to get job neighborhood map
+const getJobNeighborhoodMap = async () => {
+  const jobsWithNeighborhoods = await Job.find().populate('neighborhoodName');
+  const jobNeighborhoodMap = {};
+  
+  jobsWithNeighborhoods.forEach(job => {
+    if (!jobNeighborhoodMap[job.name]) {
+      jobNeighborhoodMap[job.name] = [];
+    }
+    if (job.neighborhoodName) {
+      jobNeighborhoodMap[job.name].push(job.neighborhoodName);
+    }
+  });
+  
+  return jobNeighborhoodMap;
+};
+
 // Render new technician form
 const newTechnician = async (req, res) => {
   try {
-    const jobs = await Job.find();
-    const neighborhoods = await Neighborhood.find();
+    const jobNames = await Job.distinct('name');
+    const jobNeighborhoodMap = await getJobNeighborhoodMap();
+    
     res.render("dashboard/technicians/form", { 
       technician: null, 
-      jobs, 
-      neighborhoods,
+      jobNames,
+      neighborhoods: [], // Empty initially, will be populated by JS
+      jobNeighborhoodMap: JSON.stringify(jobNeighborhoodMap),
       error: null
     });
   } catch (err) {
@@ -53,26 +72,19 @@ const newTechnician = async (req, res) => {
 // Create a new technician
 const createTechnician = async (req, res) => {
   try {
-    const { jobName, neighborhoodNames, mainTitle, description, phoneNumber } = req.body;
-    
-    // Validate required fields
-    if (!jobName || !mainTitle || !phoneNumber || !req.file) {
-      const jobs = await Job.find();
-      const neighborhoods = await Neighborhood.find();
-      return res.render("dashboard/technicians/form", {
-        technician: null,
-        jobs,
-        neighborhoods,
-        error: "Job, title, phone number and photo are required"
-      });
+    const job = await Job.findOne({ name: req.body.jobName });
+    if (!job) {
+      throw new Error('Job not found');
     }
 
     const technician = new Technician({
-      jobName,
-      neighborhoodNames: Array.isArray(neighborhoodNames) ? neighborhoodNames : [neighborhoodNames],
-      mainTitle,
-      description,
-      phoneNumber,
+      jobName: job._id,
+      neighborhoodNames: Array.isArray(req.body.neighborhoodNames) 
+        ? req.body.neighborhoodNames 
+        : [req.body.neighborhoodNames],
+      mainTitle: req.body.mainTitle,
+      description: req.body.description,
+      phoneNumber: req.body.phoneNumber,
       jobTechnicianPhoto: req.file.filename
     });
 
@@ -80,13 +92,87 @@ const createTechnician = async (req, res) => {
     res.redirect("/dashboard/technicians");
   } catch (err) {
     console.error(err);
-    const jobs = await Job.find();
-    const neighborhoods = await Neighborhood.find();
+    const jobNames = await Job.distinct('name');
+    const jobNeighborhoodMap = await getJobNeighborhoodMap();
+    
     res.render("dashboard/technicians/form", {
       technician: null,
-      jobs,
-      neighborhoods,
-      error: "Failed to create technician"
+      jobNames,
+      neighborhoods: [],
+      jobNeighborhoodMap: JSON.stringify(jobNeighborhoodMap),
+      error: err.message
+    });
+  }
+};
+
+// Render edit technician form
+const editTechnician = async (req, res) => {
+  try {
+    const technician = await Technician.findById(req.params.id)
+      .populate('jobName')
+      .populate('neighborhoodNames');
+    
+    if (!technician) {
+      return res.redirect("/dashboard/technicians");
+    }
+    
+    const jobNames = await Job.distinct('name');
+    const jobNeighborhoodMap = await getJobNeighborhoodMap();
+    const allNeighborhoods = await Neighborhood.find();
+    
+    res.render("dashboard/technicians/form", { 
+      technician,
+      jobNames,
+      neighborhoods: allNeighborhoods,
+      jobNeighborhoodMap: JSON.stringify(jobNeighborhoodMap),
+      error: null
+    });
+  } catch (err) {
+    console.error(err);
+    res.redirect("/dashboard/technicians");
+  }
+};
+
+// Update technician
+const updateTechnician = async (req, res) => {
+  try {
+    const technician = await Technician.findById(req.params.id);
+    if (!technician) {
+      return res.redirect("/dashboard/technicians");
+    }
+
+    const job = await Job.findOne({ name: req.body.jobName });
+    if (!job) {
+      throw new Error('Job not found');
+    }
+
+    technician.jobName = job._id;
+    technician.neighborhoodNames = Array.isArray(req.body.neighborhoodNames) 
+      ? req.body.neighborhoodNames 
+      : [req.body.neighborhoodNames];
+    technician.mainTitle = req.body.mainTitle;
+    technician.description = req.body.description;
+    technician.phoneNumber = req.body.phoneNumber;
+    
+    if (req.file) {
+      technician.jobTechnicianPhoto = req.file.filename;
+    }
+
+    await technician.save();
+    res.redirect("/dashboard/technicians");
+  } catch (err) {
+    console.error(err);
+    const jobNames = await Job.distinct('name');
+    const jobNeighborhoodMap = await getJobNeighborhoodMap();
+    const allNeighborhoods = await Neighborhood.find();
+    const technician = await Technician.findById(req.params.id);
+    
+    res.render("dashboard/technicians/form", {
+      technician,
+      jobNames,
+      neighborhoods: allNeighborhoods,
+      jobNeighborhoodMap: JSON.stringify(jobNeighborhoodMap),
+      error: err.message
     });
   }
 };
@@ -110,57 +196,6 @@ const deleteTechnician = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/technicians");
-  }
-};
-
-// Render edit technician form
-const editTechnician = async (req, res) => {
-  try {
-    const technician = await Technician.findById(req.params.id);
-    const jobs = await Job.find();
-    const neighborhoods = await Neighborhood.find();
-    
-    if (!technician) {
-      return res.redirect("/dashboard/technicians");
-    }
-    
-    res.render("dashboard/technicians/form", { 
-      technician, 
-      jobs, 
-      neighborhoods,
-      error: null
-    });
-  } catch (err) {
-    console.error(err);
-    res.redirect("/dashboard/technicians");
-  }
-};
-
-// Update technician
-const updateTechnician = async (req, res) => {
-  try {
-    const technician = await Technician.findById(req.params.id);
-    if (!technician) {
-      return res.redirect("/dashboard/technicians");
-    }
-
-    technician.jobName = req.body.jobName;
-    technician.neighborhoodNames = Array.isArray(req.body.neighborhoodNames) 
-      ? req.body.neighborhoodNames 
-      : [req.body.neighborhoodNames];
-    technician.mainTitle = req.body.mainTitle;
-    technician.description = req.body.description;
-    technician.phoneNumber = req.body.phoneNumber;
-    
-    if (req.file) {
-      technician.jobTechnicianPhoto = req.file.filename;
-    }
-
-    await technician.save();
-    res.redirect("/dashboard/technicians");
-  } catch (err) {
-    console.error(err);
-    res.redirect(`/dashboard/technicians/${req.params.id}/edit`);
   }
 };
 

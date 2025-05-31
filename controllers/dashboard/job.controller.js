@@ -16,13 +16,13 @@ const renderNewJobForm = async (req, res) => {
 const createJob = async (req, res) => {
   try {
     const { name, neighborhoodName, mainDescription, subDescription } = req.body;
-    
+
     if (!name || !neighborhoodName || !mainDescription || !req.file) {
       const neighborhoods = await Neighborhood.find();
       return res.render("dashboard/jobs/form", {
         job: null,
         neighborhoods,
-        error: "All fields are required including the job photo"
+        error: "All fields are required including the job photo",
       });
     }
 
@@ -34,15 +34,27 @@ const createJob = async (req, res) => {
       jobPhoto: req.file.filename,
     });
 
-    await newJob.save();
-    res.redirect("/dashboard/jobs");
+    try {
+      await newJob.save();
+      res.redirect("/dashboard/jobs");
+    } catch (err) {
+      if (err.code === 11000) {
+        const neighborhoods = await Neighborhood.find();
+        return res.render("dashboard/jobs/form", {
+          job: null,
+          neighborhoods,
+          error: "This job already exists in the selected neighborhood.",
+        });
+      }
+      throw err;
+    }
   } catch (err) {
     console.error(err);
     const neighborhoods = await Neighborhood.find();
     res.render("dashboard/jobs/form", {
       job: null,
       neighborhoods,
-      error: "Failed to create job"
+      error: "Failed to create job",
     });
   }
 };
@@ -104,8 +116,20 @@ const updateJob = async (req, res) => {
       job.jobPhoto = req.file.filename;
     }
 
-    await job.save();
-    res.redirect("/dashboard/jobs");
+    try {
+      await job.save();
+      res.redirect("/dashboard/jobs");
+    } catch (err) {
+      if (err.code === 11000) {
+        const neighborhoods = await Neighborhood.find();
+        return res.render("dashboard/jobs/form", {
+          job,
+          neighborhoods,
+          error: "A job with this name already exists in the selected neighborhood.",
+        });
+      }
+      throw err;
+    }
   } catch (err) {
     console.error(err);
     res.redirect(`/dashboard/jobs/${req.params.id}/edit`);

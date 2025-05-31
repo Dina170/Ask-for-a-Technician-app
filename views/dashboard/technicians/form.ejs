@@ -6,10 +6,12 @@
     enctype="multipart/form-data">
 
     <label for="jobName">Job:</label>
-    <select name="jobName" required>
+    <select name="jobName" id="jobName" required>
         <option value="">Select a job</option>
-        <% jobs.forEach(j=> { %>
-            <option value="<%= j._id %>" <%=technician && technician.jobName?.equals(j._id) ? 'selected' : '' %>><%= j.name %>
+        <% jobNames.forEach(jobName => { %>
+            <option value="<%= jobName %>" 
+                <%= technician && technician.jobName?.name === jobName ? 'selected' : '' %>>
+                <%= jobName %>
             </option>
         <% }) %>
     </select>
@@ -18,11 +20,15 @@
     <div class="form-group">
         <label for="neighborhoodNames">Neighborhoods (Hold Ctrl/Cmd to select multiple):</label>
         <select name="neighborhoodNames" id="neighborhoodNames" multiple required>
-            <% neighborhoods.forEach(n=> { %>
-                <option value="<%= n._id %>" <%=technician && technician.neighborhoodNames?.some(nId => nId.equals(n._id)) ? 'selected' : '' %>>
-                    <%= n.name %>
-                </option>
-            <% }) %>
+            <!-- Will be populated by JavaScript -->
+            <% if (technician && technician.neighborhoodNames) { %>
+                <% neighborhoods.forEach(n => { %>
+                    <option value="<%= n._id %>" 
+                        <%= technician.neighborhoodNames.some(nId => nId.equals(n._id)) ? 'selected' : '' %>>
+                        <%= n.name %>
+                    </option>
+                <% }) %>
+            <% } %>
         </select>
     </div>
 
@@ -50,3 +56,34 @@
 </form>
 
 <a href="/dashboard/technicians">Back to List</a>
+
+<script>
+    const jobNeighborhoodMap = JSON.parse('<%- jobNeighborhoodMap %>');
+    const jobSelect = document.getElementById('jobName');
+    const neighborhoodSelect = document.getElementById('neighborhoodNames');
+    
+    jobSelect.addEventListener('change', function() {
+        const selectedJob = this.value;
+        neighborhoodSelect.innerHTML = '';
+        
+        if (selectedJob && jobNeighborhoodMap[selectedJob]) {
+            jobNeighborhoodMap[selectedJob].forEach(neighborhood => {
+                const option = document.createElement('option');
+                option.value = neighborhood._id;
+                option.textContent = neighborhood.name;
+                
+                <% if (technician && technician.neighborhoodNames) { %>
+                    if (<%= technician.neighborhoodNames.map(n => n.toString()).includes('" + neighborhood._id + "') %>) {
+                        option.selected = true;
+                    }
+                <% } %>
+                
+                neighborhoodSelect.appendChild(option);
+            });
+        }
+    });
+    
+    <% if (technician && technician.jobName) { %>
+        jobSelect.dispatchEvent(new Event('change'));
+    <% } %>
+</script>
