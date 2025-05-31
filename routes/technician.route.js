@@ -1,7 +1,25 @@
-const router = require('express').Router();
+const router = require("express").Router();
+const multer = require("multer");
+const upload = multer({ dest: "uploads/technicians" });
 
-router.get('/', async (req, res, next) => {
-  res.send({ message: 'Ok api is working technician🚀' });
-});
+const {
+  getTechnicianById,
+  createTechnician,
+  deleteAllTechnicians,
+  deleteTechnician,
+  editTechnician,
+  updateTechnician,
+  getAllTechnicians,
+  newTechnician,
+} = require("../controllers/Technician.controller");
+
+router.get("/", getAllTechnicians);
+router.get("/new", newTechnician);
+router.post("/", upload.single("jobTechnicianPhoto"), createTechnician);
+router.delete("/", deleteAllTechnicians);
+router.get("/:id/edit", editTechnician);
+router.get("/:id", getTechnicianById);
+router.put("/:id", upload.single("jobTechnicianPhoto"), updateTechnician);
+router.delete("/:id", deleteTechnician);
 
 module.exports = router;

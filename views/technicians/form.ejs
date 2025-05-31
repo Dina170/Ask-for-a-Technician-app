@@ -1,0 +1,50 @@
+<h1>
+    <%= technician ? "Edit" : "Add" %> Technician
+</h1>
+
+<form action="<%= technician ? '/technicians/' + technician._id + '?_method=PUT' : '/technicians' %>" method="POST"
+    enctype="multipart/form-data">
+
+    <label for="jobName">Job:</label>
+    <select name="jobName" required>
+        <option value="">Select a job</option>
+        <% jobs.forEach(j=> { %>
+            <option value="<%= j._id %>" <%=technician && technician.jobName?.equals(j._id) ? 'selected' : '' %>><%=
+                    j.name %>
+            </option>
+            <% }) %>
+    </select>
+
+    <label for="neighborhoodNames">Neighborhoods:</label>
+    <select name="neighborhoodNames" multiple required>
+        <% neighborhoods.forEach(n=> { %>
+            <option value="<%= n._id %>" <%=technician && technician.neighborhoodNames?.some(nId=> nId.equals(n._id)) ?
+                'selected' : '' %>><%= n.name %>
+            </option>
+            <% }) %>
+    </select>
+
+    <label for="mainTitle">Main Title:</label>
+    <input type="text" name="mainTitle" value="<%= technician?.mainTitle || '' %>" required>
+
+    <label for="description">Description:</label>
+    <textarea name="description" required><%= technician?.description || '' %></textarea>
+
+    <label for="phoneNumber">Phone Number:</label>
+    <input type="tel" name="phoneNumber" value="<%= technician?.phoneNumber || '' %>"
+        placeholder="+9665xxxxxxxx or 05xxxxxxxx">
+
+    <% if (technician && technician.jobTechnicianPhoto) { %>
+        <p>Current Photo:</p>
+        <img src="/uploads/technicians/<%= technician.jobTechnicianPhoto %>" width="150">
+        <% } %>
+
+            <label for="jobTechnicianPhoto">Upload Photo:</label>
+            <input type="file" name="jobTechnicianPhoto" <%=technician ? '' : 'required' %>>
+
+            <button type="submit">
+                <%= technician ? "Update" : "Add" %>
+            </button>
+</form>
+
+<a href="/technicians">Back to List</a>

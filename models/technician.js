@@ -1,8 +1,12 @@
 const mongoose = require("mongoose");
 const TechnicianSchema = new mongoose.Schema({
-  jobName: { type: mongoose.Schema.Types.ObjectId, ref: 'Job', required: true }, // dropdown
+  jobName: { type: mongoose.Schema.Types.ObjectId, ref: "Job", required: true }, // dropdown
   neighborhoodNames: [
-    { type: mongoose.Schema.Types.ObjectId, ref: "Neighborhood", required: true }, // only neighborhoods that contain this job
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Neighborhood",
+      required: true,
+    }, // only neighborhoods that contain this job
   ],
   jobTechnicianPhoto: { type: String, required: true },
   mainTitle: { type: String, required: true },
