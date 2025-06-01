@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,7 +31,7 @@
                 <path d="M12.2988 37.7646C10.1634 35.6292 10.1634 32.1553 12.2988 30.0199C13.3192 28.9995 14.6863 28.4307 16.1147 28.4164L24.1284 20.4027C23.4557 17.8019 24.1743 14.9833 26.1414 13.0157C28.4334 10.7237 31.9443 10.11 34.8769 11.4893C35.5776 11.819 35.738 12.7445 35.1914 13.2906L31.594 16.8881L33.1748 18.4683L36.7722 14.8709C37.3199 14.3232 38.2448 14.4863 38.5741 15.1854C39.9533 18.118 39.3397 21.6289 37.0476 23.9209C35.0848 25.8838 32.2667 26.6077 29.6607 25.9339L21.6469 33.9471C21.6332 35.3754 21.0644 36.7425 20.044 37.763C17.9081 39.8999 14.4341 39.8999 12.2988 37.7646ZM16.1695 30.652C15.3121 30.652 14.4906 30.9892 13.8791 31.6007C12.6154 32.8644 12.6154 34.9206 13.8791 36.1843C15.1427 37.448 17.199 37.448 18.4626 36.1843C19.1428 35.5036 19.4841 34.5629 19.3981 33.6026C19.3686 33.2728 19.4868 32.9472 19.7211 32.713L28.5548 23.8793C28.8613 23.5727 29.3177 23.4714 29.7256 23.6186C31.7158 24.3388 33.9694 23.8386 35.4658 22.3417C36.6814 21.1261 37.2323 19.4281 37.0255 17.7787L33.9641 20.8401C33.5278 21.2764 32.8202 21.2764 32.3838 20.8401L29.2228 17.679C28.7864 17.2426 28.7864 16.5345 29.2228 16.0982L32.2841 13.0368C30.6347 12.83 28.9368 13.3809 27.7211 14.5965C26.2247 16.0924 25.724 18.3459 26.4442 20.3367C26.592 20.7446 26.4901 21.2004 26.1836 21.5075L17.3499 30.3418C16.923 30.7697 16.445 30.652 16.1695 30.652ZM16.9626 33.1008C16.5262 32.6644 15.8187 32.6644 15.3823 33.1008C14.9459 33.5371 14.9459 34.2447 15.3823 34.6811C15.8187 35.1174 16.5262 35.1174 16.9626 34.6811C17.3989 34.2447 17.3989 33.5371 16.9626 33.1008Z" fill="white" />
             </svg>
             <ul class="my-6">
-                <li><a href="#" class="block  my-1 w-30 px-4 py-2 rounded-[7px] text-right bg-white hover:cursor-pointer text-blue-900 transition-colors duration-200">الأحياء</a></li>
+                <li><a href="/dashboard/neighborhoods/" class="block my-2 w-30 px-4 py-2 rounded-[7px] text-right hover:bg-white hover:cursor-pointer hover:text-blue-900 transition-colors duration-200">الأحياء</a></li>
                 <li><a href="#" class="block my-2 w-30 px-4 py-2 rounded-[7px] text-right hover:bg-white hover:cursor-pointer hover:text-blue-900 transition-colors duration-200">مهن الأحياء</a></li>
                 <li><a href="#" class="block my-1 w-30 px-4 py-2 rounded-[7px] text-right hover:bg-white hover:cursor-pointer hover:text-blue-900 transition-colors duration-200">الفنيين</a></li>
             </ul>
@@ -44,5 +43,21 @@
         </div>
     </main>
 </body>
+<script>
+  const currentURL = window.location.href;
 
+  const navLinks = document.querySelectorAll("nav ul li a");
+
+  // Conditions based on keywords
+  if (currentURL.includes("neighborhoods")) {
+    navLinks[0].classList.add("bg-white", "text-blue-900");
+    navLinks[0].classList.remove("text-white");
+  } else if (currentURL.includes("technicians")) {
+    navLinks[2].classList.add("bg-white", "text-blue-900");
+    navLinks[2].classList.remove("text-white");
+  } else if (currentURL.includes("jobs")) {
+    navLinks[1].classList.add("bg-white", "text-blue-900");
+    navLinks[1].classList.remove("text-white");
+  }
+</script>
 </html>

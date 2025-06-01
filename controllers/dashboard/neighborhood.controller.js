@@ -20,7 +20,7 @@ const getNeighborhoodById = async (req, res) => {
     if (!neighborhood) {
       return res.redirect("/dashboard/neighborhoods");
     }
-    res.render("dashboard/neighborhoods/show", { neighborhood });
+    res.render("dashboard/neighborhoods/show", { neighborhood,layout: 'dashboard/layouts/neighborhood-nav'  });
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods");
