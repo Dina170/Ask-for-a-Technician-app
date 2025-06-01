@@ -4,7 +4,7 @@ const morgan = require("morgan");
 const mongoose = require("mongoose");
 const methodOverride = require("method-override");
 require("dotenv").config();
-
+const expressLayouts = require('express-ejs-layouts');
 const app = express();
 const neighborhoodRouter = require("./routes/dashboard/neighborhood.route");
 const jobRouter = require("./routes/dashboard/job.route");
@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(morgan("dev"));
 app.use(methodOverride("_method"));
 app.set("view engine", "ejs");
-
+app.use(expressLayouts);
 // Serve files from the uploads folder statically
 app.use('/uploads', express.static('uploads'));
 

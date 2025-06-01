@@ -1,28 +1,187 @@
-<!-- <h1>
-    <%= neighborhood ? 'Edit' : 'Add' %> Neighborhood
-</h1>
-<form action="<%= neighborhood ? '/neighborhoods/' + neighborhood._id + '?_method=PUT' : '/neighborhoods' %>"
-    method="POST" enctype="multipart/form-data">
-    <input type="text" name="name" placeholder="Name" value="<%= neighborhood?.name || '' %>" required>
-    <input type="file" name="neighborhoodPhoto" <%=neighborhood ? '' : 'required' %> >
-    <button type="submit">Submit</button>
-</form> -->
-<h1><%= neighborhood ? "Edit" : "Add" %> Neighborhood</h1>
+<!--error from back-->
+<% if (typeof error !== 'undefined' && error) { %>
+<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+  <strong class="font-bold">Error:</strong>
+  <span class="block sm:inline"><%= error %></span>
+</div>
+<% } %>
 
-<form action="<%= neighborhood ? '/dashboard/neighborhoods/' + neighborhood._id + '?_method=PUT' : '/dashboard/neighborhoods' %>"
-      method="POST"
-      enctype="multipart/form-data">
-  
-  <label for="name">Name:</label>
-  <input type="text" name="name" value="<%= neighborhood?.name || '' %>" required>
+<div class="rounded-tl-3xl shadow-md border p-5 h-[100%]"> 
 
-  <% if (neighborhood && neighborhood.neighborhoodPhoto) { %>
-    <p>Current Photo:</p>
-    <img src="/uploads/neighborhoods/<%= neighborhood.neighborhoodPhoto %>" width="150">
-  <% } %>
+  <div class="mb-6 px-6">
+    <h1 class="text-xl font-bold my-1 text-right"><%= neighborhood ? "تعديل حي" : "إضافة حي" %></h1>
+    <p class="text-gray-600 text-right">الأحياء - <%= neighborhood ? "تعديل حي" : "إضافة حي" %></p>
+  </div>
+  <form id="neighborhoodForm"
+        action="<%= neighborhood ? '/dashboard/neighborhoods/' + neighborhood._id + '?_method=PUT' : '/dashboard/neighborhoods' %>"
+        method="POST"
+        enctype="multipart/form-data">
 
-  <label for="neighborhoodPhoto">Upload Photo:</label>
-  <input type="file" name="neighborhoodPhoto" <%= neighborhood ? '' : 'required' %>>
+    <div class="bg-white rounded-lg px-6 py-2">
+      <!-- Name input -->
+      <div class="mb-6">
+        <label class="block text-right mb-2 required font-medium">اسم حي</label>
+        <input type="text" name="name"
+               class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1"
+               placeholder="ادخل اسم الحي"
+               id="neighborhoodName"
+               value="<%= neighborhood?.name || '' %>">
+        <div id="nameError" class="text-red-500 text-sm mt-1 text-right font-medium"></div>
+      </div>
 
-  <button type="submit"><%= neighborhood ? "Update" : "Add" %></button>
-</form>
+      <!-- Image upload -->
+      <div class="mb-10">
+        <label class="block text-right mb-2 required font-medium">صورة حي</label>
+
+        <% if (neighborhood && neighborhood.neighborhoodPhoto) { %>
+          <!-- EDIT MODE -->
+          <div id="editPreview" class="px-4 w-full h-10 rounded-md flex items-center relative border">
+            <img src="/uploads/neighborhoods/<%= neighborhood.neighborhoodPhoto %>" 
+                 class="w-8 h-8 object-cover rounded-md border" 
+                 id="editImg">
+                 <span class="absolute top-0 left-0 bg-white w-10 h-9 text-red-500 rounded-full p-1 text-xs cursor-pointer flex justify-center z-40 items-center"
+                  onclick="
+                  document.getElementById('editPreview').classList.add('hidden');
+                  document.getElementById('uploadInputEdit').classList.remove('hidden');
+                  const fileInputEdit = document.getElementById('fileInputEdit');
+                  if (fileInputEdit) fileInputEdit.value = '';">
+              <i class="fa-solid fa-trash"></i>
+            </span>
+            
+          </div>
+          <div id="uploadInputEdit" class="hidden flex border rounded-lg">
+            <div class="px-4 w-full h-10 rounded-md flex items-center relative">
+              <button type="button" class="relative w-full flex items-center justify-between">
+                <i class="fa-solid fa-cloud-arrow-up text-gray-500"></i>
+                <span class="text-gray-800 border rounded-md px-1 py-0.5 border-gray-800 text-xs hover:bg-gray-700 hover:text-white">حدد الملف</span>
+              </button>
+            </div>
+          </div>
+          <input type="file" name="neighborhoodPhoto" id="fileInputEdit" class="hidden">
+        <% } else { %>
+          <!-- ADD MODE -->
+          <div id="addPreview" class="relative hidden w-32 h-32 border border-gray-300 rounded-md bg-gray-100 mb-4"></div>
+          <div id="uploadInputAdd" class="flex border rounded-lg">
+            <div class="px-4 w-full h-10 rounded-md flex items-center relative">
+              <button type="button" class="relative w-full flex items-center justify-between">
+                <i class="fa-solid fa-cloud-arrow-up text-gray-500"></i>
+                <span class="text-gray-800 border rounded-md px-1 py-0.5 border-gray-800 text-xs hover:bg-gray-700 hover:text-white">حدد الملف</span>
+              </button>
+            </div>
+          </div>
+          <input type="file" name="neighborhoodPhoto" id="fileInputAdd" class="hidden">
+        <% } %>
+
+        <div id="photoError" class="text-red-500 text-sm mt-1 text-right font-medium"></div>
+      </div>
+
+      <div class="flex justify-between mt-10">
+        <button type="submit" class="bg-gray-400 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-md w-[45%] text-center flex items-center justify-center">
+          <i class="fa-regular fa-square-check me-2"></i><%= neighborhood ? "تحديث" : "حفظ" %>
+        </button>
+        <a href="/dashboard/neighborhoods" class="bg-white border border-gray-700 hover:bg-gray-700 hover:text-white text-gray-800 font-bold py-3 px-4 rounded-md flex items-center justify-center w-[45%]">
+          رجوع <i class="fa-solid fa-arrow-left ms-2"></i>
+        </a>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  const isEdit = <%= neighborhood ? 'true' : 'false' %>;
+  const fileInputId = isEdit ? 'fileInputEdit' : 'fileInputAdd';
+  const uploadBtnId = isEdit ? 'uploadInputEdit' : 'uploadInputAdd';
+  const fileInput = document.getElementById(fileInputId);
+
+  fileInput.addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = event => {
+      if (isEdit) {
+        const editPreview = document.getElementById('editPreview');
+        const img = editPreview.querySelector('img');
+        img.src = event.target.result;
+
+        editPreview.classList.remove('hidden');
+        document.getElementById('uploadInputEdit').classList.add('hidden');
+      } else {
+        const addPreview = document.getElementById('addPreview');
+        addPreview.innerHTML = '';
+
+        const img = document.createElement('img');
+        img.src = event.target.result;
+        img.className = 'w-full h-full object-cover rounded-md';
+
+        const deleteIcon = document.createElement('span');
+        deleteIcon.innerHTML = '&times;';
+        deleteIcon.className = 'absolute top-1.5 right-1 bg-gray-100 font-medium w-5 h-5 text-gray-700 rounded-full flex justify-center items-center cursor-pointer text-lg';
+        deleteIcon.onclick = () => {
+          addPreview.innerHTML = '';
+          addPreview.classList.add('hidden');
+          document.getElementById('uploadInputAdd').classList.remove('hidden');
+          document.getElementById('fileInputAdd').value = '';
+        };
+
+        addPreview.appendChild(img);
+        addPreview.appendChild(deleteIcon);
+        addPreview.classList.remove('hidden');
+        document.getElementById('uploadInputAdd').classList.add('hidden');
+      }
+    };
+
+    reader.readAsDataURL(file);
+  });
+
+  document.getElementById('neighborhoodForm').addEventListener('submit', function (e) {
+    const nameInput = document.getElementById('neighborhoodName');
+    const currentFileInput = document.getElementById(fileInputId);
+    const hasOldPhoto = <%= neighborhood && neighborhood.neighborhoodPhoto ? 'true' : 'false' %>;
+
+    document.getElementById('nameError').textContent = '';
+    document.getElementById('photoError').textContent = '';
+
+    let valid = true;
+
+    if (!nameInput.value.trim()) {
+      valid = false;
+      document.getElementById('nameError').textContent = 'اسم الحي مطلوب.';
+    } else if (nameInput.value.trim().length < 5) {
+      valid = false;
+      document.getElementById('nameError').textContent = 'اسم الحي يجب أن يكون على الأقل 5 حروف.';
+    }
+
+    const editPreviewVisible = isEdit && !document.getElementById('editPreview')?.classList.contains('hidden');
+    const addPreviewVisible = !isEdit && !document.getElementById('addPreview')?.classList.contains('hidden');
+
+    if (!isEdit && !addPreviewVisible && currentFileInput.files.length === 0) {
+      valid = false;
+      document.getElementById('photoError').textContent = 'يجب رفع صورة للحي.';
+    } else if (isEdit && !editPreviewVisible && currentFileInput.files.length === 0) {
+      valid = false;
+      document.getElementById('photoError').textContent = 'يجب رفع صورة جديدة لأنك حذفت الصورة القديمة.';
+    } else if (currentFileInput.files.length > 0) {
+      const file = currentFileInput.files[0];
+      const validImageTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+
+      if (!validImageTypes.includes(file.type)) {
+        valid = false;
+        document.getElementById('photoError').textContent = 'الملف يجب أن يكون صورة بصيغة JPG أو PNG أو WebP.';
+      }
+    }
+
+    if (!valid) {
+      e.preventDefault();
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const uploadBtn = document.querySelector(`#${uploadBtnId} button`);
+    if (uploadBtn) {
+      uploadBtn.addEventListener('click', () => {
+        fileInput.click();
+      });
+    }
+  });
+</script>

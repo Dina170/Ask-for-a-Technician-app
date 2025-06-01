@@ -6,7 +6,7 @@ const Technician = require("../../models/technician");
 const getAllNeighborhoods = async (req, res) => {
   try {
     const neighborhoods = await Neighborhood.find();
-    res.render("dashboard/neighborhoods/index", { neighborhoods });
+    res.render("dashboard/neighborhoods/index", { neighborhoods,layout: false  });
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods");
@@ -29,7 +29,7 @@ const getNeighborhoodById = async (req, res) => {
 
 // Render new neighborhood form
 const newNeighborhood = (req, res) => {
-  res.render("dashboard/neighborhoods/form", { neighborhood: null });
+  res.render("dashboard/neighborhoods/form", { neighborhood: null,layout: 'dashboard/layouts/neighborhood-nav' });
 };
 
 // Create a new neighborhood
@@ -54,6 +54,7 @@ const createNeighborhood = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.render("dashboard/neighborhoods/form", {
+      layout:'dashboard/layouts/neighborhood-nav',
       neighborhood: null,
       error: "Failed to create neighborhood"
     });
@@ -89,7 +90,7 @@ const editNeighborhood = async (req, res) => {
     if (!neighborhood) {
       return res.redirect("/dashboard/neighborhoods");
     }
-    res.render("dashboard/neighborhoods/form", { neighborhood });
+    res.render("dashboard/neighborhoods/form", { neighborhood,layout: 'dashboard/layouts/neighborhood-nav' });
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods");
