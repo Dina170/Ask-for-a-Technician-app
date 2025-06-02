@@ -2,8 +2,7 @@
 <html>
 
 <head>
-  <title>Neighborhoods for <%= technician.mainTitle %>
-  </title>
+  <title>Neighborhoods for <%= technician.mainTitle %></title>
   <style>
     .neighborhood-card {
       border: 1px solid #ccc;
@@ -38,6 +37,7 @@
     .search-container {
       margin: 20px 10px;
       text-align: center;
+      position: relative;
     }
 
     input[type="search"] {
@@ -62,44 +62,92 @@
     button:hover {
       background-color: #0056b3;
     }
+
+    #autocomplete-list {
+      position: absolute;
+      background: white;
+      border: 1px solid #ccc;
+      width: 300px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    #autocomplete-list div {
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    #autocomplete-list div:hover {
+      background-color: #eee;
+    }
   </style>
 </head>
 
 <body>
-  <h1>Neighborhoods of <%= technician.mainTitle %>
-  </h1>
+  <h1>Neighborhoods of <%= technician.mainTitle %></h1>
 
   <div class="search-container">
     <form method="GET" action="">
-      <input type="search" name="search" placeholder="Search neighborhoods..." value="<%= searchQuery %>"
+      <input type="search" name="search" id="search" placeholder="Search neighborhoods..." value="<%= searchQuery %>"
         autocomplete="off" />
       <button type="submit">Search</button>
+      <div id="autocomplete-list"></div>
     </form>
   </div>
 
   <div>
-    <% if (neighborhoodsWithJobs.length===0) { %>
+    <% if (neighborhoodsWithJobs.length === 0) { %>
       <p>No neighborhoods found.</p>
-      <% } else { %>
-        <% neighborhoodsWithJobs.forEach(({ neighborhood, job })=> { %>
-          <div class="neighborhood-card">
-            <a href="/technicians/<%= technician._id %>/neighborhoods/<%= neighborhood._id %>">
-              <img src="/uploads/neighborhoods/<%= neighborhood.neighborhoodPhoto %>" alt="<%= neighborhood.name %>" />
-              <h3>
-                <%= neighborhood.name %>
-              </h3>
-              <% if (job) { %>
-                <p>
-                  <%= job.mainDescription %>
-                </p>
-                <% } else { %>
-                  <p>No job details for this neighborhood.</p>
-                  <% } %>
-            </a>
-          </div>
-          <% }) %>
+    <% } else { %>
+      <% neighborhoodsWithJobs.forEach(({ neighborhood, job }) => { %>
+        <div class="neighborhood-card">
+          <a href="/technicians/<%= technician._id %>/neighborhoods/<%= neighborhood._id %>">
+            <img src="/uploads/neighborhoods/<%= neighborhood.neighborhoodPhoto %>" alt="<%= neighborhood.name %>" />
+            <h3><%= neighborhood.name %></h3>
+            <% if (job) { %>
+              <p><%= job.mainDescription %></p>
+            <% } else { %>
+              <p>No job details for this neighborhood.</p>
             <% } %>
+          </a>
+        </div>
+      <% }) %>
+    <% } %>
   </div>
+
+  <script>
+    const searchInput = document.getElementById('search');
+    const autocompleteList = document.getElementById('autocomplete-list');
+    const names = <%- JSON.stringify(neighborhoodsWithJobs.map(n => n.neighborhood.name)) %>;
+
+    searchInput.addEventListener('input', function () {
+      const val = this.value.toLowerCase();
+      autocompleteList.innerHTML = '';
+
+      if (!val) return;
+
+      const matches = names.filter(name => name.toLowerCase().includes(val));
+
+      matches.forEach(name => {
+        const div = document.createElement('div');
+        div.textContent = name;
+        div.addEventListener('click', () => {
+          searchInput.value = name;
+          autocompleteList.innerHTML = '';
+        });
+        autocompleteList.appendChild(div);
+      });
+    });
+
+    document.addEventListener('click', function (e) {
+      if (e.target !== searchInput) {
+        autocompleteList.innerHTML = '';
+      }
+    });
+  </script>
 </body>
 
 </html>
