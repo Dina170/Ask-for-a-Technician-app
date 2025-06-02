@@ -7,14 +7,14 @@ const { buildSearchQuery } = require("../../utils/searchFilters");
 const getAllTechnicians = async (req, res) => {
   try {
      const { search } = req.query;
-
+     
     const query = buildSearchQuery({ search, neighborhood: null }, "mainTitle", false);
 
     const technicians = await Technician.find(query)
       .populate("jobName")
       .populate("neighborhoodNames");
 
-    res.render("dashboard/technicians/index", { technicians });
+    res.render("dashboard/technicians/index", { technicians , filters: { search } });
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/technicians");

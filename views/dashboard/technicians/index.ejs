@@ -1,14 +1,16 @@
 <h1>All Technicians</h1>
 
-<form method="GET" action="/dashboard/technicians" style="margin-bottom: 20px;">
-  <input 
-    type="text" 
-    name="search" 
-    placeholder="Search by Main Title" 
-    value="<%= typeof search !== 'undefined' ? search : '' %>" 
+<form method="GET" action="/dashboard/technicians" style="position: relative;">
+  <input
+    type="text"
+    id="technicianSearchInput"
+    name="search"
+    placeholder="Search by Main Title"
+    value="<%= filters?.search || '' %>"
+    autocomplete="off"
   />
   <button type="submit">Search</button>
-  <% if (typeof search !== 'undefined' && search.trim() !== '') { %>
+  <% if (filters?.search) { %>
     <a href="/dashboard/technicians" style="margin-left: 10px;">Clear</a>
   <% } %>
 </form>
@@ -27,8 +29,8 @@
       <p><strong>Job:</strong> <%= t.jobName?.name %></p>
 
       <p><strong>Neighborhoods:</strong>
-        <% t.neighborhoodNames.forEach((n, idx) => { %>
-          <%= n.name %><%= idx !== t.neighborhoodNames.length - 1 ? ', ' : '' %>
+        <% t.neighborhoodNames.forEach(n => { %>
+          <%= n.name %><% if (t.neighborhoodNames.indexOf(n) !== t.neighborhoodNames.length - 1) { %>, <% } %>
         <% }) %>
       </p>
 
@@ -46,4 +48,66 @@
   <% }) %>
 </ul>
 
+<script>
+  // Pass an array of technician main titles for autocomplete
+  const technicianTitles = <%- JSON.stringify(technicians.map(t => t.mainTitle)) %>;
+
+  const input = document.getElementById('technicianSearchInput');
+
+  // Create suggestions container
+  const suggestions = document.createElement('div');
+  suggestions.style.position = 'absolute';
+  suggestions.style.border = '1px solid #ccc';
+  suggestions.style.backgroundColor = '#fff';
+  suggestions.style.maxHeight = '150px';
+  suggestions.style.overflowY = 'auto';
+  suggestions.style.width = input.offsetWidth + 'px';
+  suggestions.style.zIndex = 1000;
+  suggestions.style.display = 'none';
+  suggestions.style.cursor = 'pointer';
+
+  input.parentElement.style.position = 'relative';
+  input.parentNode.insertBefore(suggestions, input.nextSibling);
+
+  input.addEventListener('input', () => {
+    const val = input.value.trim().toLowerCase();
+    suggestions.innerHTML = '';
+
+    if (!val) {
+      suggestions.style.display = 'none';
+      return;
+    }
+
+    const filtered = technicianTitles.filter(title => title.toLowerCase().includes(val));
+
+    if (filtered.length === 0) {
+      suggestions.style.display = 'none';
+      return;
+    }
+
+    filtered.forEach(title => {
+      const option = document.createElement('div');
+      option.textContent = title;
+      option.style.padding = '5px';
+
+      option.addEventListener('mouseenter', () => option.style.backgroundColor = '#eee');
+      option.addEventListener('mouseleave', () => option.style.backgroundColor = '#fff');
+
+      option.addEventListener('click', () => {
+        input.value = title;
+        suggestions.style.display = 'none';
+      });
+
+      suggestions.appendChild(option);
+    });
+
+    suggestions.style.display = 'block';
+  });
+
+  document.addEventListener('click', e => {
+    if (!suggestions.contains(e.target) && e.target !== input) {
+      suggestions.style.display = 'none';
+    }
+  });
+</script>
 
