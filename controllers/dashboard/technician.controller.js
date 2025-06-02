@@ -1,13 +1,19 @@
 const Neighborhood = require("../../models/neighborhood");
 const Job = require("../../models/job");
 const Technician = require("../../models/technician");
+const { buildSearchQuery } = require("../../utils/searchFilters");
 
 // Get all technicians
 const getAllTechnicians = async (req, res) => {
   try {
-    const technicians = await Technician.find()
+     const { search } = req.query;
+
+    const query = buildSearchQuery({ search, neighborhood: null }, "mainTitle", false);
+
+    const technicians = await Technician.find(query)
       .populate("jobName")
       .populate("neighborhoodNames");
+
     res.render("dashboard/technicians/index", { technicians });
   } catch (err) {
     console.error(err);

@@ -1,4 +1,18 @@
 <h1>All Technicians</h1>
+
+<form method="GET" action="/dashboard/technicians" style="margin-bottom: 20px;">
+  <input 
+    type="text" 
+    name="search" 
+    placeholder="Search by Main Title" 
+    value="<%= typeof search !== 'undefined' ? search : '' %>" 
+  />
+  <button type="submit">Search</button>
+  <% if (typeof search !== 'undefined' && search.trim() !== '') { %>
+    <a href="/dashboard/technicians" style="margin-left: 10px;">Clear</a>
+  <% } %>
+</form>
+
 <a href="/dashboard/technicians/new">Add New Technician</a>
 
 <ul>
@@ -13,8 +27,8 @@
       <p><strong>Job:</strong> <%= t.jobName?.name %></p>
 
       <p><strong>Neighborhoods:</strong>
-        <% t.neighborhoodNames.forEach(n => { %>
-          <%= n.name %><% if (t.neighborhoodNames.indexOf(n) !== t.neighborhoodNames.length - 1) { %>, <% } %>
+        <% t.neighborhoodNames.forEach((n, idx) => { %>
+          <%= n.name %><%= idx !== t.neighborhoodNames.length - 1 ? ', ' : '' %>
         <% }) %>
       </p>
 
@@ -31,4 +45,5 @@
     </li>
   <% }) %>
 </ul>
+
 
