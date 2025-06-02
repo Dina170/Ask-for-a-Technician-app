@@ -10,7 +10,6 @@ const getAllNeighborhoods = async (req, res) => {
     res.render("dashboard/neighborhoods/index", {
       neighborhoods,
       message,
-      layout: "dashboard/layouts/sidebar",
     });
   } catch (err) {
     console.error(err);
@@ -27,7 +26,6 @@ const getNeighborhoodById = async (req, res) => {
     }
     res.render("dashboard/neighborhoods/show", {
       neighborhood,
-      layout: "dashboard/layouts/sidebar",
     });
   } catch (err) {
     console.error(err);
@@ -39,7 +37,6 @@ const getNeighborhoodById = async (req, res) => {
 const newNeighborhood = (req, res) => {
   res.render("dashboard/neighborhoods/form", {
     neighborhood: null,
-    layout: "dashboard/layouts/sidebar",
   });
 };
 
@@ -65,7 +62,6 @@ const createNeighborhood = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.render("dashboard/neighborhoods/form", {
-      layout: "dashboard/layouts/sidebar",
       neighborhood: null,
       error: "Failed to create neighborhood",
     });
@@ -103,7 +99,6 @@ const editNeighborhood = async (req, res) => {
     }
     res.render("dashboard/neighborhoods/form", {
       neighborhood,
-      layout: "dashboard/layouts/sidebar",
     });
   } catch (err) {
     console.error(err);
