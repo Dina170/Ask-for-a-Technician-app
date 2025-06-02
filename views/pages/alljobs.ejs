@@ -1,0 +1,47 @@
+<main class="container mx-auto px-4 py-6">
+  <h2 class="text-2xl font-bold text-[#2A4759] text-center mb-6">جميع الوظائف</h2>
+
+  <!-- jobs-->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% jobs.forEach(job => { %>
+          <div class="card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative">
+            <div class="relative h-48">
+              <img src="/uploads/jobs/<%= job.jobPhoto %>" alt="<%= job.name %>" class="w-full h-full object-cover" />
+
+              <!-- Location Icon: Links to /jobs/neighborhoods/:jobName -->
+              <button 
+                class="job-filter-btn absolute top-2 left-2 bg-white rounded-full p-2 shadow text-orange-500"
+                data-jobname="<%= job.name %>"
+              >
+                <i class="fa-solid fa-location-dot"></i>
+              </button>
+
+            </div>
+
+            <div class="card-body p-4">
+              <h3 class="text-lg font-bold text-orange-500 mb-1"><%= job.name %></h3>
+              <p class="text-gray-700 text-sm mb-1"><%= job.mainDescription %></p>
+              <p class="text-gray-500 text-sm mb-2"><%= job.subDescription %></p>
+              <p class="text-sm text-gray-600 mb-2">
+                الحي: <%= job.neighborhoodName?.name  %>
+              </p>
+
+              <div class="mt-4 flex gap-2">
+                <a href="https://wa.me/رقم_الواتساب" target="_blank"
+                  class="flex-1 bg-[#2A4759] hover:bg-[#406A84] text-white text-sm text-center py-2 rounded-lg">
+                  <i class="fab fa-whatsapp text-2xl pl-2"></i>
+                  واتساب
+                </a>
+                <a href="tel:رقم_الهاتف"
+                  class="flex-1 bg-white border border-[#2A4759] hover:bg-[#2A4759] hover:text-white text-[#2A4759] text-sm text-center py-2 rounded-lg">
+                  <i class="fa-solid fa-phone text-2xl pl-2"></i>
+                  اتصل بنا
+                </a>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+  </div>
+
+  
+</main>

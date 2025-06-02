@@ -39,7 +39,7 @@ const createJob = async (req, res) => {
 const getAllJobs = async (req, res) => {
   try {
     const jobs = await Job.find().populate("neighborhoodName");
-    res.render("jobs/index", { jobs });
+    res.render("landingpage/index", { jobs });
   } catch (err) {
     console.error(err);
     res.redirect("/");
