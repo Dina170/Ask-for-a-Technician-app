@@ -1,4 +1,5 @@
 const User = require("../../models/user");
+const crypto = require("crypto");
 const { sendResetEmail } = require("../../utils/mailer");
 
 const renderLoginPage = (req, res) => {
@@ -34,4 +35,52 @@ const forgotPassword = async (req, res) => {
   await user.save();
   await sendResetEmail(user.email, token);
   res.render("auth/login", { success: "Reset link sent to your email" });
+};
+
+const renderResetPassPage = async (req, res) => {
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpires: { $gt: Date.now() },
+  });
+  if (!user)
+    return res.render("auth/forgot-password", {
+      error: "Token expired or invalid",
+    });
+
+  res.render("auth/reset-password", { token: req.params.token });
+};
+
+const resetPassword = async (req, res) => {
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpires: { $gt: Date.now() },
+  });
+  if (!user)
+    return res.render("auth/forgot-password", {
+      error: "Token expired or invalid",
+    });
+
+  user.password = req.body.password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+  await user.save();
+  res.render("auth/login", { success: "Password updated" });
+};
+
+module.exports = {
+  renderLoginPage,
+  login,
+  logout,
+  renderForgotPassPage,
+  forgotPassword,
+  renderResetPassPage,
+  resetPassword,
 };
