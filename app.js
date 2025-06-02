@@ -28,7 +28,6 @@ app.use(expressLayouts);
 app.use('/uploads', express.static('uploads'));
 app.use("/static", express.static("public"));
 
-
 // app.set('layout', 'layouts/main'); // default layout for public pages
 
 app.use("/dashboard/neighborhoods", (req, res, next) => {

@@ -22,5 +22,7 @@
       deleteAction: `/dashboard/neighborhoods/${n._id}?_method=DELETE`
     }) %>
     <% }) %>
-    <%- include('../layouts/successDelete', { message }) %>
+    <% if (message && message.trim() !== '') { %>
+      <%- include('../layouts/success', { message, messageType }) %>
+    <% } %>
 </ul>

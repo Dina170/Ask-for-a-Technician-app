@@ -6,10 +6,12 @@ const Technician = require("../../models/technician");
 const getAllNeighborhoods = async (req, res) => {
   try {
     const neighborhoods = await Neighborhood.find();
-     const message = req.query.message || null;
+    const message = req.query.message || '';
+    const messageType = req.query.messageType || '';
     res.render("dashboard/neighborhoods/index", {
       neighborhoods,
       message,
+      messageType
     });
   } catch (err) {
     console.error(err);
@@ -58,7 +60,7 @@ const createNeighborhood = async (req, res) => {
     });
 
     await neighborhood.save();
-    res.redirect("/dashboard/neighborhoods");
+    res.redirect("/dashboard/neighborhoods?message=تم إضافة حي بنجاح&messageType=add");
   } catch (err) {
     console.error(err);
     res.render("dashboard/neighborhoods/form", {
@@ -83,10 +85,10 @@ const deleteAllNeighborhoods = async (req, res) => {
 const deleteNeighborhood = async (req, res) => {
   try {
     await Neighborhood.findByIdAndDelete(req.params.id);
-    res.redirect("/dashboard/neighborhoods?message=تم حذف هذا الحي");
+    res.redirect("/dashboard/neighborhoods?message=تم حذف هذا الحي&messageType=delete");
   } catch (err) {
     console.error(err);
-    res.redirect("/dashboard/neighborhoods?message");
+    res.redirect("/dashboard/neighborhoods?");
   }
 };
 
