@@ -7,7 +7,12 @@
     <input type="file" name="neighborhoodPhoto" <%=neighborhood ? '' : 'required' %> >
     <button type="submit">Submit</button>
 </form> -->
+
 <h1><%= neighborhood ? "Edit" : "Add" %> Neighborhood</h1>
+
+<% if (error) { %>
+  <p style="color: red;"><%= error %></p>
+<% } %>
 
 <form action="<%= neighborhood ? '/dashboard/neighborhoods/' + neighborhood._id + '?_method=PUT' : '/dashboard/neighborhoods' %>"
       method="POST"
@@ -21,8 +26,11 @@
     <img src="/uploads/neighborhoods/<%= neighborhood.neighborhoodPhoto %>" width="150">
   <% } %>
 
-  <label for="neighborhoodPhoto">Upload Photo:</label>
+  <label for="neighborhoodPhoto">
+    Upload Photo <%= neighborhood ? "(leave empty to keep current photo)" : "(required)" %>:
+  </label>
   <input type="file" name="neighborhoodPhoto" <%= neighborhood ? '' : 'required' %>>
 
   <button type="submit"><%= neighborhood ? "Update" : "Add" %></button>
 </form>
+

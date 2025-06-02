@@ -29,14 +29,14 @@ const getNeighborhoodById = async (req, res) => {
 
 // Render new neighborhood form
 const newNeighborhood = (req, res) => {
-  res.render("dashboard/neighborhoods/form", { neighborhood: null });
+  res.render("dashboard/neighborhoods/form", { neighborhood: null , error: null});
 };
 
 // Create a new neighborhood
 const createNeighborhood = async (req, res) => {
   try {
     const { name } = req.body;
-    
+
     if (!name || !req.file) {
       return res.render("dashboard/neighborhoods/form", {
         neighborhood: null,
@@ -53,9 +53,15 @@ const createNeighborhood = async (req, res) => {
     res.redirect("/dashboard/neighborhoods");
   } catch (err) {
     console.error(err);
+
+    let errorMessage = "Failed to create neighborhood";
+    if (err.code === 11000) {
+      errorMessage = "Neighborhood name must be unique";
+    }
+
     res.render("dashboard/neighborhoods/form", {
       neighborhood: null,
-      error: "Failed to create neighborhood"
+      error: errorMessage
     });
   }
 };
@@ -89,7 +95,7 @@ const editNeighborhood = async (req, res) => {
     if (!neighborhood) {
       return res.redirect("/dashboard/neighborhoods");
     }
-    res.render("dashboard/neighborhoods/form", { neighborhood });
+    res.render("dashboard/neighborhoods/form", { neighborhood , error: null});
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods");
@@ -113,9 +119,20 @@ const updateNeighborhood = async (req, res) => {
     res.redirect("/dashboard/neighborhoods");
   } catch (err) {
     console.error(err);
-    res.redirect(`/dashboard/neighborhoods/${req.params.id}/edit`);
+
+    let errorMessage = "Failed to update neighborhood";
+    if (err.code === 11000) {
+      errorMessage = "Neighborhood name must be unique";
+    }
+
+    const neighborhood = await Neighborhood.findById(req.params.id); // fetch again to re-render form
+    res.render("dashboard/neighborhoods/form", {
+      neighborhood,
+      error: errorMessage
+    });
   }
 };
+
 
 module.exports = {
   deleteAllNeighborhoods,
