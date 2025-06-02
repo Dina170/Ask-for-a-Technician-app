@@ -26,6 +26,7 @@ app.set("view engine", "ejs");
 app.use(expressLayouts);
 // Serve files from the uploads folder statically
 app.use('/uploads', express.static('uploads'));
+app.use("/static", express.static("public"));
 
 app.use("/dashboard/neighborhoods", neighborhoodRouter);
 app.use("/dashboard/jobs", jobRouter);

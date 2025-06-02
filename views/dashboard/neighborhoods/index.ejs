@@ -1,21 +1,26 @@
+
 <h1>All Neighborhoods</h1>
 <a href="/dashboard/neighborhoods/new">Add New Neighborhood</a>
 <ul>
-  <% neighborhoods.forEach(n=> { %>
+  <% neighborhoods.forEach(n => { %>
     <li>
-      <h3>
-        <%= n.name %>
-      </h3>
+      <h3><%= n.name %></h3>
       <% if (n.neighborhoodPhoto) { %>
         <img src="/uploads/neighborhoods/<%= n.neighborhoodPhoto %>" alt="Neighborhood Photo" width="150">
       <% } %>
       <div>
         <a href="/dashboard/neighborhoods/<%= n._id %>">View</a>
         <a href="/dashboard/neighborhoods/<%= n._id %>/edit">Edit</a>
-        <form action="/dashboard/neighborhoods/<%= n._id %>?_method=DELETE" method="POST" style="display:inline;">
-          <button type="submit" onclick="return confirm('Delete this neighborhood?')">Delete</button>
-        </form>
+        <button onclick="showModal('deleteNeighborhoodModal_<%= n.id %>')" class="text-red-600 hover:underline">Delete</button>
       </div>
     </li>
-  <% }) %>
+    
+    <!-- this is not test case , this is for popup message for delete  -->
+    <%- include('../layouts/confirmDelete', {
+      modalId: `deleteNeighborhoodModal_${n.id}`,
+      message: 'هل أنت متأكد من أنك تريد حذف هذا الحي؟',
+      deleteAction: `/dashboard/neighborhoods/${n._id}?_method=DELETE`
+    }) %>
+    <% }) %>
+    <%- include('../layouts/successDelete', { message }) %>
 </ul>

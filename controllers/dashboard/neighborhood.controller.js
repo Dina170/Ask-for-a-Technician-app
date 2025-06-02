@@ -6,7 +6,12 @@ const Technician = require("../../models/technician");
 const getAllNeighborhoods = async (req, res) => {
   try {
     const neighborhoods = await Neighborhood.find();
-    res.render("dashboard/neighborhoods/index", { neighborhoods,layout: false  });
+     const message = req.query.message || null;
+    res.render("dashboard/neighborhoods/index", {
+      neighborhoods,
+      message,
+      layout: "dashboard/layouts/sidebar",
+    });
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods");
@@ -20,7 +25,10 @@ const getNeighborhoodById = async (req, res) => {
     if (!neighborhood) {
       return res.redirect("/dashboard/neighborhoods");
     }
-    res.render("dashboard/neighborhoods/show", { neighborhood,layout: 'dashboard/layouts/neighborhood-nav'  });
+    res.render("dashboard/neighborhoods/show", {
+      neighborhood,
+      layout: "dashboard/layouts/sidebar",
+    });
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods");
@@ -29,24 +37,27 @@ const getNeighborhoodById = async (req, res) => {
 
 // Render new neighborhood form
 const newNeighborhood = (req, res) => {
-  res.render("dashboard/neighborhoods/form", { neighborhood: null,layout: 'dashboard/layouts/neighborhood-nav' });
+  res.render("dashboard/neighborhoods/form", {
+    neighborhood: null,
+    layout: "dashboard/layouts/sidebar",
+  });
 };
 
 // Create a new neighborhood
 const createNeighborhood = async (req, res) => {
   try {
     const { name } = req.body;
-    
+
     if (!name || !req.file) {
       return res.render("dashboard/neighborhoods/form", {
         neighborhood: null,
-        error: "Name and photo are required"
+        error: "Name and photo are required",
       });
     }
 
     const neighborhood = new Neighborhood({
       name,
-      neighborhoodPhoto: req.file.filename
+      neighborhoodPhoto: req.file.filename,
     });
 
     await neighborhood.save();
@@ -54,9 +65,9 @@ const createNeighborhood = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.render("dashboard/neighborhoods/form", {
-      layout:'dashboard/layouts/neighborhood-nav',
+      layout: "dashboard/layouts/sidebar",
       neighborhood: null,
-      error: "Failed to create neighborhood"
+      error: "Failed to create neighborhood",
     });
   }
 };
@@ -76,10 +87,10 @@ const deleteAllNeighborhoods = async (req, res) => {
 const deleteNeighborhood = async (req, res) => {
   try {
     await Neighborhood.findByIdAndDelete(req.params.id);
-    res.redirect("/dashboard/neighborhoods");
+    res.redirect("/dashboard/neighborhoods?message=تم حذف هذا الحي");
   } catch (err) {
     console.error(err);
-    res.redirect("/dashboard/neighborhoods");
+    res.redirect("/dashboard/neighborhoods?message");
   }
 };
 
@@ -90,7 +101,10 @@ const editNeighborhood = async (req, res) => {
     if (!neighborhood) {
       return res.redirect("/dashboard/neighborhoods");
     }
-    res.render("dashboard/neighborhoods/form", { neighborhood,layout: 'dashboard/layouts/neighborhood-nav' });
+    res.render("dashboard/neighborhoods/form", {
+      neighborhood,
+      layout: "dashboard/layouts/sidebar",
+    });
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods");

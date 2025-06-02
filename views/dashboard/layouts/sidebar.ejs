@@ -44,11 +44,9 @@
     </main>
 </body>
 <script>
+    //to change active link
   const currentURL = window.location.href;
-
   const navLinks = document.querySelectorAll("nav ul li a");
-
-  // Conditions based on keywords
   if (currentURL.includes("neighborhoods")) {
     navLinks[0].classList.add("bg-white", "text-blue-900");
     navLinks[0].classList.remove("text-white");
@@ -59,5 +57,38 @@
     navLinks[1].classList.add("bg-white", "text-blue-900");
     navLinks[1].classList.remove("text-white");
   }
+
+  //to show and hide modal 
+  function showModal(id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+
+    // Remove 'hide' class, add 'show' class and set display flex immediately
+    modal.classList.remove('hide');
+    modal.style.display = 'flex'; // make visible immediately
+
+    // Delay adding 'show' to trigger CSS opacity transition
+    requestAnimationFrame(() => {
+      modal.classList.add('show');
+    });
+  }
+
+  function hideModal(id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+
+    // Remove 'show' to trigger fade-out
+    modal.classList.remove('show');
+
+    // Add 'hide' to set opacity 0 and disable pointer events
+    modal.classList.add('hide');
+
+    // After transition duration (400ms), set display none
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 400);
+  }
+
+
 </script>
 </html>
