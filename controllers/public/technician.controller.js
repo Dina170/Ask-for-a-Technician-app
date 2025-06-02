@@ -78,3 +78,28 @@ exports.getNeighborhoodDetails = async (req, res) => {
     res.status(500).send('Server error');
   }
 };
+
+
+
+exports.getAllTechnicians = async (req, res) => {
+  try {
+    const search = req.query.search || '';
+
+    // Build search query
+    const query = {};
+    if (search.trim()) {
+      query.mainTitle = { $regex: search.trim(), $options: 'i' }; // Search by mainTitle (technician name/title)
+    }
+
+    const technicians = await Technician.find(query)
+      .populate('jobName neighborhoodNames');
+
+    res.render('public/showMoreTechnicians', {
+      technicians,
+      search,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+};

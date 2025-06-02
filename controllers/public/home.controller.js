@@ -26,3 +26,22 @@ exports.getHomePage = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
+
+
+exports.autocompleteTechnicians = async (req, res) => {
+  try {
+    const search = req.query.q || '';
+
+    const technicians = await Technician.find({
+      mainTitle: { $regex: search, $options: 'i' }
+    }).select('mainTitle').limit(10);
+
+    const names = technicians.map(tech => tech.mainTitle);
+
+    res.json(names);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+};
