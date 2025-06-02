@@ -1,29 +1,72 @@
-<h1>All Jobs</h1>
-<a href="/dashboard/jobs/new">Add New Job</a>
+<input
+  type="text"
+  id="neighborhoodNameInput"
+  name="search"
+  placeholder="Search by neighborhood name"
+  value="<%= filters?.search || '' %>"
+  autocomplete="off"
+/>
 
-<ul>
-  <% jobs.forEach(job=> { %>
-    <li>
-      <h3>
-        <%= job.name %>
-      </h3>
-      <img src="/uploads/jobs/<%= job.jobPhoto %>" alt="<%= job.name %>" width="100" />
-      <p>Main Description: <%= job.mainDescription %></p>
-      <p>Sub Description: <%= job.subDescription %></p>
-      <p>Neighborhood: <%= job.neighborhoodName?.name %></p>
-      <a href="/dashboard/jobs/<%= job._id %>">
-        <button type="button">View</button>
-      </a>
-      <a href="/dashboard/jobs/<%= job._id %>/edit">
-        <button type="button">Edit</button>
-      </a>
-      <form action="/dashboard/jobs/<%= job._id %>?_method=DELETE" method="POST" style="display:inline;">
-        <button type="submit">Delete</button>
-      </form>
-    </li>
-  <% }) %>
-</ul>
+<script>
+  // Array of unique neighborhood names from server
+  const neighborhoods = <%- JSON.stringify(uniqueNeighborhoodNames) %>;
 
-<form action="/dashboard/jobs?_method=DELETE" method="POST">
-  <button type="submit">Delete All Jobs</button>
-</form>
+  const neighborhoodInput = document.getElementById('neighborhoodNameInput');
+
+  // Create suggestions container
+  const suggestions = document.createElement('div');
+  suggestions.style.position = 'absolute';
+  suggestions.style.border = '1px solid #ccc';
+  suggestions.style.backgroundColor = '#fff';
+  suggestions.style.maxHeight = '150px';
+  suggestions.style.overflowY = 'auto';
+  suggestions.style.width = neighborhoodInput.offsetWidth + 'px';
+  suggestions.style.zIndex = 1000;
+  suggestions.style.display = 'none';
+  suggestions.style.cursor = 'pointer';
+
+  neighborhoodInput.parentNode.insertBefore(suggestions, neighborhoodInput.nextSibling);
+
+  neighborhoodInput.addEventListener('input', () => {
+    const val = neighborhoodInput.value.trim().toLowerCase();
+    suggestions.innerHTML = '';
+
+    if (!val) {
+      suggestions.style.display = 'none';
+      return;
+    }
+
+    const filtered = neighborhoods.filter(name => name.toLowerCase().includes(val));
+
+    if (filtered.length === 0) {
+      suggestions.style.display = 'none';
+      return;
+    }
+
+    filtered.forEach(name => {
+      const option = document.createElement('div');
+      option.textContent = name;
+      option.style.padding = '5px';
+
+      option.addEventListener('mouseenter', () => option.style.backgroundColor = '#eee');
+      option.addEventListener('mouseleave', () => option.style.backgroundColor = '#fff');
+
+      option.addEventListener('click', () => {
+        neighborhoodInput.value = name;
+        suggestions.style.display = 'none';
+      });
+
+      suggestions.appendChild(option);
+    });
+
+    suggestions.style.display = 'block';
+  });
+
+  // Hide suggestions when clicking outside
+  document.addEventListener('click', e => {
+    if (!suggestions.contains(e.target) && e.target !== neighborhoodInput) {
+      suggestions.style.display = 'none';
+    }
+  });
+</script>
+

@@ -1,12 +1,18 @@
 const Neighborhood = require("../../models/neighborhood");
 const Job = require("../../models/job");
 const Technician = require("../../models/technician");
+const { buildSearchQuery } = require("../../utils/searchFilters");
 
 // Get all neighborhoods
 const getAllNeighborhoods = async (req, res) => {
   try {
-    const neighborhoods = await Neighborhood.find();
-    res.render("dashboard/neighborhoods/index", { neighborhoods });
+    // Build query using only the search term for the 'name' field
+    const search = req.query.search || '';
+    const query = buildSearchQuery({ search: req.query.search || '' }, 'name', false);
+
+    const neighborhoods = await Neighborhood.find(query);
+    const neighborhoodNames = await Neighborhood.distinct("name");
+    res.render("dashboard/neighborhoods/index", { neighborhoods, filters: { search } ,neighborhoodNames});
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods");

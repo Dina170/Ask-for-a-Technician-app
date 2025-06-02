@@ -1,6 +1,7 @@
 const Job = require("../../models/job");
 const Neighborhood = require("../../models/neighborhood");
 const Technician = require("../../models/technician");
+const { buildSearchQuery } = require("../../utils/searchFilters");
 
 // Render form for creating new job
 const renderNewJobForm = async (req, res) => {
@@ -64,8 +65,19 @@ const createJob = async (req, res) => {
 // GET all jobs
 const getAllJobs = async (req, res) => {
   try {
-    const jobs = await Job.find().populate("neighborhoodName");
-    res.render("dashboard/jobs/index", { jobs });
+
+    const { search, neighborhood } = req.query;
+
+    const query = buildSearchQuery({ search, neighborhood });
+
+    const jobs = await Job.find(query).populate("neighborhoodName");
+    const neighborhoods = await Neighborhood.find();
+
+    const allJobNames = jobs.map(job => job.name);
+    const uniqueJobNames = [...new Set(allJobNames)]; // unique names array
+
+    res.render("dashboard/jobs/index", { jobs ,neighborhoods,
+      filters: { search, neighborhood } , uniqueJobNames});
   } catch (err) {
     console.error(err);
     res.redirect("/");
