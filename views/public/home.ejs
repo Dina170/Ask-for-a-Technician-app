@@ -36,6 +36,20 @@
 <body>
     <h1>Find Technicians</h1>
 
+    <!-- Search Bar -->
+    <form method="GET" action="/" style="margin-bottom: 20px; max-width: 600px;">
+        <input type="text" id="technicianSearch" name="technician" placeholder="Search technician name..."
+            value="<%= typeof technician !== 'undefined' ? technician : '' %>"
+            style="padding: 8px; width: 48%; margin-right: 4%;" />
+
+            <ul id="technicianAutocomplete" class="autocomplete-list" style="border:1px solid #ccc; max-width:48%; position:relative; background:#fff; list-style:none; padding-left:0; margin-top:0;"></ul>
+        <input type="text" id="neighborhoodSearch" name="neighborhood" placeholder="Search neighborhood..."
+            value="<%= typeof neighborhood !== 'undefined' ? neighborhood : '' %>" style="padding: 8px; width: 48%;" />
+<ul id="neighborhoodAutocomplete" class="autocomplete-list" style="border:1px solid #ccc; max-width:48%; position:relative; background:#fff; list-style:none; padding-left:0; margin-top:0;"></ul>
+        <button type="submit" style="margin-top: 10px;">Search</button>
+    </form>
+
+
     <!-- Job Filter Buttons -->
     <div class="job-buttons">
         <a href="/">
@@ -72,6 +86,61 @@
                             <a href="/showMoreTechnicians" class="btn btn-primary">Show More</a>
 
     </div>
+
+    <script>
+  const technicianInput = document.getElementById('technicianSearch');
+  const neighborhoodInput = document.getElementById('neighborhoodSearch');
+  const technicianSuggestionBox = document.getElementById('technicianAutocomplete');
+  const neighborhoodSuggestionBox = document.getElementById('neighborhoodAutocomplete');
+
+  async function fetchSuggestions(type, query) {
+    if (!query) return [];
+    try {
+      const res = await fetch(`/autocomplete?type=${type}&q=${encodeURIComponent(query)}`);
+      if (!res.ok) throw new Error('Network response was not ok');
+      return await res.json();
+    } catch (error) {
+      console.error('Autocomplete fetch error:', error);
+      return [];
+    }
+  }
+
+  function createSuggestionItem(text, inputElement, suggestionBox) {
+    const li = document.createElement('li');
+    li.textContent = text;
+    li.style.padding = '5px';
+    li.style.cursor = 'pointer';
+    li.addEventListener('click', () => {
+      inputElement.value = text;
+      suggestionBox.innerHTML = '';
+    });
+    return li;
+  }
+
+  async function handleInput(event, suggestionBox, inputElement, type) {
+    const query = event.target.value.trim();
+    suggestionBox.innerHTML = '';
+    if (query.length === 0) return;
+
+    const suggestions = await fetchSuggestions(type, query);
+
+    suggestions.forEach(suggestion => {
+      suggestionBox.appendChild(createSuggestionItem(suggestion, inputElement, suggestionBox));
+    });
+  }
+
+  technicianInput.addEventListener('input', (e) => handleInput(e, technicianSuggestionBox, technicianInput, 'technician'));
+  neighborhoodInput.addEventListener('input', (e) => handleInput(e, neighborhoodSuggestionBox, neighborhoodInput, 'neighborhood'));
+
+  // Hide suggestion boxes on outside click
+  document.addEventListener('click', (e) => {
+    if (e.target !== technicianInput) technicianSuggestionBox.innerHTML = '';
+    if (e.target !== neighborhoodInput) neighborhoodSuggestionBox.innerHTML = '';
+  });
+</script>
+
+
+
 </body>
 
 </html>
