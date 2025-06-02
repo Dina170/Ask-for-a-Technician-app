@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>Neighborhoods for <%= technician.mainTitle %></title>
+  <title>Neighborhoods for <%= technician.mainTitle %>
+  </title>
   <style>
     .neighborhood-card {
       border: 1px solid #ccc;
@@ -15,15 +17,18 @@
       text-align: center;
       transition: box-shadow 0.3s ease;
     }
+
     .neighborhood-card:hover {
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     }
+
     .neighborhood-card img {
       width: 100%;
       height: 150px;
       object-fit: cover;
       border-radius: 4px;
     }
+
     a {
       color: inherit;
       text-decoration: none;
@@ -31,24 +36,47 @@
     }
   </style>
 </head>
+
 <body>
-  <h1>Neighborhoods of <%= technician.mainTitle %></h1>
+  <h1>Neighborhoods of <%= technician.mainTitle %>
+  </h1>
 
   <div>
-    <% neighborhoodsWithJobs.forEach(({ neighborhood, job }) => { %>
+    <% neighborhoodsWithJobs.forEach(({ neighborhood, job })=> { %>
       <div class="neighborhood-card">
         <a href="/technicians/<%= technician._id %>/neighborhoods/<%= neighborhood._id %>">
           <img src="/uploads/neighborhoods/<%= neighborhood.neighborhoodPhoto %>" alt="<%= neighborhood.name %>" />
-          <h3><%= neighborhood.name %></h3>
+          <h3>
+            <%= neighborhood.name %>
+          </h3>
           <% if (job) { %>
-            <p><%= job.mainDescription %></p>
+            <p>
+              <%= job.mainDescription %>
+            </p>
             <!-- Add more job fields as you want -->
-          <% } else { %>
-            <p>No job details for this neighborhood.</p>
-          <% } %>
+            <% } else { %>
+              <p>No job details for this neighborhood.</p>
+              <% } %>
         </a>
       </div>
-    <% }) %>
+      <% }) %>
+
+        <!-- See More Button -->
+        <div style="text-align: center; margin: 20px;">
+          <a href="/technicians/<%= technician._id %>/seeMoreTechnicianNeighborhoods">
+            <button style="
+      padding: 10px 20px; 
+      font-size: 16px; 
+      border-radius: 5px; 
+      cursor: pointer; 
+      background-color: #007bff; 
+      color: white; 
+      border: none;">
+              See More
+            </button>
+          </a>
+        </div>
   </div>
 </body>
+
 </html>
