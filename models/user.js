@@ -10,14 +10,16 @@ const userSchema = mongoose.Schema({
   resetPasswordExpires: Date,
 });
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 12);
-  next();
-});
+// userSchema.pre("save", async function (next) {
+//   if (!this.isModified("password")) return next();
+//   this.password = await bcrypt.hash(this.password, 12);
+//   console.log(this.password);
+
+//   next();
+// });
 
 userSchema.methods.comparePasswords = function (candidatePass) {
-  return bcrypt.compare(this.password, candidatePass);
+  return this.password === candidatePass;
 };
 
 userSchema.methods.createPasswordResetToken = function () {
