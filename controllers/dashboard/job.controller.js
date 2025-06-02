@@ -76,8 +76,12 @@ const getAllJobs = async (req, res) => {
     const allJobNames = jobs.map(job => job.name);
     const uniqueJobNames = [...new Set(allJobNames)]; // unique names array
 
+     // ✅ Extract unique neighborhood names
+    const allNeighborhoodNames = neighborhoods.map(n => n.name);
+    const uniqueNeighborhoodNames = [...new Set(allNeighborhoodNames)];
+
     res.render("dashboard/jobs/index", { jobs ,neighborhoods,
-      filters: { search, neighborhood } , uniqueJobNames});
+      filters: { search, neighborhood } , uniqueJobNames , uniqueNeighborhoodNames});
   } catch (err) {
     console.error(err);
     res.redirect("/");

@@ -1,42 +1,87 @@
-<input
-  type="text"
-  id="neighborhoodNameInput"
-  name="search"
-  placeholder="Search by neighborhood name"
-  value="<%= filters?.search || '' %>"
-  autocomplete="off"
-/>
+<h1>All Jobs</h1>
+<a href="/dashboard/jobs/new">Add New Job</a>
 
+<!-- Filter Form -->
+<form action="/dashboard/jobs" method="GET" style="margin-bottom: 20px; position: relative;">
+  <!-- Search Input with autocomplete -->
+  <input
+    type="text"
+    id="jobNameInput"
+    name="search"
+    placeholder="Search by job name"
+    value="<%= filters?.search || '' %>"
+    autocomplete="off"
+  />
+
+  <!-- Neighborhood dropdown remains the same -->
+  <select name="neighborhood">
+    <option value="all">All Neighborhoods</option>
+    <% neighborhoods.forEach(n => { %>
+      <option value="<%= n._id %>" <%= filters?.neighborhood === String(n._id) ? 'selected' : '' %>>
+        <%= n.name %>
+      </option>
+    <% }) %>
+  </select>
+
+  <button type="submit">Filter</button>
+</form>
+
+<!-- Job List -->
+<ul>
+  <% jobs.forEach(job => { %>
+    <li>
+      <h3><%= job.name %></h3>
+      <img src="/uploads/jobs/<%= job.jobPhoto %>" alt="<%= job.name %>" width="100" />
+      <p>Main Description: <%= job.mainDescription %></p>
+      <p>Sub Description: <%= job.subDescription %></p>
+      <p>Neighborhood: <%= job.neighborhoodName?.name %></p>
+      <a href="/dashboard/jobs/<%= job._id %>"><button type="button">View</button></a>
+      <a href="/dashboard/jobs/<%= job._id %>/edit"><button type="button">Edit</button></a>
+      <form action="/dashboard/jobs/<%= job._id %>?_method=DELETE" method="POST" style="display:inline;">
+        <button type="submit">Delete</button>
+      </form>
+    </li>
+  <% }) %>
+</ul>
+
+<!-- Delete All -->
+<form action="/dashboard/jobs?_method=DELETE" method="POST">
+  <button type="submit">Delete All Jobs</button>
+</form>
+
+<!-- Autocomplete Suggestions Script -->
 <script>
-  // Array of unique neighborhood names from server
-  const neighborhoods = <%- JSON.stringify(uniqueNeighborhoodNames) %>;
+  // const jobs = <%- JSON.stringify(jobs.map(j => j.name)) %>;
+  // for unique jobs only
+  const jobs = <%- JSON.stringify(uniqueJobNames) %>;
 
-  const neighborhoodInput = document.getElementById('neighborhoodNameInput');
+  const jobNameInput = document.getElementById('jobNameInput');
 
-  // Create suggestions container
+  // Create container for autocomplete suggestions
   const suggestions = document.createElement('div');
   suggestions.style.position = 'absolute';
   suggestions.style.border = '1px solid #ccc';
   suggestions.style.backgroundColor = '#fff';
   suggestions.style.maxHeight = '150px';
   suggestions.style.overflowY = 'auto';
-  suggestions.style.width = neighborhoodInput.offsetWidth + 'px';
+  suggestions.style.width = jobNameInput.offsetWidth + 'px';
   suggestions.style.zIndex = 1000;
   suggestions.style.display = 'none';
   suggestions.style.cursor = 'pointer';
 
-  neighborhoodInput.parentNode.insertBefore(suggestions, neighborhoodInput.nextSibling);
+  jobNameInput.parentNode.insertBefore(suggestions, jobNameInput.nextSibling);
 
-  neighborhoodInput.addEventListener('input', () => {
-    const val = neighborhoodInput.value.trim().toLowerCase();
+  jobNameInput.addEventListener('input', () => {
+    const inputValue = jobNameInput.value.trim().toLowerCase();
     suggestions.innerHTML = '';
 
-    if (!val) {
+    if (!inputValue) {
       suggestions.style.display = 'none';
       return;
     }
 
-    const filtered = neighborhoods.filter(name => name.toLowerCase().includes(val));
+    // Filter jobs that contain the input text
+    const filtered = jobs.filter(name => name.toLowerCase().includes(inputValue));
 
     if (filtered.length === 0) {
       suggestions.style.display = 'none';
@@ -48,11 +93,15 @@
       option.textContent = name;
       option.style.padding = '5px';
 
-      option.addEventListener('mouseenter', () => option.style.backgroundColor = '#eee');
-      option.addEventListener('mouseleave', () => option.style.backgroundColor = '#fff');
+      option.addEventListener('mouseenter', () => {
+        option.style.backgroundColor = '#eee';
+      });
+      option.addEventListener('mouseleave', () => {
+        option.style.backgroundColor = '#fff';
+      });
 
       option.addEventListener('click', () => {
-        neighborhoodInput.value = name;
+        jobNameInput.value = name;
         suggestions.style.display = 'none';
       });
 
@@ -64,9 +113,8 @@
 
   // Hide suggestions when clicking outside
   document.addEventListener('click', e => {
-    if (!suggestions.contains(e.target) && e.target !== neighborhoodInput) {
+    if (!suggestions.contains(e.target) && e.target !== jobNameInput) {
       suggestions.style.display = 'none';
     }
   });
 </script>
-
