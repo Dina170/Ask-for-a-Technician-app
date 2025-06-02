@@ -3,6 +3,7 @@ const createError = require("http-errors");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 const methodOverride = require("method-override");
+const session = require("express-session");
 require("dotenv").config();
 
 const app = express();
@@ -11,6 +12,7 @@ const jobRouter = require("./routes/dashboard/job.route");
 const technicianRouter = require("./routes/dashboard/technician.route");
 const publicHomeRouter = require("./routes/public/home.route");
 const publicTechnicianRouter = require("./routes/public/technician.route");
+const authRouter = require("./routes/auth/auth.route");
 
 // Connect to MongoDB
 mongoose
@@ -24,8 +26,16 @@ app.use(morgan("dev"));
 app.use(methodOverride("_method"));
 app.set("view engine", "ejs");
 
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "secret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
 // Serve files from the uploads folder statically
-app.use('/uploads', express.static('uploads'));
+app.use("/uploads", express.static("uploads"));
 
 app.use("/dashboard/neighborhoods", neighborhoodRouter);
 app.use("/dashboard/jobs", jobRouter);
@@ -33,7 +43,7 @@ app.use("/dashboard/technicians", technicianRouter);
 
 app.use("/", publicHomeRouter); // homepage + job-based filtering
 app.use("/technicians", publicTechnicianRouter); // technician + neighborhood pages
-
+app.use("/auth", authRouter); // authentication routes
 
 // app.get("/", async (req, res, next) => {
 //   res.send({ message: "Awesome it works 🐻" });
