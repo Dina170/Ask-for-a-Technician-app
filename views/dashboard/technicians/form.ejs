@@ -2,6 +2,16 @@
     <%= technician ? "Edit" : "Add" %> Technician
 </h1>
 
+<% if (errors && errors.length > 0) { %>
+  <div class="error-messages" style="color: red; margin-bottom: 1em;">
+    <ul>
+      <% errors.forEach(error => { %>
+        <li><%= error.msg || error %></li>
+      <% }) %>
+    </ul>
+  </div>
+<% } %>
+
 <form action="<%= technician ? '/dashboard/technicians/' + technician._id + '?_method=PUT' : '/dashboard/technicians' %>" method="POST"
     enctype="multipart/form-data">
 
