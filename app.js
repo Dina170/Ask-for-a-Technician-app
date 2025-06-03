@@ -47,8 +47,8 @@ app.use("/dashboard/neighborhoods", neighborhoodRouter);
 app.use("/dashboard/jobs", jobRouter);
 app.use("/dashboard/technicians", technicianRouter);
 
-app.use("/", publicHomeRouter); // homepage + job-based filtering
-app.use("/technicians", publicTechnicianRouter); // technician + neighborhood pages
+// app.use("/", publicHomeRouter); // homepage + job-based filtering
+// app.use("/technicians", publicTechnicianRouter); // technician + neighborhood pages
 app.use("/auth", authRouter); // authentication routes
 
 // app.get("/", async (req, res, next) => {
@@ -85,34 +85,42 @@ app.get("/alltechnicians", async (req, res) => {
 // Route: Get neighborhoods for a specific technician
 app.get("/technicians/:id/neighborhoods", async (req, res) => {
   try {
-    const technician = await Technician.findById(req.params.id).populate("neighborhoodNames");
-
+    const technicianId = req.params.id;
+    const technician = await Technician.findById(technicianId).populate("neighborhoodNames");
     if (!technician) return res.status(404).send("فني غير موجود");
 
-    const neighborhoods = technician.neighborhoodNames;
+    const neighborhoodsWithJobs = await Promise.all(
+      technician.neighborhoodNames.map(async (neighborhood) => {
+        const job = await Job.findOne({ neighborhoodName: neighborhood._id });
+        return { neighborhood, job };
+      })
+    );
+    res.render("partials/neighborhoodCard", { neighborhoodsWithJobs });
 
-    res.render("partials/neighborhoodCard", { neighborhoods, type: 'neighborhoods' });
   } catch (err) {
     console.error(err);
-    res.status(500).send("خطأ في جلب الأحياء");
+    res.status(500).send("حصل خطأ أثناء تحميل البيانات");
   }
 });
-
-
 
 // Route: to all neighborhoods page
 app.get("/allneighborhoods", async (req, res) => {
   try {
-     const neighborhoods = await Neighborhood.find();
-    res.render("pages/allneighborhoods", { neighborhoods, type: 'neighborhoods' }); 
+    const neighborhoods = await Neighborhood.find();
+
+    const neighborhoodsWithJobs = await Promise.all(
+      neighborhoods.map(async (neighborhood) => {
+        const job = await Job.findOne({ neighborhoodName: neighborhood._id });
+        return { neighborhood, job };
+      })
+    );
+
+    res.render("pages/allneighborhoods", { neighborhoodsWithJobs, type: 'neighborhoods' }); 
   } catch (err) {
     console.error(err);
-    res.render("pages/allneighborhoods", { neighborhoods: [], type: 'neighborhoods' });
+    res.render("pages/allneighborhoods", { neighborhoodsWithJobs: [], type: 'neighborhoods' });
   }
 });
-
-
-
 
 
 

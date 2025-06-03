@@ -48,8 +48,8 @@
     <!-- all nighborhoods cards-->
     <div class="w-full mx-auto px-4 py-8 flex-grow">
       <div class="container mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4">
-        <% neighborhoods.forEach(neighborhood => { %>
-          <%- include('../partials/neighborhoodcard', { neighborhood }) %>
+         <% neighborhoodsWithJobs.forEach(({ neighborhood, job }) => { %>
+          <%- include('../partials/neighborhoodcard', { neighborhood, job }) %>
         <% }) %>
       </div>
     </div>
