@@ -1,5 +1,7 @@
 const Job = require("../../models/job");
 const Neighborhood = require("../../models/neighborhood");
+const Technician = require("../../models/technician");
+const { buildSearchQuery } = require("../../utils/searchFilters");
 
 // Render form for creating new job
 const renderNewJobForm = async (req, res) => {
@@ -15,7 +17,8 @@ const renderNewJobForm = async (req, res) => {
 // Create new job
 const createJob = async (req, res) => {
   try {
-    const { name, neighborhoodName, mainDescription, subDescription } = req.body;
+    const { name, neighborhoodName, mainDescription, subDescription } =
+      req.body;
 
     if (!name || !neighborhoodName || !mainDescription || !req.file) {
       const neighborhoods = await Neighborhood.find();
@@ -62,8 +65,23 @@ const createJob = async (req, res) => {
 // GET all jobs
 const getAllJobs = async (req, res) => {
   try {
-    const jobs = await Job.find().populate("neighborhoodName");
-    res.render("dashboard/jobs/index", { jobs });
+
+    const { search, neighborhood } = req.query;
+
+    const query = buildSearchQuery({ search, neighborhood });
+
+    const jobs = await Job.find(query).populate("neighborhoodName");
+    const neighborhoods = await Neighborhood.find();
+
+    const allJobNames = jobs.map(job => job.name);
+    const uniqueJobNames = [...new Set(allJobNames)]; // unique names array
+
+     // ✅ Extract unique neighborhood names
+    const allNeighborhoodNames = neighborhoods.map(n => n.name);
+    const uniqueNeighborhoodNames = [...new Set(allNeighborhoodNames)];
+
+    res.render("dashboard/jobs/index", { jobs ,neighborhoods,
+      filters: { search, neighborhood } , uniqueJobNames , uniqueNeighborhoodNames});
   } catch (err) {
     console.error(err);
     res.redirect("/");
@@ -125,7 +143,8 @@ const updateJob = async (req, res) => {
         return res.render("dashboard/jobs/form", {
           job,
           neighborhoods,
-          error: "A job with this name already exists in the selected neighborhood.",
+          error:
+            "A job with this name already exists in the selected neighborhood.",
         });
       }
       throw err;
@@ -140,6 +159,10 @@ const updateJob = async (req, res) => {
 const deleteJob = async (req, res) => {
   try {
     await Job.findByIdAndDelete(req.params.id);
+    await Technician.updateMany(
+      { jobName: req.params.id },
+      { $unset: { jobName: "" } }
+    );
     res.redirect("/dashboard/jobs");
   } catch (err) {
     console.error(err);
@@ -151,6 +174,7 @@ const deleteJob = async (req, res) => {
 const deleteAllJobs = async (req, res) => {
   try {
     await Job.deleteMany({});
+    await Technician.updateMany({}, { $unset: { jobName: "" } });
     res.redirect("/dashboard/jobs");
   } catch (err) {
     console.error(err);

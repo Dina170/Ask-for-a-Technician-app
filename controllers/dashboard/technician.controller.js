@@ -1,14 +1,21 @@
 const Neighborhood = require("../../models/neighborhood");
 const Job = require("../../models/job");
 const Technician = require("../../models/technician");
+const { buildSearchQuery } = require("../../utils/searchFilters");
+const validateTechnicianInput = require("../../utils/validateTechnicianInput");
 
 // Get all technicians
 const getAllTechnicians = async (req, res) => {
   try {
-    const technicians = await Technician.find()
+    const { search } = req.query;
+
+    const query = buildSearchQuery({ search, neighborhood: null }, "mainTitle", false);
+
+    const technicians = await Technician.find(query)
       .populate("jobName")
       .populate("neighborhoodNames");
-    res.render("dashboard/technicians/index", { technicians });
+
+    res.render("dashboard/technicians/index", { technicians, filters: { search } });
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/technicians");
@@ -21,11 +28,11 @@ const getTechnicianById = async (req, res) => {
     const technician = await Technician.findById(req.params.id)
       .populate("jobName")
       .populate("neighborhoodNames");
-    
+
     if (!technician) {
       return res.redirect("/dashboard/technicians");
     }
-    
+
     res.render("dashboard/technicians/show", { technician });
   } catch (err) {
     console.error(err);
@@ -37,7 +44,7 @@ const getTechnicianById = async (req, res) => {
 const getJobNeighborhoodMap = async () => {
   const jobsWithNeighborhoods = await Job.find().populate('neighborhoodName');
   const jobNeighborhoodMap = {};
-  
+
   jobsWithNeighborhoods.forEach(job => {
     if (!jobNeighborhoodMap[job.name]) {
       jobNeighborhoodMap[job.name] = [];
@@ -46,7 +53,7 @@ const getJobNeighborhoodMap = async () => {
       jobNeighborhoodMap[job.name].push(job.neighborhoodName);
     }
   });
-  
+
   return jobNeighborhoodMap;
 };
 
@@ -55,13 +62,13 @@ const newTechnician = async (req, res) => {
   try {
     const jobNames = await Job.distinct('name');
     const jobNeighborhoodMap = await getJobNeighborhoodMap();
-    
-    res.render("dashboard/technicians/form", { 
-      technician: null, 
+
+    res.render("dashboard/technicians/form", {
+      technician: null,
       jobNames,
       neighborhoods: [], // Empty initially, will be populated by JS
       jobNeighborhoodMap: JSON.stringify(jobNeighborhoodMap),
-      error: null
+      errors: [], // pass empty array instead of null
     });
   } catch (err) {
     console.error(err);
@@ -72,6 +79,21 @@ const newTechnician = async (req, res) => {
 // Create a new technician
 const createTechnician = async (req, res) => {
   try {
+    const errors = await validateTechnicianInput(req.body, req.file);
+
+    if (errors.length > 0) {
+      const jobNames = await Job.distinct('name');
+      const jobNeighborhoodMap = await getJobNeighborhoodMap();
+
+      return res.render("dashboard/technicians/form", {
+        technician: null,
+        jobNames,
+        neighborhoods: [], // could pass empty or related neighborhoods
+        jobNeighborhoodMap: JSON.stringify(jobNeighborhoodMap),
+        errors,  // pass as array
+      });
+    }
+
     const job = await Job.findOne({ name: req.body.jobName });
     if (!job) {
       throw new Error('Job not found');
@@ -79,8 +101,8 @@ const createTechnician = async (req, res) => {
 
     const technician = new Technician({
       jobName: job._id,
-      neighborhoodNames: Array.isArray(req.body.neighborhoodNames) 
-        ? req.body.neighborhoodNames 
+      neighborhoodNames: Array.isArray(req.body.neighborhoodNames)
+        ? req.body.neighborhoodNames
         : [req.body.neighborhoodNames],
       mainTitle: req.body.mainTitle,
       description: req.body.description,
@@ -94,13 +116,13 @@ const createTechnician = async (req, res) => {
     console.error(err);
     const jobNames = await Job.distinct('name');
     const jobNeighborhoodMap = await getJobNeighborhoodMap();
-    
+
     res.render("dashboard/technicians/form", {
       technician: null,
       jobNames,
       neighborhoods: [],
       jobNeighborhoodMap: JSON.stringify(jobNeighborhoodMap),
-      error: err.message
+      errors: [err.message], // wrap string in array
     });
   }
 };
@@ -111,21 +133,21 @@ const editTechnician = async (req, res) => {
     const technician = await Technician.findById(req.params.id)
       .populate('jobName')
       .populate('neighborhoodNames');
-    
+
     if (!technician) {
       return res.redirect("/dashboard/technicians");
     }
-    
+
     const jobNames = await Job.distinct('name');
     const jobNeighborhoodMap = await getJobNeighborhoodMap();
     const allNeighborhoods = await Neighborhood.find();
-    
-    res.render("dashboard/technicians/form", { 
+
+    res.render("dashboard/technicians/form", {
       technician,
       jobNames,
       neighborhoods: allNeighborhoods,
       jobNeighborhoodMap: JSON.stringify(jobNeighborhoodMap),
-      error: null
+      errors: [], // empty array if no errors
     });
   } catch (err) {
     console.error(err);
@@ -133,7 +155,6 @@ const editTechnician = async (req, res) => {
   }
 };
 
-// Update technician
 const updateTechnician = async (req, res) => {
   try {
     const technician = await Technician.findById(req.params.id);
@@ -141,19 +162,42 @@ const updateTechnician = async (req, res) => {
       return res.redirect("/dashboard/technicians");
     }
 
-    const job = await Job.findOne({ name: req.body.jobName });
-    if (!job) {
-      throw new Error('Job not found');
+    const errors = await validateTechnicianInput(req.body, req.file, true);
+
+    if (errors.length > 0) {
+      const jobNames = await Job.distinct('name');
+      const jobNeighborhoodMap = await getJobNeighborhoodMap();
+      const allNeighborhoods = await Neighborhood.find();
+
+      // Populate technician with form data to re-render with errors
+      technician.jobName = req.body.jobName;
+      technician.neighborhoodNames = Array.isArray(req.body.neighborhoodNames)
+        ? req.body.neighborhoodNames
+        : [req.body.neighborhoodNames];
+      technician.mainTitle = req.body.mainTitle;
+      technician.description = req.body.description;
+      technician.phoneNumber = req.body.phoneNumber;
+
+      return res.render("dashboard/technicians/form", {
+        technician,
+        jobNames,
+        neighborhoods: allNeighborhoods,
+        jobNeighborhoodMap: JSON.stringify(jobNeighborhoodMap),
+        errors, // pass as array
+      });
     }
 
+    const job = await Job.findOne({ name: req.body.jobName });
+    if (!job) throw new Error('Job not found');
+
     technician.jobName = job._id;
-    technician.neighborhoodNames = Array.isArray(req.body.neighborhoodNames) 
-      ? req.body.neighborhoodNames 
+    technician.neighborhoodNames = Array.isArray(req.body.neighborhoodNames)
+      ? req.body.neighborhoodNames
       : [req.body.neighborhoodNames];
     technician.mainTitle = req.body.mainTitle;
     technician.description = req.body.description;
     technician.phoneNumber = req.body.phoneNumber;
-    
+
     if (req.file) {
       technician.jobTechnicianPhoto = req.file.filename;
     }
@@ -162,17 +206,17 @@ const updateTechnician = async (req, res) => {
     res.redirect("/dashboard/technicians");
   } catch (err) {
     console.error(err);
+
     const jobNames = await Job.distinct('name');
     const jobNeighborhoodMap = await getJobNeighborhoodMap();
     const allNeighborhoods = await Neighborhood.find();
-    const technician = await Technician.findById(req.params.id);
-    
+
     res.render("dashboard/technicians/form", {
-      technician,
+      technician: null,
       jobNames,
       neighborhoods: allNeighborhoods,
       jobNeighborhoodMap: JSON.stringify(jobNeighborhoodMap),
-      error: err.message
+      errors: [err.message || "An error occurred while updating technician"],
     });
   }
 };

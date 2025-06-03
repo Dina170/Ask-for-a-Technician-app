@@ -1,12 +1,18 @@
 const Neighborhood = require("../../models/neighborhood");
 const Job = require("../../models/job");
 const Technician = require("../../models/technician");
+const { buildSearchQuery } = require("../../utils/searchFilters");
 
 // Get all neighborhoods
 const getAllNeighborhoods = async (req, res) => {
   try {
-    const neighborhoods = await Neighborhood.find();
-    res.render("dashboard/neighborhoods/index", { neighborhoods });
+    // Build query using only the search term for the 'name' field
+    const search = req.query.search || '';
+    const query = buildSearchQuery({ search: req.query.search || '' }, 'name', false);
+
+    const neighborhoods = await Neighborhood.find(query);
+    const neighborhoodNames = await Neighborhood.distinct("name");
+    res.render("dashboard/neighborhoods/index", { neighborhoods, filters: { search } ,neighborhoodNames});
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods");
@@ -29,7 +35,10 @@ const getNeighborhoodById = async (req, res) => {
 
 // Render new neighborhood form
 const newNeighborhood = (req, res) => {
-  res.render("dashboard/neighborhoods/form", { neighborhood: null , error: null});
+  res.render("dashboard/neighborhoods/form", {
+    neighborhood: null,
+    error: null,
+  });
 };
 
 // Create a new neighborhood
@@ -40,13 +49,13 @@ const createNeighborhood = async (req, res) => {
     if (!name || !req.file) {
       return res.render("dashboard/neighborhoods/form", {
         neighborhood: null,
-        error: "Name and photo are required"
+        error: "Name and photo are required",
       });
     }
 
     const neighborhood = new Neighborhood({
       name,
-      neighborhoodPhoto: req.file.filename
+      neighborhoodPhoto: req.file.filename,
     });
 
     await neighborhood.save();
@@ -61,7 +70,7 @@ const createNeighborhood = async (req, res) => {
 
     res.render("dashboard/neighborhoods/form", {
       neighborhood: null,
-      error: errorMessage
+      error: errorMessage,
     });
   }
 };
@@ -70,6 +79,8 @@ const createNeighborhood = async (req, res) => {
 const deleteAllNeighborhoods = async (req, res) => {
   try {
     await Neighborhood.deleteMany({});
+    await Job.updateMany({}, { $unset: { neighborhoodName: "" } });
+    await Technician.updateMany({}, { $unset: { neighborhoodNames: "" } });
     res.redirect("/dashboard/neighborhoods");
   } catch (err) {
     console.error(err);
@@ -80,7 +91,16 @@ const deleteAllNeighborhoods = async (req, res) => {
 // Delete single neighborhood
 const deleteNeighborhood = async (req, res) => {
   try {
-    await Neighborhood.findByIdAndDelete(req.params.id);
+    const neighborhoodId = req.params.id;
+    await Neighborhood.findByIdAndDelete(neighborhoodId);
+    await Job.updateMany(
+      { neighborhoodName: neighborhoodId },
+      { $unset: { neighborhoodName: "" } }
+    );
+    await Technician.updateMany(
+      { neighborhoodNames: neighborhoodId },
+      { $pull: { neighborhoodNames: neighborhoodId } }
+    );
     res.redirect("/dashboard/neighborhoods");
   } catch (err) {
     console.error(err);
@@ -95,7 +115,7 @@ const editNeighborhood = async (req, res) => {
     if (!neighborhood) {
       return res.redirect("/dashboard/neighborhoods");
     }
-    res.render("dashboard/neighborhoods/form", { neighborhood , error: null});
+    res.render("dashboard/neighborhoods/form", { neighborhood, error: null });
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods");
@@ -128,11 +148,10 @@ const updateNeighborhood = async (req, res) => {
     const neighborhood = await Neighborhood.findById(req.params.id); // fetch again to re-render form
     res.render("dashboard/neighborhoods/form", {
       neighborhood,
-      error: errorMessage
+      error: errorMessage,
     });
   }
 };
-
 
 module.exports = {
   deleteAllNeighborhoods,
