@@ -11,6 +11,7 @@ const jobRouter = require("./routes/job.route");
 const technicianRouter = require("./routes/technician.route");
 const Job = require("./models/job");
 const Neighborhood = require("./models/neighborhood");
+const Technician = require("./models/technician");
 
 
 
@@ -40,50 +41,50 @@ app.use('/uploads', express.static('uploads'));
 
 
 //frontend routes
-// Route: to render the landing page with jobs
+// Route: to render the landing page with technicians
 app.get("/", async (req, res) => {
   try {
-    const jobs = await Job.find().populate("neighborhoodName");
-    res.render("landingpage/index", { jobs, type: 'jobs' });
+    const technicians = await Technician.find().populate('neighborhoodNames').limit(6);
+    res.render("landingpage/index", { technicians , type: 'technicians' });
   } catch (err) {
     console.error(err);
-    res.render("landingpage/index", { jobs: [], type: 'jobs' });
+    res.render("landingpage/index", { technicians: [], type: 'technicians' });
   }
 });
 
-// Route: to render neighborhoods according to job name
-app.get("/jobs/filter/:jobName", async (req, res) => {
+// Route: to render all technicians
+app.get("/alltechnicians", async (req, res) => {
   try {
-    const jobName = req.params.jobName;
-    const jobs = await Job.find({ name: jobName }).populate("neighborhoodName");
-
-    const neighborhoods = jobs
-      .map(job => job.neighborhoodName)
-      .filter(Boolean);
-
-    res.render("partials/neighborhoodCard", { neighborhoods, type: 'neighborhoods' }); 
+    const technicians = await Technician.find().populate('neighborhoodNames');
+    res.render("pages/alltechnicians", { technicians});
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error fetching jobs by neighborhood");
+    res.render("pages/alltechnicians", { technicians: [] });
   }
 });
 
-// Route: to all jobs page
-app.get("/jobs", async (req, res) => {
+
+// Route: Get neighborhoods for a specific technician
+app.get("/technicians/:id/neighborhoods", async (req, res) => {
   try {
-    const jobs = await Job.find().populate("neighborhoodName");
-    res.render("pages/alljobs", { jobs ,type: 'jobs'});
+    const technician = await Technician.findById(req.params.id).populate("neighborhoodNames");
+
+    if (!technician) return res.status(404).send("فني غير موجود");
+
+    const neighborhoods = technician.neighborhoodNames;
+
+    res.render("partials/neighborhoodCard", { neighborhoods, type: 'neighborhoods' });
   } catch (err) {
     console.error(err);
-    res.render("pages/alljobs", { jobs: [], type: 'jobs' });
+    res.status(500).send("خطأ في جلب الأحياء");
   }
 });
+
+
 
 // Route: to all neighborhoods page
 app.get("/allneighborhoods", async (req, res) => {
-  console.log("دخل الراوت /allneighborhoods ✅");
   try {
-    // const neighborhoods = await Job.find().populate("neighborhoodName");
      const neighborhoods = await Neighborhood.find();
     res.render("pages/allneighborhoods", { neighborhoods, type: 'neighborhoods' }); 
   } catch (err) {
