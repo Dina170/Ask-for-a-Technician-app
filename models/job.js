@@ -8,4 +8,8 @@ const JobSchema = new mongoose.Schema({
   mainDescription: { type: String, required: true },
   subDescription: { type: String },
 });
+
+// Prevent duplicate job name in the same neighborhood
+JobSchema.index({ name: 1, neighborhoodName: 1 }, { unique: true });
+
 module.exports = mongoose.model("Job", JobSchema);

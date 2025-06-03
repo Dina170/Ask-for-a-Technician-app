@@ -1,0 +1,97 @@
+<h1>All Neighborhoods</h1>
+
+<form method="GET" action="/dashboard/neighborhoods" style="position: relative;">
+  <input
+    type="text"
+    id="neighborhoodSearchInput"
+    name="search"
+    placeholder="Search by name"
+    value="<%= filters.search %>"
+    autocomplete="off"
+  />
+  <button type="submit">Search</button>
+  <% if (filters.search) { %>
+    <a href="/dashboard/neighborhoods">Clear</a>
+  <% } %>
+</form>
+
+<a href="/dashboard/neighborhoods/new">Add New Neighborhood</a>
+<ul>
+  <% neighborhoods.forEach(n => { %>
+    <li>
+      <h3><%= n.name %></h3>
+      <% if (n.neighborhoodPhoto) { %>
+        <img src="/uploads/neighborhoods/<%= n.neighborhoodPhoto %>" alt="Neighborhood Photo" width="150">
+      <% } %>
+      <div>
+        <a href="/dashboard/neighborhoods/<%= n._id %>">View</a>
+        <a href="/dashboard/neighborhoods/<%= n._id %>/edit">Edit</a>
+        <form action="/dashboard/neighborhoods/<%= n._id %>?_method=DELETE" method="POST" style="display:inline;">
+          <button type="submit" onclick="return confirm('Delete this neighborhood?')">Delete</button>
+        </form>
+      </div>
+    </li>
+  <% }) %>
+</ul>
+
+<script>
+  const neighborhoods = <%- JSON.stringify(neighborhoodNames) %>;
+  const input = document.getElementById('neighborhoodSearchInput');
+
+  // Create suggestions container
+  const suggestions = document.createElement('div');
+  suggestions.style.position = 'absolute';
+  suggestions.style.border = '1px solid #ccc';
+  suggestions.style.backgroundColor = '#fff';
+  suggestions.style.maxHeight = '150px';
+  suggestions.style.overflowY = 'auto';
+  suggestions.style.width = input.offsetWidth + 'px';
+  suggestions.style.zIndex = 1000;
+  suggestions.style.display = 'none';
+  suggestions.style.cursor = 'pointer';
+
+  input.parentElement.style.position = 'relative';
+  input.parentNode.insertBefore(suggestions, input.nextSibling);
+
+  input.addEventListener('input', () => {
+    const val = input.value.trim().toLowerCase();
+    suggestions.innerHTML = '';
+
+    if (!val) {
+      suggestions.style.display = 'none';
+      return;
+    }
+
+    const filtered = neighborhoods.filter(name => name.toLowerCase().includes(val));
+
+    if (filtered.length === 0) {
+      suggestions.style.display = 'none';
+      return;
+    }
+
+    filtered.forEach(name => {
+      const option = document.createElement('div');
+      option.textContent = name;
+      option.style.padding = '5px';
+
+      option.addEventListener('mouseenter', () => option.style.backgroundColor = '#eee');
+      option.addEventListener('mouseleave', () => option.style.backgroundColor = '#fff');
+
+      option.addEventListener('click', () => {
+        input.value = name;
+        suggestions.style.display = 'none';
+      });
+
+      suggestions.appendChild(option);
+    });
+
+    suggestions.style.display = 'block';
+  });
+
+  document.addEventListener('click', e => {
+    if (!suggestions.contains(e.target) && e.target !== input) {
+      suggestions.style.display = 'none';
+    }
+  });
+</script>
+

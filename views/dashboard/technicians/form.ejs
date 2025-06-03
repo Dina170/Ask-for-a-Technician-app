@@ -1,0 +1,99 @@
+<h1>
+    <%= technician ? "Edit" : "Add" %> Technician
+</h1>
+
+<% if (errors && errors.length > 0) { %>
+  <div class="error-messages" style="color: red; margin-bottom: 1em;">
+    <ul>
+      <% errors.forEach(error => { %>
+        <li><%= error.msg || error %></li>
+      <% }) %>
+    </ul>
+  </div>
+<% } %>
+
+<form action="<%= technician ? '/dashboard/technicians/' + technician._id + '?_method=PUT' : '/dashboard/technicians' %>" method="POST"
+    enctype="multipart/form-data">
+
+    <label for="jobName">Job:</label>
+    <select name="jobName" id="jobName" required>
+        <option value="">Select a job</option>
+        <% jobNames.forEach(jobName => { %>
+            <option value="<%= jobName %>" 
+                <%= technician && technician.jobName?.name === jobName ? 'selected' : '' %>>
+                <%= jobName %>
+            </option>
+        <% }) %>
+    </select>
+
+    <!-- Neighborhoods (Multiple Select) -->
+    <div class="form-group">
+        <label for="neighborhoodNames">Neighborhoods (Hold Ctrl/Cmd to select multiple):</label>
+        <select name="neighborhoodNames" id="neighborhoodNames" multiple required>
+            <!-- Will be populated by JavaScript -->
+            <% if (technician && technician.neighborhoodNames) { %>
+                <% neighborhoods.forEach(n => { %>
+                    <option value="<%= n._id %>" 
+                        <%= technician.neighborhoodNames.some(nId => nId.equals(n._id)) ? 'selected' : '' %>>
+                        <%= n.name %>
+                    </option>
+                <% }) %>
+            <% } %>
+        </select>
+    </div>
+
+    <label for="mainTitle">Main Title:</label>
+    <input type="text" name="mainTitle" value="<%= technician?.mainTitle || '' %>" required>
+
+    <label for="description">Description:</label>
+    <textarea name="description" required><%= technician?.description || '' %></textarea>
+
+    <label for="phoneNumber">Phone Number:</label>
+    <input type="tel" name="phoneNumber" value="<%= technician?.phoneNumber || '' %>"
+        placeholder="+9665xxxxxxxx or 05xxxxxxxx">
+
+    <% if (technician && technician.jobTechnicianPhoto) { %>
+        <p>Current Photo:</p>
+        <img src="/uploads/technicians/<%= technician.jobTechnicianPhoto %>" width="150">
+    <% } %>
+
+    <label for="jobTechnicianPhoto">Upload Photo:</label>
+    <input type="file" name="jobTechnicianPhoto" <%= technician ? '' : 'required' %>>
+
+    <button type="submit">
+        <%= technician ? "Update" : "Add" %>
+    </button>
+</form>
+
+<a href="/dashboard/technicians">Back to List</a>
+
+<script>
+    const jobNeighborhoodMap = JSON.parse('<%- jobNeighborhoodMap %>');
+    const jobSelect = document.getElementById('jobName');
+    const neighborhoodSelect = document.getElementById('neighborhoodNames');
+    
+    jobSelect.addEventListener('change', function() {
+        const selectedJob = this.value;
+        neighborhoodSelect.innerHTML = '';
+        
+        if (selectedJob && jobNeighborhoodMap[selectedJob]) {
+            jobNeighborhoodMap[selectedJob].forEach(neighborhood => {
+                const option = document.createElement('option');
+                option.value = neighborhood._id;
+                option.textContent = neighborhood.name;
+                
+                <% if (technician && technician.neighborhoodNames) { %>
+                    if (<%= technician.neighborhoodNames.map(n => n.toString()).includes('" + neighborhood._id + "') %>) {
+                        option.selected = true;
+                    }
+                <% } %>
+                
+                neighborhoodSelect.appendChild(option);
+            });
+        }
+    });
+    
+    <% if (technician && technician.jobName) { %>
+        jobSelect.dispatchEvent(new Event('change'));
+    <% } %>
+</script>
