@@ -22,4 +22,5 @@ router.get("/:id", getNeighborhoodById);
 router.put("/:id", upload.single("neighborhoodPhoto"), updateNeighborhood);
 router.delete("/:id", deleteNeighborhood);
 
+
 module.exports = router;
