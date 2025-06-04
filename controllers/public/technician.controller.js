@@ -8,7 +8,8 @@ exports.getTechnicianNeighborhoods = async (req, res) => {
     // 1. Get technician with job and neighborhoods populated
     const tech = await Technician.findById(req.params.id)
       .populate('jobName')
-      .populate('neighborhoodNames');
+      .populate('neighborhoodNames')
+      .limit(6);
 
     if (!tech) return res.status(404).send('Technician not found');
 
