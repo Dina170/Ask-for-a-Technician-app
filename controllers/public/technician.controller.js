@@ -72,6 +72,7 @@ exports.getNeighborhoodDetails = async (req, res) => {
       technician,
       neighborhood,
       job,
+      type: 'technicians', 
     });
   } catch (error) {
     console.error(error);
@@ -80,25 +81,31 @@ exports.getNeighborhoodDetails = async (req, res) => {
 };
 
 
-// Get all technicians with optional search  
+// Get all technicians with optional search (autocomplete) 
 exports.getAllTechnicians = async (req, res) => {
   try {
     const search = req.query.search || '';
 
-    // Build search query
     const query = {};
     if (search.trim()) {
-      query.mainTitle = { $regex: search.trim(), $options: 'i' }; // Search by mainTitle (technician name/title)
+      query.mainTitle = { $regex: search.trim(), $options: 'i' };
     }
 
     const technicians = await Technician.find(query)
       .populate('jobName neighborhoodNames');
 
+    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+      const suggestions = technicians.map(tech => ({
+        id: tech._id,
+        name: tech.mainTitle,
+      }));
+      return res.json(suggestions);
+    }
+
     res.render('pages/alltechnicians', {
       technicians,
       search,
-      type: 'technicians',   
-     
+      type: 'technicians',
     });
   } catch (err) {
     console.error(err);

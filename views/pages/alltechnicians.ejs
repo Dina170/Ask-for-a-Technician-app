@@ -31,12 +31,16 @@
           <div class="relative w-full">
             <input
               type="text"
+              id="search"
               name="search"
               value="<%= search || '' %>"
               placeholder="ابحث عن فني"
               class="w-full border border-gray-300 rounded-full py-2 pr-10 pl-4 focus:outline-none focus:ring-2 focus:ring-[#2A4759]"
             />
-
+          <ul
+                id="autocomplete-list"
+                class="absolute z-50 bg-white  w-full mt-1 rounded-lg shadow max-h-60 overflow-y-auto"
+              ></ul>
             <button type="submit" class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 hover:text-[#2A4759]">
               <i class="fa-solid fa-magnifying-glass"></i>
             </button>
@@ -66,7 +70,7 @@
           <!-- Location Icon -->
           <button 
             class="job-filter-btn group absolute top-2 left-2 bg-white rounded-full p-2 pl-3 pr-3 shadow text-orange-500 flex items-center w-10 hover:w-40 transition-all duration-300 overflow-hidden"
-            data-technicianname="<%= technician.name %>"
+            data-technicianname="<%= technician._id %>"
           >
             <i class="fa-solid fa-location-dot text-lg ml-2"></i>
             <span class="ml-2 whitespace-nowrap text-sm text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -76,7 +80,7 @@
         </div>
 
         <div class="card-body p-4">
-          <h3 class="text-lg font-bold text-orange-500 mb-1"><%= technician.name %></h3>
+          <h3 class="text-lg font-bold text-orange-500 mb-1"><%= technician.mainTitle %></h3>
           <p class="text-gray-700 text-sm mb-1"><%= technician.description %></p>
 
           <div class="mt-4 flex gap-2">
@@ -99,5 +103,49 @@
 
     <!-- footer -->
     <%- include("../layouts/footer") %>
+
+
+   <script>
+  const searchInput = document.getElementById('search');
+  const suggestionBox = document.getElementById('autocomplete-list');
+
+  searchInput.addEventListener('input', async () => {
+    const query = searchInput.value.trim();
+    suggestionBox.innerHTML = '';
+
+    if (query.length === 0) return;
+
+    try {
+      const res = await fetch(`/technicians?search=${encodeURIComponent(query)}`, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest' // عشان يعرف إنه طلب AJAX
+        }
+      });
+      const suggestions = await res.json();
+
+      suggestions.forEach(tech => {
+        const li = document.createElement('li');
+        li.textContent = tech.name;  // 👈 هنا كانت المشكلة
+        li.className = "px-4 py-2 cursor-pointer hover:bg-gray-100";
+        li.addEventListener('click', () => {
+          searchInput.value = tech.name;
+          suggestionBox.innerHTML = '';
+        });
+        suggestionBox.appendChild(li);
+      });
+    } catch (err) {
+      console.error("Autocomplete fetch error:", err);
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+      suggestionBox.innerHTML = '';
+    }
+  });
+</script>
+
+
   </body>
+
 </html>
