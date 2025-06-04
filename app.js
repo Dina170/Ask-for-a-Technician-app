@@ -82,7 +82,10 @@ app.get("/", async (req, res) => {
       .populate("neighborhoodNames")
       .limit(6);
 
-    const jobs = await Job.find();
+    const jobsWithTechnicians = await Technician.distinct('jobName');
+    const jobs = await Job.find({ _id: { $in: jobsWithTechnicians } });
+
+    // const jobs = await Job.find();
     const neighborhoods = await Neighborhood.find();
     const isFiltered = jobTitle || neighborhood;
 
@@ -92,6 +95,7 @@ app.get("/", async (req, res) => {
       neighborhoods,
       type: "technicians",
       isFiltered,
+      selectedJob: jobTitle || null
     });
   } catch (err) {
     console.error(err);

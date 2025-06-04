@@ -72,17 +72,27 @@
 
     <!-- Filter Buttons -->
     <section class="mt-5 mb-5">
-      <div class="flex flex-wrap justify-center gap-4 mb-6">
-        <button class="filter-btn px-4 py-2 rounded-lg border border-[#2A4759] text-white hover:bg-[#406A84]  hover:border-[#406A84] active bg-[#2A4759]" data-type="all">
+    <div class="flex flex-wrap justify-center gap-4 mb-6">
+      <a href="/">
+        <button class="filter-btn px-4 py-2 rounded-lg border 
+          <%= !selectedJob ? 'bg-[#2A4759] text-white border-[#2A4759]' : 'border-gray-300 text-[#2A4759] hover:bg-[#406A84] hover:text-white' %>">
           الكل
         </button>
-        <button class="filter-btn px-4 py-2 rounded-lg border border-gray-300 text-[#2A4759] hover:bg-[#406A84] hover:text-white" data-type="نجار">
-          فني ألموتال الرياض
-        </button>
-        <button class="filter-btn px-4 py-2 rounded-lg border border-gray-300 text-[#2A4759] hover:bg-[#406A84] hover:text-white" data-type="كهربائي">
-          نجار الرياض
-        </button>
-      </div>
+      </a>
+
+      <% jobs.forEach(job => { 
+          const isActive = selectedJob && selectedJob.toString() === job._id.toString();
+      %>
+        <a href="/?jobTitle=<%= job._id %>">
+          <button class="filter-btn px-4 py-2 rounded-lg border 
+            <%= isActive ? 'bg-[#2A4759] text-white border-[#2A4759]' : 'border-gray-300 text-[#2A4759] hover:bg-[#406A84] hover:text-white' %>">
+            <%= job.name %>
+          </button>
+        </a>
+      <% }) %>
+    </div>
+
+
 
       <!-- technician Cards -->
       <div id="cards-container" class="container mx-auto grid md:grid-cols-3 gap-6 px-10">

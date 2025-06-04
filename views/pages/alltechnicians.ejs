@@ -143,6 +143,23 @@
       suggestionBox.innerHTML = '';
     }
   });
+
+
+
+  //location icon 
+  document.addEventListener('DOMContentLoaded', () => {
+  const locationButtons = document.querySelectorAll('.job-filter-btn');
+
+  locationButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const technicianId = button.getAttribute('data-technicianname');
+      if (technicianId) {
+        window.location.href = `/technicians/${technicianId}/seeMoreTechnicianNeighborhoods`;
+      }
+    });
+  });
+});
+
 </script>
 
 
