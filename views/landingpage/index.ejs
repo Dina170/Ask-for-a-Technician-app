@@ -32,27 +32,31 @@
 
       <!-- Search Form -->
       <form
+        method="get"
+        action="/"
         class="absolute left-1/2 transform -translate-x-1/2 bottom-[-50px] z-30 bg-white shadow-lg rounded-lg py-4 flex flex-col md:flex-row items-center justify-center gap-4 w-[80%] max-w-4xl"
         
       >
         <div class="flex items-center w-full md:w-1/3 border border-gray-300 rounded-md p-3 gap-2">
           <i class="fa-solid fa-user text-gray-500"></i>
-          <select class="w-full outline-none">
+          <select name="jobTitle" class="w-full outline-none">
             <option value="">اختر نوع الفني</option>
-            <option>نجار</option>
-            <option>كهربائي</option>
-            <option>سباك</option>
+            <% jobs.forEach(job => { %>
+              <option value="<%= job._id %>"><%= job.name %></option>
+            <% }) %>
           </select>
+
         </div>
 
         <div class="flex items-center w-full md:w-1/3 border border-gray-300 rounded-md p-3 gap-2">
           <i class="fa-solid fa-location-dot text-gray-500"></i>
-          <select class="w-full outline-none">
+          <select name="neighborhood" class="w-full outline-none">
             <option value="">اختر الحي</option>
-            <option>حي النرجس</option>
-            <option>حي الصحافة</option>
-            <option>حي الشفا</option>
+            <% neighborhoods.forEach(n => { %>
+              <option value="<%= n.name %>"><%= n.name %></option>
+            <% }) %>
           </select>
+
         </div>
 
         <button
@@ -82,60 +86,68 @@
 
       <!-- technician Cards -->
       <div id="cards-container" class="container mx-auto grid md:grid-cols-3 gap-6 px-10">
-        <% technicians.forEach(technician => { %>
-          <div class="card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative">
-            <div class="relative h-48">
-              <img src="/uploads/technicians/<%= technician.jobTechnicianPhoto %>" alt="<%= technician.name %>" class="w-full h-full object-cover" />
-
-              <!-- location icon: Links to /technicians/:id/neighborhoods -->
-              <button 
-                class="job-filter-btn group absolute top-2 left-2 bg-white rounded-full p-2 pl-3 pr-3 shadow text-orange-500 flex items-center w-10 hover:w-40 transition-all duration-300 overflow-hidden"
-                data-technician-id="<%= technician._id %>"
-              >
-                <i class="fa-solid fa-location-dot text-lg  ml-2"></i>
-                <span class="ml-2 whitespace-nowrap text-sm text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  عرض الأحياء
-                </span>
-              </button>
-
-
-            </div>
-
-            <div class="card-body p-4">
-              <h3 class="text-lg font-bold text-orange-500 mb-1"><%= technician.mainTitle %></h3>
-              <p class="text-gray-700 text-sm mb-1"><%= technician.description %></p>
-
-              <div class="mt-4 flex gap-2">
-                <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank"
-                  class="flex-1 bg-[#2A4759] hover:bg-[#406A84] text-white text-sm text-center py-2 rounded-lg">
-                  <i class="fab fa-whatsapp text-2xl pl-2"></i>
-                  واتساب
-                </a>
-                <a href="tel:<%= technician.phoneNumber %>"
-                  class="flex-1 bg-white border border-[#2A4759] hover:bg-[#2A4759] hover:text-white text-[#2A4759] text-sm text-center py-2 rounded-lg">
-                  <i class="fa-solid fa-phone text-2xl pl-2"></i>
-                  اتصل بنا
-                </a>
-              </div>
-            </div>
+        <% if (technicians.length === 0) { %>
+          <div class="col-span-3 text-center text-gray-600 bg-white py-10 rounded-lg shadow">
+            <i class="fa-solid fa-triangle-exclamation text-orange-400 text-4xl mb-4"></i>
+            <p class="text-xl font-semibold mb-2">لا يوجد فنيين حسب بحثك</p>
+            <p class="text-sm text-gray-500">جرب اختيار وظيفة أو حي مختلف</p>
           </div>
-        <% }) %>
-      </div>
+        <% } else { %>
+    <% technicians.forEach(technician => { %>
+      <div class="card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative">
+        <div class="relative h-48">
+          <img src="/uploads/technicians/<%= technician.jobTechnicianPhoto %>" alt="<%= technician.name %>" class="w-full h-full object-cover" />
 
-      <!-- Load More technicians or nighborhoods -->
-      <% if (typeof type !== 'undefined') { %>
-        <div class="text-center mt-6">
-          <% if (type === 'technicians') { %>
-            <a href="/alltechnicians" class="bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border border-[#2A4759] px-6 py-2 rounded-lg shadow-md mb-5 inline-block">
-              عرض المزيد >>
-            </a>
-          <% } else if (type === 'neighborhoods') { %>
-            <a href="/allneighborhoods" class="bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border border-[#2A4759] px-6 py-2 rounded-lg shadow-md mb-5 inline-block">
-              عرض المزيد >>
-            </a>
-          <% } %>
+          <!-- location icon: Links to /technicians/:id/neighborhoods -->
+          <button 
+            class="job-filter-btn group absolute top-2 left-2 bg-white rounded-full p-2 pl-3 pr-3 shadow text-orange-500 flex items-center w-10 hover:w-40 transition-all duration-300 overflow-hidden"
+            data-technician-id="<%= technician._id %>"
+          >
+            <i class="fa-solid fa-location-dot text-lg ml-2"></i>
+            <span class="ml-2 whitespace-nowrap text-sm text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              عرض الأحياء
+            </span>
+          </button>
         </div>
-      <% } %>
+
+        <div class="card-body p-4">
+          <h3 class="text-lg font-bold text-orange-500 mb-1"><%= technician.mainTitle %></h3>
+          <p class="text-gray-700 text-sm mb-1"><%= technician.description %></p>
+
+          <div class="mt-4 flex gap-2">
+            <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank"
+              class="flex-1 bg-[#2A4759] hover:bg-[#406A84] text-white text-sm text-center py-2 rounded-lg">
+              <i class="fab fa-whatsapp text-2xl pl-2"></i>
+              واتساب
+            </a>
+            <a href="tel:<%= technician.phoneNumber %>"
+              class="flex-1 bg-white border border-[#2A4759] hover:bg-[#2A4759] hover:text-white text-[#2A4759] text-sm text-center py-2 rounded-lg">
+              <i class="fa-solid fa-phone text-2xl pl-2"></i>
+              اتصل بنا
+            </a>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  <% } %>
+</div>
+
+
+     <!-- Load More technicians or neighborhoods -->
+        <% if (typeof type !== 'undefined' && !isFiltered) { %>
+          <div class="text-center mt-6">
+            <% if (type === 'technicians') { %>
+              <a href="/technicians" class="bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border border-[#2A4759] px-6 py-2 rounded-lg shadow-md mb-5 inline-block">
+                عرض المزيد >>
+              </a>
+            <% } else if (type === 'neighborhoods') { %>
+              <a href="/allneighborhoods" class="bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border border-[#2A4759] px-6 py-2 rounded-lg shadow-md mb-5 inline-block">
+                عرض المزيد >>
+              </a>
+            <% } %>
+          </div>
+        <% } %>
+
 
 
       
