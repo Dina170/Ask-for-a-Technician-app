@@ -6,6 +6,7 @@ const techController = require('../../controllers/public/technician.controller')
 // Show all technicians page
 router.get('/', techController.getAllTechnicians);
 
+
 // New route for "See More" page with search
 router.get('/:id/seeMoreTechnicianNeighborhoods', techController.getSeeMoreTechnicianNeighborhoods);
 // Show technician neighborhoods list

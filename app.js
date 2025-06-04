@@ -100,41 +100,6 @@ app.get("/", async (req, res) => {
 });
 
 
-// Route: to all neighborhoods page
-app.get("/allneighborhoods", async (req, res) => {
-  try {
-    const searchQuery = req.query.search?.trim().toLowerCase() || '';
-
-    let neighborhoods = await Neighborhood.find();
-
-    if (searchQuery) {
-      neighborhoods = neighborhoods.filter((neigh) =>
-        neigh.name && neigh.name.toLowerCase().includes(searchQuery)
-      );
-    }
-
-    const neighborhoodsWithJobs = await Promise.all(
-      neighborhoods.map(async (neighborhood) => {
-        const job = await Job.findOne({ neighborhoodName: neighborhood._id });
-        return { neighborhood, job };
-      })
-    );
-
-    res.render("pages/allneighborhoods", {
-      neighborhoodsWithJobs,
-      searchQuery, 
-      type: 'neighborhoods'
-    });
-  } catch (err) {
-    console.error(err);
-    res.render("pages/allneighborhoods", {
-      neighborhoodsWithJobs: [],
-      searchQuery: '',
-      type: 'neighborhoods'
-    });
-  }
-});
-
 
 app.use(express.static('public'));
 

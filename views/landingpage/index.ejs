@@ -141,7 +141,7 @@
                 عرض المزيد >>
               </a>
             <% } else if (type === 'neighborhoods') { %>
-              <a href="/allneighborhoods" class="bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border border-[#2A4759] px-6 py-2 rounded-lg shadow-md mb-5 inline-block">
+              <a href="/technicians/<%= technician._id %>/seeMoreTechnicianNeighborhoods" class="bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border border-[#2A4759] px-6 py-2 rounded-lg shadow-md mb-5 inline-block">
                 عرض المزيد >>
               </a>
             <% } %>
@@ -170,7 +170,7 @@
       const loadMoreContainer = document.querySelector(".text-center.mt-6");
       if (loadMoreContainer) {
         loadMoreContainer.innerHTML = `
-          <a href="/allneighborhoods" class="bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border border-[#2A4759] px-6 py-2 rounded-lg shadow-md mb-5 inline-block">
+          <a href="/technicians/${technicianId}/seeMoreTechnicianNeighborhoods" class="bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border border-[#2A4759] px-6 py-2 rounded-lg shadow-md mb-5 inline-block">
             عرض المزيد >>
           </a>
         `;

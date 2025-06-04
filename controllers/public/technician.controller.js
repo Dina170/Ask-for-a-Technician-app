@@ -143,10 +143,11 @@ exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
     );
 
     // 4. Render the page with filtered data and pass search term back to template
-    res.render('public/seeMoreTechnicianNeighborhoods', {
+    res.render('pages/allneighborhoods', {
       technician: tech,
       neighborhoodsWithJobs,
       searchQuery,
+      type: 'neighborhoods'
     });
   } catch (error) {
     console.error(error);
