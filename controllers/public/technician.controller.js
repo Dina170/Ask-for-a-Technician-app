@@ -80,7 +80,7 @@ exports.getNeighborhoodDetails = async (req, res) => {
 };
 
 
-
+// Get all technicians with optional search  
 exports.getAllTechnicians = async (req, res) => {
   try {
     const search = req.query.search || '';
@@ -94,9 +94,11 @@ exports.getAllTechnicians = async (req, res) => {
     const technicians = await Technician.find(query)
       .populate('jobName neighborhoodNames');
 
-    res.render('public/showMoreTechnicians', {
+    res.render('pages/alltechnicians', {
       technicians,
       search,
+      type: 'technicians',   
+     
     });
   } catch (err) {
     console.error(err);
