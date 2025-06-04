@@ -47,7 +47,7 @@ app.use("/dashboard/neighborhoods", neighborhoodRouter);
 app.use("/dashboard/jobs", jobRouter);
 app.use("/dashboard/technicians", technicianRouter);
 
-// app.use("/", publicHomeRouter); // homepage + job-based filtering
+app.use("/", publicHomeRouter); // homepage + job-based filtering
 app.use("/technicians", publicTechnicianRouter); // technician + neighborhood pages
 app.use("/auth", authRouter); // authentication routes
 
@@ -58,50 +58,6 @@ app.use("/auth", authRouter); // authentication routes
 // app.use("/api", require("./routes/api.route"));
 
 
-//frontend routes
-// Route: to render the landing page with technicians and search functionality
-app.get("/", async (req, res) => {
-  try {
-    const { jobTitle, neighborhood } = req.query;
-    let techniciansQuery = {};
-
-    // filtering by job title
-    if (jobTitle) {
-      techniciansQuery.jobName = jobTitle;
-    }
-
-    // filtering by neighborhood
-    if (neighborhood) {
-      const neighborhoodDoc = await Neighborhood.findOne({ name: neighborhood });
-      if (neighborhoodDoc) {
-        techniciansQuery.neighborhoodNames = neighborhoodDoc._id;
-      }
-    }
-
-    const technicians = await Technician.find(techniciansQuery)
-      .populate("neighborhoodNames")
-      .limit(6);
-
-    const jobsWithTechnicians = await Technician.distinct('jobName');
-    const jobs = await Job.find({ _id: { $in: jobsWithTechnicians } });
-
-    // const jobs = await Job.find();
-    const neighborhoods = await Neighborhood.find();
-    const isFiltered = jobTitle || neighborhood;
-
-    res.render("landingpage/index", {
-      technicians,
-      jobs,
-      neighborhoods,
-      type: "technicians",
-      isFiltered,
-      selectedJob: jobTitle || null
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server Error");
-  }
-});
 
 
 

@@ -1,5 +1,6 @@
 const Job = require('../../models/job');
 const Technician = require('../../models/technician');
+const Neighborhood = require('../../models/neighborhood');
 
 
 
@@ -32,7 +33,8 @@ exports.getHomePage = async (req, res) => {
     // Step 1: Find all matching technicians (we'll filter neighborhoods in JS)
     const techniciansRaw = await Technician.find(query)
       .populate('jobName')
-      .populate('neighborhoodNames');
+      .populate('neighborhoodNames')
+      .limit(6);
 
     // Step 2: If neighborhood filter is present, filter after population
     const technicians = neighborhood.trim()
@@ -43,12 +45,17 @@ exports.getHomePage = async (req, res) => {
         )
       : techniciansRaw;
 
-    res.render('public/home', {
+       const neighborhoods = await Neighborhood.find();
+
+    res.render('landingpage/index', {
       jobs: uniqueJobs,
       technicians,
       technician,
-      neighborhood,
+      neighborhoods,
       selectedJobId: jobId || '',
+      selectedNeighborhood: neighborhood,
+      isFiltered: jobId || neighborhood || technician,
+      type: "technicians",
     });
 
   } catch (err) {
