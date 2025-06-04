@@ -15,56 +15,72 @@
     <%- include('../layouts/header') %>
 
     <!-- Hero Section -->
-    <section class="relative w-full h-[400px]">
-      <img
-        src="/images/hero.png"
-        alt="hero"
-        class="w-full h-full object-cover absolute inset-0 z-0"
+   <section class="relative w-full h-auto md:h-[400px] px-4 md:px-20 pt-10 md:pt-0 pb-24 md:pb-0">
+  <img
+    src="/images/hero.png"
+    alt="hero"
+    class="w-full h-64 md:h-full object-cover absolute inset-0 z-0"
+  />
+
+  <div class="relative z-20 flex flex-col justify-center text-white h-full max-w-5xl mx-auto">
+    <h1 class="text-3xl md:text-5xl font-bold mb-4 md:mb-5 leading-tight md:leading-snug">
+      أعثر علي الفني المناسب لك
+    </h1>
+    <p class="text-lg md:text-lg mb-7 max-w-full md:max-w-2xl leading-relaxed">
+      استكشف أفضل العمال المهرة بسهولة وسرعة، سواء كنت تبحث عن نجار،
+      كهربائي، سباك، أو أي خدمة أخرى — كل ما تحتاجه في مكان واحد
+    </p>
+  </div>
+
+  <!-- Search Form -->
+  <form
+    method="get"
+    action="/"
+    class="absolute left-1/2 transform -translate-x-1/2 bottom-[-60px] z-30 bg-white shadow-lg rounded-lg py-4 px-4 flex flex-col md:flex-row items-center justify-center gap-4 w-[90%] max-w-4xl"
+  >
+    <div class="relative flex items-center w-full md:w-1/3 border border-gray-300 rounded-md p-3 gap-2">
+      <i class="fa-solid fa-user text-gray-500"></i>
+      <input
+        type="text"
+        id="technicianSearch"
+        name="technician"
+        list="jobList"
+        placeholder="اكتب نوع الفني"
+        class="w-full outline-none text-sm md:text-base"
+        value="<%= typeof technician !== 'undefined' ? technician : '' %>"
       />
+      <ul
+        id="technicianAutocomplete"
+        class="absolute top-full left-0 right-0 z-50 bg-white rounded-md mt-1 max-h-60 overflow-y-auto shadow-lg"
+      ></ul>
+    </div>
 
-      <div class="relative z-20 flex flex-col justify-center text-white h-full px-20">
-        <h1 class="text-5xl font-bold mb-5">أعثر علي الفني المناسب لك</h1>
-        <p class="text-lg mb-6 max-w-2xl">
-          استكشف أفضل العمال المهرة بسهولة وسرعة، سواء كنت تبحث عن نجار،
-          كهربائي، سباك، أو أي خدمة أخرى — كل ما تحتاجه في مكان واحد
-        </p>
-      </div>
+    <div class="relative flex items-center w-full md:w-1/3 border border-gray-300 rounded-md p-3 gap-2">
+      <i class="fa-solid fa-location-dot text-gray-500"></i>
+      <input
+        type="text"
+        id="neighborhoodSearch"
+        name="neighborhood"
+        list="jobList"
+        placeholder="اكتب الحي"
+        class="w-full outline-none text-sm md:text-base"
+        value="<%= typeof neighborhood !== 'undefined' ? neighborhood : '' %>"
+      />
+      <ul
+        id="neighborhoodAutocomplete"
+        class="absolute top-full left-0 right-0 z-50 bg-white rounded-md mt-1 max-h-60 overflow-y-auto shadow-lg"
+      ></ul>
+    </div>
 
-      <!-- Search Form -->
-      <form
-        method="get"
-        action="/"
-        class="absolute left-1/2 transform -translate-x-1/2 bottom-[-50px] z-30 bg-white shadow-lg rounded-lg py-4 flex flex-col md:flex-row items-center justify-center gap-4 w-[80%] max-w-4xl"
-        
-      >
-        <div class="relative flex items-center w-full md:w-1/3 border border-gray-300 rounded-md p-3 gap-2">
-          <i class="fa-solid fa-user text-gray-500"></i>
-          <input type="text" id="technicianSearch" name="technician" list="jobList" placeholder="اكتب نوع الفني" class="w-full outline-none" 
-           value="<%= typeof technician !== 'undefined' ? technician : '' %>" />
-          <ul
-              id="technicianAutocomplete"
-              class="absolute top-full left-0 right-0 z-50 bg-white rounded-md mt-1 max-h-60 overflow-y-auto shadow-lg"
-            ></ul>
-        </div>
+    <button
+      type="submit"
+      class="w-full md:w-auto bg-gradient-to-r from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white px-7 py-3 rounded-md shadow-md transition text-sm md:text-base"
+    >
+      بحث
+    </button>
+  </form>
+</section>
 
-        <div class="relative flex items-center w-full md:w-1/3 border border-gray-300 rounded-md p-3 gap-2">
-          <i class="fa-solid fa-location-dot text-gray-500"></i>
-          <input type="text" id="neighborhoodSearch" name="neighborhood" list="jobList" placeholder="اكتب الحي" class="w-full outline-none" 
-           value="<%= typeof neighborhood !== 'undefined' ? neighborhood : '' %>" />
-            <ul
-                id="neighborhoodAutocomplete"
-                class="absolute top-full left-0 right-0 z-50 bg-white rounded-md mt-1 max-h-60 overflow-y-auto shadow-lg"
-              ></ul>
-        </div>
-
-        <button
-          type="submit"
-          class="w-full md:w-auto bg-gradient-to-r from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white px-7 py-3 rounded-md shadow-md transition"
-        >
-          بحث
-        </button>
-      </form>
-    </section>
 
     <div class="h-24"></div>
 
