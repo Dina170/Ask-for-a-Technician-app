@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title><%= neighborhood.name %> Details</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap" rel="stylesheet">
@@ -33,25 +33,21 @@
         </div>
 
         <div class="flex flex-col md:flex-row gap-6 p-4 md:p-8 items-stretch">
+          <% if (job && job.jobImage) { %>
+            <img src="/uploads/jobs/<%= job.jobImage %>" class="rounded-xl w-full md:w-1/2 h-[450px] object-cover" alt="Job Image" />
+          <% } else if (technician.jobName && technician.jobName.jobImage) { %>
+            <img src="/uploads/jobs/<%= technician.jobName.jobImage %>" alt="Job Image" />
+          <% } %>
+          <!--remove this if you get image from database-->
             <img class="rounded-xl w-full md:w-1/2 h-[450px] object-cover" src="../../uploads/الحى.png" alt="">
             <div class="md:w-1/2 h-full flex flex-col justify-between">
-                <h2 class="text-[#2A4759] text-xl font-bold text-right mb-4">حي الملك عبد العزيز</h2>
-        
+                <h2 class="text-[#2A4759] text-xl font-bold text-right mb-4"><h1><%= neighborhood.name %></h1></h2>
+                <h2>Technician: <%= technician.mainTitle %></h2>
                 <p class="text-right leading-relaxed whitespace-pre-line text-sm md:text-base">
-                    يمتلك فني مطابخ حي الملك عبد العزيز - الرياض ، فني مطابخ جولد الكثير من 
-                    المميزات التي جعلته من أجود الأيادي
-                    التي يمكن الاعتماد عليها في تركيب مثالي للمطبخ، حيث يتمكن فني مطابخ حي 
-                    الملك عبد العزيز - الرياض ، فني مطابخ جولد من تنفيذ ما يلي: 
-                    يقوم فني مطابخ حي الملك عبد العزيز - الرياض ، فني مطابخ جولد تركيب جميع أنواع الخزائن ودواليب 
-                    المطبخ، والأسطح والأجزاء المنفصلة في المطابخ، 
-                    مع تركيب الأحواض بأشكال متنوعة.
-                    كما يقوم فني مطابخ حي الملك عبد العزيز - الرياض ، فني مطابخ جولد بتزويد 
-                    المطابخ بإضاءة من عمل شركة ايكيا والالواح الجانبية
-                    وما تحتاج إليه المطابخ من تريب أرفف وسلال وغيرها.
-                    وما تحتاج إليه المطابخ من تريب أرفف وسلال وغيرها.
+                  <p>Description: <%= technician.description %></p>
                 </p>
-        
-                <a href="https://wa.me/0531307020" target="_blank" rel="noopener noreferrer">
+         
+                 <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank" rel="noopener noreferrer">
                     <button class="bg-[#2A4759] flex items-center justify-center gap-2 text-white rounded-lg w-full py-2 mt-12 hover:bg-[#1e3442] transition duration-300">
                         <img src="../../uploads/whatsapp_footer.png" alt="WhatsApp" class="w-5 h-5" />
                         <span>إرسال على واتساب</span>
@@ -66,8 +62,8 @@
      <div class="bg-white flex flex-col max-w-md mx-auto text-center mt-12">
         <h2 class="text-gray-800 text-xl font-semibold mb-4">اتصل الآن نصلك اينما كنت بالرياض</h2>
        
-        <a href="https://wa.me/0531307020" target="_blank" class="text-[#2A4759] font-bold underline"> - 0531307020 </a>
-        <a href="https://wa.me/966531307020" target="_blank" class="border border-[#2A4759] p-4 mt-4 rounded-full flex justify-center w-fit mx-auto">
+        <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank" class="text-[#2A4759] font-bold underline"> <%= technician.phoneNumber %> </a>
+        <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank" class="border border-[#2A4759] p-4 mt-4 rounded-full flex justify-center w-fit mx-auto">
             <img src="../../uploads/whatsapp.png" class="w-14 h-14 bg-[#2A4759] p-2 rounded-full" alt="WhatsApp Icon">
         </a>
          
@@ -77,19 +73,10 @@
 
     <div class="px-8 sm:px-16 ">
         <p class="text-right leading-relaxed whitespace-pre-line">
-            يمتلك فني مطابخ حي الملك عبد العزيز - الرياض ، فني مطابخ جولد الكثير من المميزات التي جعلته من أجود الأيادي
+          <p><%= job ? job.mainDescription : (technician.jobName ? technician.jobName.mainDescription : '') %></p>
 
- التي يمكن الاعتماد عليها في تركيب مثالي للمطبخ، حيث يتمكن فني مطابخ حي الملك عبد العزيز - الرياض ، فني مطابخ جولد من تنفيذ ما يلي:
+          <p><%= job ? job.subDescription : (technician.jobName ? technician.jobName.subDescription : '') %></p>
 
-يقوم فني مطابخ حي الملك عبد العزيز - الرياض ، فني مطابخ جولد تركيب جميع أنواع الخزائن ودواليب المطبخ، والأسطح والأجزاء المنفصلة في المطابخ،
-
-مع تركيب الأحواض بأشكال متنوعة.
-كما يقوم فني مطابخ حي الملك عبد العزيز - الرياض ، فني مطابخ جولد بتزويد المطابخ بإضاءة من عمل شركة ايكيا والالواح الجانبية
-
-وما تحتاج إليه المطابخ من تريب أرفف وسلال وغيرها.
-يحترف فني مطابخ حي الملك عبد العزيز - الرياض ، فني مطابخ جولد المهنة منذ سنوات، حاولنا فيها انجاز الكثير من النجاحات والتميز
-
- بالصدق والأمانة والإخلاص غير المسبوق في العمل.
         </p>
     </div>
 

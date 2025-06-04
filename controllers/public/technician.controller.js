@@ -68,7 +68,7 @@ exports.getNeighborhoodDetails = async (req, res) => {
     if (!job) return res.status(404).send('Job not found for this neighborhood');
 
     // Render with all info
-    res.render('public/neighborhoodDetails', {
+    res.render('details/index', {
       technician,
       neighborhood,
       job,
