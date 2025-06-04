@@ -100,32 +100,18 @@ app.get("/", async (req, res) => {
 });
 
 
-
-// Route: Get neighborhoods for a specific technician
-app.get("/technicians/:id/neighborhoods", async (req, res) => {
-  try {
-    const technicianId = req.params.id;
-    const technician = await Technician.findById(technicianId).populate("neighborhoodNames");
-    if (!technician) return res.status(404).send("فني غير موجود");
-
-    const neighborhoodsWithJobs = await Promise.all(
-      technician.neighborhoodNames.map(async (neighborhood) => {
-        const job = await Job.findOne({ neighborhoodName: neighborhood._id });
-        return { neighborhood, job };
-      })
-    );
-    res.render("partials/neighborhoodCard", { neighborhoodsWithJobs });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("حصل خطأ أثناء تحميل البيانات");
-  }
-});
-
 // Route: to all neighborhoods page
 app.get("/allneighborhoods", async (req, res) => {
   try {
-    const neighborhoods = await Neighborhood.find();
+    const searchQuery = req.query.search?.trim().toLowerCase() || '';
+
+    let neighborhoods = await Neighborhood.find();
+
+    if (searchQuery) {
+      neighborhoods = neighborhoods.filter((neigh) =>
+        neigh.name && neigh.name.toLowerCase().includes(searchQuery)
+      );
+    }
 
     const neighborhoodsWithJobs = await Promise.all(
       neighborhoods.map(async (neighborhood) => {
@@ -134,15 +120,20 @@ app.get("/allneighborhoods", async (req, res) => {
       })
     );
 
-    res.render("pages/allneighborhoods", { neighborhoodsWithJobs, type: 'neighborhoods' }); 
+    res.render("pages/allneighborhoods", {
+      neighborhoodsWithJobs,
+      searchQuery, 
+      type: 'neighborhoods'
+    });
   } catch (err) {
     console.error(err);
-    res.render("pages/allneighborhoods", { neighborhoodsWithJobs: [], type: 'neighborhoods' });
+    res.render("pages/allneighborhoods", {
+      neighborhoodsWithJobs: [],
+      searchQuery: '',
+      type: 'neighborhoods'
+    });
   }
 });
-
-
-
 
 
 app.use(express.static('public'));

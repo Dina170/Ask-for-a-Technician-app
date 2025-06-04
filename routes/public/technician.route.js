@@ -15,5 +15,4 @@ router.get('/:id/neighborhoods', techController.getTechnicianNeighborhoods);
 router.get('/:techId/neighborhoods/:neighId', techController.getNeighborhoodDetails);
 
 
-
 module.exports = router;

@@ -29,7 +29,7 @@ exports.getTechnicianNeighborhoods = async (req, res) => {
     );
 
     // 3. Render with enriched data
-    res.render('public/technicianNeighborhoods', {
+    res.render('partials/neighborhoodCard', {
       technician: tech,
       neighborhoodsWithJobs,
     });
