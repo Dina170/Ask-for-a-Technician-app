@@ -7,8 +7,8 @@ exports.getTechnicianNeighborhoods = async (req, res) => {
   try {
     // 1. Get technician with job and neighborhoods populated
     const tech = await Technician.findById(req.params.id)
-      .populate('jobName')             
-      .populate('neighborhoodNames'); 
+      .populate('jobName')
+      .populate('neighborhoodNames');
 
     if (!tech) return res.status(404).send('Technician not found');
 
@@ -72,6 +72,79 @@ exports.getNeighborhoodDetails = async (req, res) => {
       technician,
       neighborhood,
       job,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
+};
+
+
+
+exports.getAllTechnicians = async (req, res) => {
+  try {
+    const search = req.query.search || '';
+
+    // Build search query
+    const query = {};
+    if (search.trim()) {
+      query.mainTitle = { $regex: search.trim(), $options: 'i' }; // Search by mainTitle (technician name/title)
+    }
+
+    const technicians = await Technician.find(query)
+      .populate('jobName neighborhoodNames');
+
+    res.render('public/showMoreTechnicians', {
+      technicians,
+      search,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+
+//TechnicianNeighborhoods + filtration
+exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
+  try {
+    const technicianId = req.params.id;
+    const searchQuery = req.query.search?.trim().toLowerCase() || '';
+
+    // 1. Get technician with jobs and neighborhoods populated
+    const tech = await Technician.findById(technicianId)
+      .populate('jobName')
+      .populate('neighborhoodNames');
+
+    if (!tech) return res.status(404).send('Technician not found');
+
+    // 2. Filter neighborhoods by search query if provided
+    let filteredNeighborhoods = tech.neighborhoodNames;
+    if (searchQuery) {
+      filteredNeighborhoods = filteredNeighborhoods.filter(neigh =>
+        neigh.name && neigh.name.toLowerCase().includes(searchQuery)
+      );
+    }
+
+    // 3. For each filtered neighborhood, find matching job
+    const neighborhoodsWithJobs = await Promise.all(
+      filteredNeighborhoods.map(async (neigh) => {
+        const job = await Job.findOne({
+          name: tech.jobName.name,
+          neighborhoodName: neigh._id,
+        });
+        return {
+          neighborhood: neigh,
+          job: job || null,
+        };
+      })
+    );
+
+    // 4. Render the page with filtered data and pass search term back to template
+    res.render('public/seeMoreTechnicianNeighborhoods', {
+      technician: tech,
+      neighborhoodsWithJobs,
+      searchQuery,
     });
   } catch (error) {
     console.error(error);
