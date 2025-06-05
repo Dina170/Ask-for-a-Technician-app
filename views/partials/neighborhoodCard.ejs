@@ -8,7 +8,7 @@
         <div class="mr-4">
           <h3 class="text-lg font-bold text-[#2A4759] mb-1"><%= neighborhood.name %></h3>
           <% if (job) { %>
-            <p class="text-sm text-gray-600"><%= job.mainDescription %> <span class=" underline text-blue-500 mr-2  cursor-pointer"> التفاصيل</span></p>
+            <p class="text-sm text-gray-600"><%= job.mainDescription %> <a  href="/technicians/<%= technician._id %>/neighborhoods/<%= neighborhood._id %>" class=" underline text-blue-500 mr-2  cursor-pointer"> التفاصيل</a></p>
           <% } else { %>
             <p class="text-sm text-gray-400">لا يوجد وصف للخدمة في هذا الحي</p>
           <% } %>

@@ -40,6 +40,9 @@ app.use(
   })
 );
 
+app.use(express.static('public'));
+
+
 // Serve files from the uploads folder statically
 app.use("/uploads", express.static("uploads"));
 
@@ -58,10 +61,11 @@ app.use("/auth", authRouter); // authentication routes
 // app.use("/api", require("./routes/api.route"));
 
 
+// app.use("/details",(req,res)=>{
+//   res.render("details/index.ejs");
+// })
 
 
-
-app.use(express.static('public'));
 
 
 app.use((req, res, next) => {
