@@ -178,6 +178,13 @@
             <td class="p-2">
               <div class="flex gap-2 justify-center">
                 <a
+                  onclick="deleteItem('<%= t._id %>')"
+                  class="bg-pink-100 text-red-600 w-10 h-10 flex items-center justify-center rounded-md hover:bg-pink-300 transition duration-200"
+                  title="حذف"
+                >
+                  <i class="fa-solid fa-trash-can"></i>
+                </a>
+                <a
                 href="/dashboard/technicians/<%= t._id %>"
                 class="bg-green-500 w-10 h-10 flex items-center justify-center rounded-md hover:bg-green-600 text-white transition duration-200"
                 title="عرض"
@@ -191,15 +198,6 @@
               >
                 <i class="fa-solid fa-pen"></i>
               </a>
-              <form action="/dashboard/technicians/<%= t._id %>?_method=DELETE" method="POST" style="display:inline;">
-                <button
-                  type="submit"
-                  onclick="return confirm('هل تريد حذف هذا الفني؟')"
-                  class="bg-pink-100 text-red-600 w-10 h-10 flex items-center justify-center rounded-md hover:bg-pink-300 transition duration-200"
-                  title="حذف"
-                >
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
               </form>
             </div>
           </td>
@@ -236,7 +234,14 @@
       <span class="text-sm whitespace-nowrap">عدد النتائج في الصفحة</span>
     </div>
   </div>
-
+<!-- Delete confirmation modals -->
+<% technicians.forEach(n => { %>
+  <%- include('../layouts/confirmDelete', {
+    modalId: `deleteNeighborhoodModal_${n._id}`,
+    message: 'هل أنت متأكد من أنك تريد حذف هذا الحي؟',
+    deleteAction: `/dashboard/neighborhoods/${n._id}?_method=DELETE`
+  }) %>
+<% }) %>
 </div>
 
 <script>
@@ -362,4 +367,33 @@
   window.addEventListener('DOMContentLoaded', () => {
     new TechniciansPagination();
   });
+  // Modal functions
+function deleteItem(id) {
+  const modal = document.getElementById(`deleteNeighborhoodModal_${id}`);
+  if (modal) {
+    modal.classList.remove('hidden', 'hide');
+    modal.classList.add('show');
+  }
+}
+
+function hideModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.remove('show');
+    modal.classList.add('hide');
+
+    setTimeout(() => {
+      modal.classList.add('hidden');
+      modal.classList.remove('hide');
+    }, 400); 
+  }
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(event) {
+  if (event.target.classList.contains('modal-backdrop')) {
+    const modalId = event.target.id;
+    hideModal(modalId);
+  }
+});
 </script>
