@@ -74,7 +74,7 @@
         <label class="block text-right mb-2 font-medium">رقم فون</label>
         <input type="tel" name="phoneNumber"
                class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1"
-               placeholder="+9665xxxxxxxx"
+               placeholder="  أمثلة: 512345678 أو 0512345678 أو 966512345678"
                value="<%= technician && technician.phoneNumber ? technician.phoneNumber : '' %>">
         <p id="phoneError" class="text-red-500 text-sm mt-1 hidden"></p>
       </div>
@@ -121,7 +121,7 @@
       <!-- Description with Quill Editor -->
       <div>
         <label class="block text-right mb-2 required font-medium">الوصف</label>
-        <div id="descriptionEditor" class="quill-container border rounded-md"></div>
+        <div id="descriptionEditor" dir="rtl" class="quill-container border rounded-md"></div>
         <input type="hidden" name="description" id="descriptionInput" />
         <p id="descriptionError" class="text-red-500 text-sm mt-1 hidden"></p>
       </div>
@@ -505,8 +505,11 @@ document.addEventListener("DOMContentLoaded", init);
 <style>
   .quill-container {
     height: 150px;
-    direction: rtl;
   }
+  .ql-editor {
+  direction: rtl !important;
+  text-align: right !important;
+}
   #dropdownArrow {
     stroke: black;
   }
