@@ -1,4 +1,4 @@
-<h1>All Technicians</h1>
+<!-- <h1>All Technicians</h1>
 
 <form method="GET" action="/dashboard/technicians" style="position: relative;">
   <input
@@ -110,4 +110,256 @@
     }
   });
 </script>
+ -->
+<div class="ms-7 me-2">
+  <!-- Success message at the top -->
+  <% if (message && message.trim() !== '') { %>
+    <%- include('../layouts/success', { message, messageType }) %>
+  <% } %>
+  <div class="flex flex-col md:flex-row justify-between mb-1 gap-2 mt-3">
+    <h1 class="text-xl md:text-2xl font-bold text-center md:text-right"> الفنيين (<span id="totalCount"><%= technicians.length %></span>)</h1>
+    <a href="/dashboard/technicians/new" class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-600 transition whitespace-nowrap">
+      + إضافة فني 
+    </a>
+  </div>
+  <div class="mb-4">
+    <p class="text-gray-600 text-right"><a href="/dashboard/technicians/" class="hover:text-Sky-950 hover:font-medium ">الفنيين</a> </p>
+  </div>
+  <div class="flex flex-col md:flex-row items-center gap-3 mb-4 max-w-[1300px]">
+    <div class="flex items-center gap-3 flex-grow">
+        <input
+          type="text"
+          id="searchInput"
+          name="search"
+          placeholder=" ابحث حسب اسم الفني (العنوان الرئيسي)"
+          autocomplete="off"
+          value="<%= filters?.search || '' %>"
+          class="flex-grow p-2 border rounded-md focus:outline-none focus:border-blue-500"
+        />
+        <button id="clearBtn" class="bg-pink-100 text-red-600 px-4 py-2 rounded hover:bg-pink-300 transition ml-2" aria-label="مسح البحث"  onclick="window.location.reload()"><i class="fa-solid fa-trash-can"></i></button>
+    </div>
+  </div>
 
+  <table class="w-full bg-white text-center border-2 border-black text-sm md:text-base">
+    <thead class="bg-slate-700 text-white">
+      <tr>
+        <th class="p-2">الرقم</th>
+        <th class="p-2">مهن حي</th>
+        <th class="p-2">اسم حى</th>
+        <!-- <th class="p-2">الوصف</th> -->
+        <!-- <th class="p-2">العنوان الرئيسي</th> -->
+        <!-- <th class="p-2">الصورة</th> -->
+        <th class="p-2">رقم الفون</th>
+        <th class="p-2">التحكم</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      <% technicians.forEach((t, index) => { %>
+        <tr class="technician-row border-b hover:bg-gray-50" data-title="<%= t.mainTitle.toLowerCase() %>">
+          <td class="p-2 row-number"><%= index + 1 %></td>
+          <td class="p-2"><%= t.jobName?.name || '-' %></td>
+          <td class="p-2">
+            <% t.neighborhoodNames.forEach((n, i) => { %>
+              <%= n.name %><%= i < t.neighborhoodNames.length - 1 ? ', ' : '' %>
+              <% }) %>
+            </td>
+            <!-- <td class="p-2 max-w-xs truncate" title="<%= t.description %>"><%= t.description %></td> -->
+            <!-- <td class="p-2 font-medium"><%= t.mainTitle %></td> -->
+            <!-- <td class="p-2">
+              <% if (t.jobTechnicianPhoto) { %>
+                <img src="/uploads/technicians/<%= t.jobTechnicianPhoto %>" alt="صورة الفني" class="w-12 h-12 rounded mx-auto object-cover border" />
+              <% } else { %>
+                <div class="w-12 h-12 rounded bg-gray-200 mx-auto flex items-center justify-center border">
+                  <i class="fa-solid fa-user text-gray-400"></i>
+                </div>
+              <% } %>
+            </td> -->
+            <td class="p-2"><%= t.phoneNumber %></td>
+            <td class="p-2">
+              <div class="flex gap-2 justify-center">
+                <a
+                href="/dashboard/technicians/<%= t._id %>"
+                class="bg-green-500 w-10 h-10 flex items-center justify-center rounded-md hover:bg-green-600 text-white transition duration-200"
+                title="عرض"
+                >
+                <i class="fa-solid fa-eye"></i>
+              </a>
+              <a
+                href="/dashboard/technicians/<%= t._id %>/edit"
+                class="bg-slate-800 w-10 h-10 flex items-center justify-center rounded-md hover:bg-slate-700 text-white transition duration-200"
+                title="تعديل"
+              >
+                <i class="fa-solid fa-pen"></i>
+              </a>
+              <form action="/dashboard/technicians/<%= t._id %>?_method=DELETE" method="POST" style="display:inline;">
+                <button
+                  type="submit"
+                  onclick="return confirm('هل تريد حذف هذا الفني؟')"
+                  class="bg-pink-100 text-red-600 w-10 h-10 flex items-center justify-center rounded-md hover:bg-pink-300 transition duration-200"
+                  title="حذف"
+                >
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <!-- رسالة عدم وجود نتائج -->
+  <div id="noResults" class="text-center py-8 text-gray-500 hidden">
+    <i class="fa-solid fa-search text-4xl mb-4 text-gray-300"></i>
+    <p class="text-lg">لا توجد نتائج تطابق البحث.</p>
+  </div>
+
+  <!-- تحكمات التصفح وعدد النتائج -->
+  <div class="flex justify-between items-center mt-6 mb-6">
+    <div id="pagination" class="flex items-center gap-1">
+      <button id="prevBtn" class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center" disabled>
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <div id="pageNumbers" class="flex gap-1 mx-3"></div>
+      <button id="nextBtn" class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <select id="itemsPerPage" class="border rounded px-2 py-1 text-sm">
+        <option value="5">5</option>
+        <option value="10" selected>10</option>
+        <option value="15">15</option>
+        <option value="30">30</option>
+      </select>
+      <span class="text-sm whitespace-nowrap">عدد النتائج في الصفحة</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  class TechniciansPagination {
+    constructor() {
+      this.currentPage = 1;
+      this.itemsPerPage = parseInt(document.getElementById('itemsPerPage').value);
+      this.allRows = Array.from(document.querySelectorAll('.technician-row'));
+      this.filteredRows = [...this.allRows];
+      
+      this.searchInput = document.getElementById('searchInput');
+      this.clearBtn = document.getElementById('clearBtn');
+      this.itemsPerPageSelect = document.getElementById('itemsPerPage');
+      this.prevBtn = document.getElementById('prevBtn');
+      this.nextBtn = document.getElementById('nextBtn');
+      this.pageNumbers = document.getElementById('pageNumbers');
+      this.noResults = document.getElementById('noResults');
+      this.totalCountSpan = document.getElementById('totalCount');
+
+      this.bindEvents();
+      this.render();
+    }
+
+    bindEvents() {
+      this.searchInput.addEventListener('input', () => this.handleSearch());
+      if (this.clearBtn) {
+        this.clearBtn.addEventListener('click', () => this.clearSearch());
+      }
+      this.itemsPerPageSelect.addEventListener('change', () => this.handleItemsPerPageChange());
+      this.prevBtn.addEventListener('click', () => this.goToPreviousPage());
+      this.nextBtn.addEventListener('click', () => this.goToNextPage());
+    }
+
+    handleSearch() {
+      const term = this.searchInput.value.toLowerCase().trim();
+      if (!term) {
+        this.filteredRows = [...this.allRows];
+      } else {
+        this.filteredRows = this.allRows.filter(row => row.dataset.title.includes(term));
+      }
+      this.currentPage = 1;
+      this.render();
+    }
+
+    clearSearch() {
+      this.searchInput.value = '';
+      this.filteredRows = [...this.allRows];
+      this.currentPage = 1;
+      this.render();
+      if(this.clearBtn) this.clearBtn.style.display = 'none';
+      window.location.href = '/dashboard/technicians'; // مسح الفلتر والبحث من السيرفر
+    }
+
+    handleItemsPerPageChange() {
+      this.itemsPerPage = parseInt(this.itemsPerPageSelect.value);
+      this.currentPage = 1;
+      this.render();
+    }
+
+    goToPreviousPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        this.render();
+      }
+    }
+
+    goToNextPage() {
+      if (this.currentPage < this.getTotalPages()) {
+        this.currentPage++;
+        this.render();
+      }
+    }
+
+    getTotalPages() {
+      return Math.ceil(this.filteredRows.length / this.itemsPerPage) || 1;
+    }
+
+    render() {
+      this.allRows.forEach(row => (row.style.display = 'none'));
+
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      const pageRows = this.filteredRows.slice(start, end);
+
+      if (pageRows.length === 0) {
+        document.getElementById('tableBody').style.display = 'none';
+        this.noResults.style.display = 'block';
+      } else {
+        document.getElementById('tableBody').style.display = '';
+        this.noResults.style.display = 'none';
+
+        pageRows.forEach(row => (row.style.display = 'table-row'));
+      }
+
+      this.prevBtn.disabled = this.currentPage === 1;
+      this.nextBtn.disabled = this.currentPage === this.getTotalPages();
+
+      this.pageNumbers.innerHTML = '';
+      for (let i = 1; i <= this.getTotalPages(); i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.textContent = i;
+        pageBtn.className = 'w-8 h-8 rounded-full hover:bg-slate-700 hover:text-white transition';
+        if (i === this.currentPage) {
+          pageBtn.classList.add('bg-slate-700', 'text-white');
+        } else {
+          pageBtn.classList.add('bg-slate-300', 'text-gray-600');
+        }
+        pageBtn.addEventListener('click', () => {
+          this.currentPage = i;
+          this.render();
+        });
+        this.pageNumbers.appendChild(pageBtn);
+      }
+
+      this.totalCountSpan.textContent = this.filteredRows.length;
+
+      if (this.clearBtn) {
+        this.clearBtn.style.display = this.searchInput.value.trim() ? 'inline-block' : 'none';
+      }
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    new TechniciansPagination();
+  });
+</script>

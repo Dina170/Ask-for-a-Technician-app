@@ -1,16 +1,8 @@
-<!--error from back-->
-<% if (typeof error !== 'undefined' && error) { %>
-<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-  <strong class="font-bold">Error:</strong>
-  <span class="block sm:inline"><%= error %></span>
-</div>
-<% } %>
-
 <div class="rounded-tl-3xl shadow-md border p-5 h-[100%]"> 
 
   <div class="mb-6 px-6">
     <h1 class="text-xl font-bold my-1 text-right"><%= neighborhood ? "تعديل حي" : "إضافة حي" %></h1>
-    <p class="text-gray-600 text-right"><a href="/dashboard/neighborhoods/" class="hover:text-Sky-950 hover:font-medium ">الأحياء</a> &gt; <%= neighborhood ? "تعديل حي" : "إضافة حي" %></p>
+    <p class="text-gray-600 text-right">الأحياء - <%= neighborhood ? "تعديل حي" : "إضافة حي" %></p>
   </div>
   <form id="neighborhoodForm"
         action="<%= neighborhood ? '/dashboard/neighborhoods/' + neighborhood._id + '?_method=PUT' : '/dashboard/neighborhoods' %>"
@@ -27,6 +19,13 @@
                id="neighborhoodName"
                value="<%= neighborhood?.name || '' %>">
         <div id="nameError" class="text-red-500 text-sm mt-1 text-right font-medium"></div>
+        <!--error from back-->
+        <% if (typeof error !== 'undefined' && error) { %>
+        <div class="text-red-500 text-sm mt-1 text-right font-medium"" role="alert">
+          <strong class="font-bold">خطأ:</strong>
+          <span class="block sm:inline"><%if (error=="Neighborhood name must be unique"){ %> اسم الحى موجود بالفعل , أضف اسم حى غير موجود <%}%></span>
+        </div>
+        <% } %> 
       </div>
 
       <!-- Image upload -->

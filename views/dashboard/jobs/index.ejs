@@ -1,42 +1,22 @@
-<h1>All Jobs</h1>
+<!-- <h1>All Jobs</h1>
 <a href="/dashboard/jobs/new">Add New Job</a>
 
-<!-- Filter Form -->
-<form action="/dashboard/jobs" method="GET" style="margin-bottom: 20px; position: relative;">
-  <!-- Search Input with autocomplete -->
-  <input
-    type="text"
-    id="jobNameInput"
-    name="search"
-    placeholder="Search by job name"
-    value="<%= filters?.search || '' %>"
-    autocomplete="off"
-  />
-
-  <!-- Neighborhood dropdown remains the same -->
-  <select name="neighborhood">
-    <option value="all">All Neighborhoods</option>
-    <% neighborhoods.forEach(n => { %>
-      <option value="<%= n._id %>" <%= filters?.neighborhood === String(n._id) ? 'selected' : '' %>>
-        <%= n.name %>
-      </option>
-    <% }) %>
-  </select>
-
-  <button type="submit">Filter</button>
-</form>
-
-<!-- Job List -->
 <ul>
-  <% jobs.forEach(job => { %>
+  <% jobs.forEach(job=> { %>
     <li>
-      <h3><%= job.name %></h3>
+      <h3>
+        <%= job.name %>
+      </h3>
       <img src="/uploads/jobs/<%= job.jobPhoto %>" alt="<%= job.name %>" width="100" />
       <p>Main Description: <%= job.mainDescription %></p>
       <p>Sub Description: <%= job.subDescription %></p>
       <p>Neighborhood: <%= job.neighborhoodName?.name %></p>
-      <a href="/dashboard/jobs/<%= job._id %>"><button type="button">View</button></a>
-      <a href="/dashboard/jobs/<%= job._id %>/edit"><button type="button">Edit</button></a>
+      <a href="/dashboard/jobs/<%= job._id %>">
+        <button type="button">View</button>
+      </a>
+      <a href="/dashboard/jobs/<%= job._id %>/edit">
+        <button type="button">Edit</button>
+      </a>
       <form action="/dashboard/jobs/<%= job._id %>?_method=DELETE" method="POST" style="display:inline;">
         <button type="submit">Delete</button>
       </form>
@@ -44,20 +24,97 @@
   <% }) %>
 </ul>
 
-<!-- Delete All -->
 <form action="/dashboard/jobs?_method=DELETE" method="POST">
   <button type="submit">Delete All Jobs</button>
+</form> -->
+<!-- Success message -->
+<!--  -->
+
+<!-- Header and add button -->
+<div class="flex flex-col md:flex-row justify-between mb-4 gap-2 mt-6 mx-7">
+  <h1 class="text-xl md:text-2xl font-bold text-center md:text-right">
+    مهن الأحياء  (<span id="totalCount"><%= jobs.length %></span>)
+  </h1>
+  <a href="/dashboard/jobs/new" class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-600 transition">+ إضافة وظيفة</a>
+</div>
+
+<!-- Filter Form -->
+<form action="/dashboard/jobs" method="GET" class="flex flex-col md:flex-row items-center gap-3 mb-4 mx-7">
+  <input
+    type="text"
+    id="jobNameInput"
+    name="search"
+    placeholder="🔍 بحث عن اسم الوظيفة"
+    value="<%= filters?.search || '' %>"
+    autocomplete="off"
+    class="flex-grow p-2 border rounded-md focus:outline-none focus:border-blue-500"
+  />
+  <select name="neighborhood" class="p-2 border rounded-md">
+    <option value="all">كل الأحياء</option>
+    <% neighborhoods.forEach(n => { %>
+      <option value="<%= n._id %>" <%= filters?.neighborhood === String(n._id) ? 'selected' : '' %>><%= n.name %></option>
+    <% }) %>
+  </select>
+  <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 transition">تصفية</button>
 </form>
 
-<!-- Autocomplete Suggestions Script -->
+<!-- Jobs Table -->
+<div class="mx-7">
+  <table class="w-full bg-white text-center border-2 border-black text-sm md:text-base">
+    <thead class="bg-slate-700 text-white">
+      <tr>
+        <th class="p-2">#</th>
+        <th class="p-2">اسم الوظيفة</th>
+        <th class="p-2">الصورة</th>
+        <th class="p-2">الوصف الرئيسي</th>
+        <th class="p-2">الوصف الفرعي</th>
+        <th class="p-2">الحي</th>
+        <th class="p-2">التحكم</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% jobs.forEach((job, index) => { %>
+        <tr class="border-b hover:bg-gray-50">
+          <td class="p-2"><%= index + 1 %></td>
+          <td class="p-2 font-medium"><%= job.name %></td>
+          <td class="p-2">
+            <% if (job.jobPhoto) { %>
+              <img src="/uploads/jobs/<%= job.jobPhoto %>" alt="<%= job.name %>" class="w-10 h-10 rounded-full mx-auto object-cover border" />
+            <% } else { %>
+              <div class="w-10 h-10 rounded-full mx-auto bg-gray-200 flex items-center justify-center">
+                <i class="fa-solid fa-image text-gray-400"></i>
+              </div>
+            <% } %>
+          </td>
+          <td class="p-2"><%- job.mainDescription %></td>
+          <td class="p-2"><%- job.subDescription %></td>
+          <td class="p-2"><%= job.neighborhoodName?.name %></td>
+          <td class="p-2">
+            <div class="flex gap-2 justify-center">
+              <a href="/dashboard/jobs/<%= job._id %>" class="bg-green-500 w-10 h-10 flex items-center justify-center rounded-md hover:bg-green-600 text-white transition" title="عرض الوظيفة">
+                <i class="fa-solid fa-eye text-lg"></i>
+              </a>
+              <a href="/dashboard/jobs/<%= job._id %>/edit" class="bg-slate-800 w-10 h-10 flex items-center justify-center rounded-md hover:bg-slate-700 text-white transition" title="تعديل الوظيفة">
+                <i class="fa-solid fa-pen text-lg"></i>
+              </a>
+              <form action="/dashboard/jobs/<%= job._id %>?_method=DELETE" method="POST" onsubmit="return confirm('هل أنت متأكد من الحذف؟')">
+                <button type="submit" class="bg-pink-100 text-red-600 w-10 h-10 flex items-center justify-center rounded-md hover:bg-pink-300 transition" title="حذف الوظيفة">
+                  <i class="fa-solid fa-trash-can text-lg"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- Autocomplete Script (unchanged) -->
 <script>
-  // const jobs = <%- JSON.stringify(jobs.map(j => j.name)) %>;
-  // for unique jobs only
   const jobs = <%- JSON.stringify(uniqueJobNames) %>;
-
   const jobNameInput = document.getElementById('jobNameInput');
-
-  // Create container for autocomplete suggestions
   const suggestions = document.createElement('div');
   suggestions.style.position = 'absolute';
   suggestions.style.border = '1px solid #ccc';
@@ -68,50 +125,35 @@
   suggestions.style.zIndex = 1000;
   suggestions.style.display = 'none';
   suggestions.style.cursor = 'pointer';
-
   jobNameInput.parentNode.insertBefore(suggestions, jobNameInput.nextSibling);
 
   jobNameInput.addEventListener('input', () => {
     const inputValue = jobNameInput.value.trim().toLowerCase();
     suggestions.innerHTML = '';
-
     if (!inputValue) {
       suggestions.style.display = 'none';
       return;
     }
-
-    // Filter jobs that contain the input text
     const filtered = jobs.filter(name => name.toLowerCase().includes(inputValue));
-
     if (filtered.length === 0) {
       suggestions.style.display = 'none';
       return;
     }
-
     filtered.forEach(name => {
       const option = document.createElement('div');
       option.textContent = name;
       option.style.padding = '5px';
-
-      option.addEventListener('mouseenter', () => {
-        option.style.backgroundColor = '#eee';
-      });
-      option.addEventListener('mouseleave', () => {
-        option.style.backgroundColor = '#fff';
-      });
-
+      option.addEventListener('mouseenter', () => option.style.backgroundColor = '#eee');
+      option.addEventListener('mouseleave', () => option.style.backgroundColor = '#fff');
       option.addEventListener('click', () => {
         jobNameInput.value = name;
         suggestions.style.display = 'none';
       });
-
       suggestions.appendChild(option);
     });
-
     suggestions.style.display = 'block';
   });
 
-  // Hide suggestions when clicking outside
   document.addEventListener('click', e => {
     if (!suggestions.contains(e.target) && e.target !== jobNameInput) {
       suggestions.style.display = 'none';

@@ -1,21 +1,23 @@
-<div class="mx-7">
+<div class="ms-7 me-2">
 <!-- Success message at the top -->
 <% if (message && message.trim() !== '') { %>
   <%- include('../layouts/success', { message, messageType }) %>
 <% } %>
 
 <!-- Header and add button -->
-<div class="flex flex-col md:flex-row justify-between mb-4 gap-2 mt-6">
+<div class="flex flex-col md:flex-row justify-between mb-1 gap-2 mt-3">
   <h1 class="text-xl md:text-2xl font-bold text-center md:text-right">
     الأحياء (<span id="totalCount"><%= neighborhoods.length %></span>)
   </h1>
   <a href="/dashboard/neighborhoods/new" class="bg-slate-700 text-white px-4 py-2 rounded text-center hover:bg-slate-600 transition">+ إضافة حي</a>
 </div>
-
+  <div class="mb-4">
+    <p class="text-gray-600 text-right"><a href="/dashboard/neighborhoods/" class="hover:text-Sky-950 hover:font-medium ">الأحياء</a> </p>
+  </div>
 <!-- Search bar -->
 <div class="flex flex-col md:flex-row items-center gap-3 mb-4">
   <div class="flex items-center gap-3 flex-grow max-w-[1300px]">
-    <input type="text" id="searchInput" placeholder="🔍بحث عن طريق اسم الحي" class="flex-grow p-2 border rounded-md focus:outline-none focus:border-blue-500"/>
+    <input type="text" id="searchInput" placeholder="بحث عن طريق اسم الحي" class="flex-grow p-2 border rounded-md focus:outline-none focus:border-blue-500"/>
     <button
       id="clearBtn"
       class="bg-pink-100 text-red-600 px-4 py-3 rounded-md hover:bg-pink-300 transition"
@@ -108,13 +110,13 @@
 
   <!-- Items per page selector - on the left -->
   <div class="flex items-center gap-2">
+    <span class="text-sm whitespace-nowrap">عدد الصفوف فى كل صفحة</span>
     <select id="itemsPerPage" class="border rounded px-2 py-1 text-sm">
       <option value="5">5</option>
       <option value="10" selected>10</option>
       <option value="15">15</option>
       <option value="30">30</option>
     </select>
-    <span class="text-sm whitespace-nowrap">Result per page</span>
   </div>
 </div>
 

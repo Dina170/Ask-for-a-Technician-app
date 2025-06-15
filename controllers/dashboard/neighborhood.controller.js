@@ -12,15 +12,10 @@ const getAllNeighborhoods = async (req, res) => {
 
     const neighborhoods = await Neighborhood.find(query);
     const neighborhoodNames = await Neighborhood.distinct("name");
-    res.render("dashboard/neighborhoods/index", { neighborhoods, filters: { search } ,neighborhoodNames});
-    const neighborhoods = await Neighborhood.find();
     const message = req.query.message || '';
     const messageType = req.query.messageType || '';
-    res.render("dashboard/neighborhoods/index", {
-      neighborhoods,
-      message,
-      messageType
-    });
+    res.render("dashboard/neighborhoods/index", { neighborhoods, filters: { search } ,neighborhoodNames , message,
+      messageType});
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods");
