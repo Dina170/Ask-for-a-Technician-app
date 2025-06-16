@@ -114,7 +114,7 @@ const createTechnician = async (req, res) => {
     });
 
     await technician.save();
-    res.redirect("/dashboard/technicians?message=تم إضافة حي بنجاح&messageType=add");
+    res.redirect("/dashboard/technicians?message=تم إضافة فنى بنجاح&messageType=add");
   } catch (err) {
     console.error(err);
     const jobNames = await Job.distinct('name');

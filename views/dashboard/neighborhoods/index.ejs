@@ -96,13 +96,13 @@
 </div>
 
 <!-- Pagination controls and items per page selector -->
-<div class="flex justify-between items-center mb-6">
+<div class="flex justify-between items-center mt-6 mb-6">
   <!-- Pagination controls - on the right -->
   <div id="pagination" class="flex items-center gap-1">
     <button id="nextBtn" class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center">
       <i class="fa-solid fa-chevron-right"></i>
     </button>
-    <div id="pageNumbers" class="flex gap-0 mx-3 flex-row-reverse"></div>
+    <div id="pageNumbers" class="flex gap-1 mx-3 flex-row-reverse"></div>
     <button id="prevBtn" class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center" style="display: none;">
       <i class="fa-solid fa-chevron-left"></i>
     </button>
@@ -158,7 +158,7 @@ class NeighborhoodsPagination {
     this.searchInput = document.getElementById('searchInput');
     this.clearBtn = document.getElementById('clearBtn');
     this.itemsPerPageSelect = document.getElementById('itemsPerPage');
-    this.pagination = document.getElementById('pagination');
+    // this.pagination = document.getElementById('pagination');
     this.prevBtn = document.getElementById('prevBtn');
     this.nextBtn = document.getElementById('nextBtn');
     this.pageNumbers = document.getElementById('pageNumbers');
@@ -330,7 +330,7 @@ class NeighborhoodsPagination {
   addPageButton(pageNum) {
     const button = document.createElement('button');
     button.textContent = pageNum;
-    button.className = `w-8 h-8 rounded-full transition flex items-center justify-center text-sm font-medium ${
+    button.className = `w-8 h-8 rounded-full hover:bg-slate-700 hover:text-white transition ${
       pageNum === this.currentPage 
         ? 'bg-gray-800 text-white' 
         : 'bg-slate-300 text-gray-600 hover:bg-gray-300'
@@ -343,7 +343,7 @@ class NeighborhoodsPagination {
   createEllipsis() {
     const span = document.createElement('span');
     span.textContent = '...';
-    span.className = 'px-2 py-2 text-gray-500';
+    span.className = 'px-2 py-2 text-gray-500 ';
     return span;
   }
 
@@ -370,29 +370,24 @@ window.addEventListener('load', () => {
 function deleteItem(id) {
   const modal = document.getElementById(`deleteNeighborhoodModal_${id}`);
   if (modal) {
-    modal.classList.remove('hidden', 'hide');
-    modal.classList.add('show');
+    modal.classList.remove('hide');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      modal.classList.add('show');
+    }, 10);
   }
 }
+
 
 function hideModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) {
     modal.classList.remove('show');
     modal.classList.add('hide');
-
     setTimeout(() => {
-      modal.classList.add('hidden');
-      modal.classList.remove('hide');
-    }, 400); 
+      modal.style.display = 'none';
+    }, 400);
   }
 }
 
-// Close modal when clicking outside
-document.addEventListener('click', function(event) {
-  if (event.target.classList.contains('modal-backdrop')) {
-    const modalId = event.target.id;
-    hideModal(modalId);
-  }
-});
 </script>

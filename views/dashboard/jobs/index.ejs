@@ -27,54 +27,65 @@
 <form action="/dashboard/jobs?_method=DELETE" method="POST">
   <button type="submit">Delete All Jobs</button>
 </form> -->
-<!-- Success message -->
-<!--  -->
 
-<!-- Header and add button -->
-<div class="flex flex-col md:flex-row justify-between mb-4 gap-2 mt-6 mx-7">
+<div class="ms-7 me-2">
+<!-- Success message at the top -->
+  <% if (message && message.trim() !== '') { %>
+    <%- include('../layouts/success', { message, messageType }) %>
+  <% } %>
+<!-- Header -->
+<div class="flex flex-col md:flex-row justify-between mb-3 gap-2 mt-3">
   <h1 class="text-xl md:text-2xl font-bold text-center md:text-right">
-    مهن الأحياء  (<span id="totalCount"><%= jobs.length %></span>)
+    مهن الأحياء (<span id="totalCount"><%= jobs.length %></span>)
   </h1>
-  <a href="/dashboard/jobs/new" class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-600 transition">+ إضافة وظيفة</a>
+  <a href="/dashboard/jobs/new" class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-600 transition">+ إضافة مهنة</a>
 </div>
-
-<!-- Filter Form -->
-<form action="/dashboard/jobs" method="GET" class="flex flex-col md:flex-row items-center gap-3 mb-4 mx-7">
-  <input
-    type="text"
-    id="jobNameInput"
-    name="search"
-    placeholder="🔍 بحث عن اسم الوظيفة"
-    value="<%= filters?.search || '' %>"
-    autocomplete="off"
-    class="flex-grow p-2 border rounded-md focus:outline-none focus:border-blue-500"
-  />
-  <select name="neighborhood" class="p-2 border rounded-md">
+<div class="mb-4">
+    <p class="text-gray-600 text-right"><a href="/dashboard/jobs/" class="hover:text-Sky-950 hover:font-medium ">مهن الاحياء</a> </p>
+  </div>
+<!-- Select حيّ -->
+<div class="flex flex-col gap-3 mb-4 ">
+  <label class="font-bold">اسم الحي</label>
+  <select id="neighborhoodSelect" class="p-2 border rounded-md w-full">
     <option value="all">كل الأحياء</option>
     <% neighborhoods.forEach(n => { %>
-      <option value="<%= n._id %>" <%= filters?.neighborhood === String(n._id) ? 'selected' : '' %>><%= n.name %></option>
+      <option value="<%= n.name %>"><%= n.name %></option>
     <% }) %>
   </select>
-  <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 transition">تصفية</button>
-</form>
 
-<!-- Jobs Table -->
-<div class="mx-7">
+  <div class="flex gap-3">
+  <!-- Search input -->
+  <input
+    type="text"
+    id="jobSearchInput"
+    placeholder="بحث عن اسم الوظيفة"
+    autocomplete="off"
+    class="flex-grow p-2 border rounded-md"
+  />
+
+  <!-- Clear button -->
+  <button id="clearJobSearch" class="bg-pink-100 text-red-600 px-4 py-2 rounded hover:bg-pink-300">
+    <i class="fa-solid fa-trash-can"></i>
+  </button>
+</div>
+</div>
+<!-- Table -->
+<div class=" overflow-x-auto">
   <table class="w-full bg-white text-center border-2 border-black text-sm md:text-base">
     <thead class="bg-slate-700 text-white">
       <tr>
-        <th class="p-2">#</th>
-        <th class="p-2">اسم الوظيفة</th>
-        <th class="p-2">الصورة</th>
-        <th class="p-2">الوصف الرئيسي</th>
-        <th class="p-2">الوصف الفرعي</th>
-        <th class="p-2">الحي</th>
+        <th class="p-2">الرقم</th>
+        <th class="p-2">المهنة</th>
+        <th class="p-2">صورة المهنة</th>
+        <!-- <th class="p-2">الوصف الرئيسي</th>
+        <th class="p-2">الوصف الفرعي</th> -->
+        <!-- <th class="p-2">الحي</th> -->
         <th class="p-2">التحكم</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="jobTableBody">
       <% jobs.forEach((job, index) => { %>
-        <tr class="border-b hover:bg-gray-50">
+        <tr class="border-b hover:bg-gray-50 job-row" data-title="<%= job.name.toLowerCase() %>" data-neighborhood="<%= job.neighborhoodName?.name %>">
           <td class="p-2"><%= index + 1 %></td>
           <td class="p-2 font-medium"><%= job.name %></td>
           <td class="p-2">
@@ -86,77 +97,215 @@
               </div>
             <% } %>
           </td>
-          <td class="p-2"><%- job.mainDescription %></td>
+          <!-- <td class="p-2"><%- job.mainDescription %></td>
           <td class="p-2"><%- job.subDescription %></td>
-          <td class="p-2"><%= job.neighborhoodName?.name %></td>
+          <td class="p-2"><%= job.neighborhoodName?.name %></td> -->
           <td class="p-2">
             <div class="flex gap-2 justify-center">
+                <button type="submit" onclick="deleteItem('<%= job._id %>')" class="bg-pink-100 text-red-600 w-10 h-10 flex items-center justify-center rounded-md hover:bg-pink-300 transition" title="حذف الوظيفة">
+                  <i class="fa-solid fa-trash-can text-lg"></i>
+                </button>
               <a href="/dashboard/jobs/<%= job._id %>" class="bg-green-500 w-10 h-10 flex items-center justify-center rounded-md hover:bg-green-600 text-white transition" title="عرض الوظيفة">
                 <i class="fa-solid fa-eye text-lg"></i>
               </a>
               <a href="/dashboard/jobs/<%= job._id %>/edit" class="bg-slate-800 w-10 h-10 flex items-center justify-center rounded-md hover:bg-slate-700 text-white transition" title="تعديل الوظيفة">
                 <i class="fa-solid fa-pen text-lg"></i>
               </a>
-              <form action="/dashboard/jobs/<%= job._id %>?_method=DELETE" method="POST" onsubmit="return confirm('هل أنت متأكد من الحذف؟')">
-                <button type="submit" class="bg-pink-100 text-red-600 w-10 h-10 flex items-center justify-center rounded-md hover:bg-pink-300 transition" title="حذف الوظيفة">
-                  <i class="fa-solid fa-trash-can text-lg"></i>
-                </button>
-              </form>
             </div>
           </td>
         </tr>
       <% }) %>
     </tbody>
   </table>
+  <!-- رسالة عدم وجود نتائج -->
+  <div id="noResults" class="text-center py-8 text-gray-500 hidden">
+    <i class="fa-solid fa-search text-4xl mb-4 text-gray-300"></i>
+    <p class="text-lg">لا توجد نتائج تطابق البحث.</p>
+  </div>
 </div>
 
+<!-- Pagination -->
+<div class="flex justify-between items-center mt-6 mb-6">
+  <div id="pagination" class="flex items-center gap-1">
+    <button id="jobPrevBtn" class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <div id="jobPageNumbers" class="flex gap-1 mx-3"></div>
+    <button id="jobNextBtn" class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+  </div>
 
-<!-- Autocomplete Script (unchanged) -->
+  <div class="flex items-center gap-2">
+    <span class="text-sm whitespace-nowrap">عدد النتائج في الصفحة</span>
+    <select id="itemsPerPage" class="border rounded px-2 py-1 text-sm">
+      <option value="5">5</option>
+      <option value="10" selected>10</option>
+      <option value="15">15</option>
+      <option value="30">30</option>
+    </select>
+  </div>
+</div>
+<!-- Delete confirmation modals -->
+<% jobs.forEach(n => { %>
+  <%- include('../layouts/confirmDelete', {
+    modalId: `deleteNeighborhoodModal_${n._id}`,
+    message: 'هل أنت متأكد من أنك تريد حذف هذه المهنة؟',
+    deleteAction: `/dashboard/neighborhoods/${n._id}?_method=DELETE`
+  }) %>
+<% }) %>
+</div>
+<!-- Script -->
 <script>
-  const jobs = <%- JSON.stringify(uniqueJobNames) %>;
-  const jobNameInput = document.getElementById('jobNameInput');
-  const suggestions = document.createElement('div');
-  suggestions.style.position = 'absolute';
-  suggestions.style.border = '1px solid #ccc';
-  suggestions.style.backgroundColor = '#fff';
-  suggestions.style.maxHeight = '150px';
-  suggestions.style.overflowY = 'auto';
-  suggestions.style.width = jobNameInput.offsetWidth + 'px';
-  suggestions.style.zIndex = 1000;
-  suggestions.style.display = 'none';
-  suggestions.style.cursor = 'pointer';
-  jobNameInput.parentNode.insertBefore(suggestions, jobNameInput.nextSibling);
+  class JobsPagination {
+    constructor() {
+      this.currentPage = 1;
+      this.itemsPerPage = 10;
 
-  jobNameInput.addEventListener('input', () => {
-    const inputValue = jobNameInput.value.trim().toLowerCase();
-    suggestions.innerHTML = '';
-    if (!inputValue) {
-      suggestions.style.display = 'none';
-      return;
+      this.allRows = Array.from(document.querySelectorAll('.job-row'));
+      this.searchInput = document.getElementById('jobSearchInput');
+      this.clearBtn = document.getElementById('clearJobSearch');
+      this.pageNumbers = document.getElementById('jobPageNumbers');
+      this.prevBtn = document.getElementById('jobPrevBtn');
+      this.nextBtn = document.getElementById('jobNextBtn');
+      this.selectInput = document.getElementById('neighborhoodSelect');
+      this.itemsSelect = document.getElementById('itemsPerPage');
+
+      this.filteredRows = [...this.allRows];
+
+      this.bindEvents();
+      this.render();
     }
-    const filtered = jobs.filter(name => name.toLowerCase().includes(inputValue));
-    if (filtered.length === 0) {
-      suggestions.style.display = 'none';
-      return;
-    }
-    filtered.forEach(name => {
-      const option = document.createElement('div');
-      option.textContent = name;
-      option.style.padding = '5px';
-      option.addEventListener('mouseenter', () => option.style.backgroundColor = '#eee');
-      option.addEventListener('mouseleave', () => option.style.backgroundColor = '#fff');
-      option.addEventListener('click', () => {
-        jobNameInput.value = name;
-        suggestions.style.display = 'none';
-      });
-      suggestions.appendChild(option);
+
+    bindEvents() {
+      this.searchInput.addEventListener('input', () => this.filterData());
+      this.clearBtn.addEventListener('click', () => this.clearSearch());
+      this.selectInput.addEventListener('change', () => this.filterData());
+      this.prevBtn.addEventListener('click', () => this.goToPreviousPage());
+      this.nextBtn.addEventListener('click', () => this.goToNextPage());
+      this.itemsSelect.addEventListener('change', () => {
+      this.itemsPerPage = parseInt(this.itemsSelect.value);
+      this.currentPage = 1;
+      this.render();
     });
-    suggestions.style.display = 'block';
-  });
-
-  document.addEventListener('click', e => {
-    if (!suggestions.contains(e.target) && e.target !== jobNameInput) {
-      suggestions.style.display = 'none';
     }
+
+    clearSearch() {
+      this.searchInput.value = '';
+      this.selectInput.value = 'all';
+      this.filteredRows = [...this.allRows];
+      this.currentPage = 1;
+      this.render();
+    }
+
+    filterData() {
+      const searchTerm = this.searchInput.value.toLowerCase().trim();
+      const selectedNeighborhood = this.selectInput.value;
+
+      this.filteredRows = this.allRows.filter(row => {
+        const title = row.dataset.title;
+        const neighborhood = row.dataset.neighborhood;
+
+        const matchesNeighborhood =
+          selectedNeighborhood === 'all' || neighborhood === selectedNeighborhood;
+
+        const matchesSearch =
+          !searchTerm || title.includes(searchTerm);
+
+        return matchesNeighborhood && matchesSearch;
+      });
+
+      this.currentPage = 1;
+      this.render();
+    }
+
+    goToPreviousPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        this.render();
+      }
+    }
+
+    goToNextPage() {
+      if (this.currentPage < this.getTotalPages()) {
+        this.currentPage++;
+        this.render();
+      }
+    }
+
+    getTotalPages() {
+      return Math.ceil(this.filteredRows.length / this.itemsPerPage) || 1;
+    }
+
+    render() {
+  // إخفاء كل الصفوف أولاً
+  this.allRows.forEach(row => (row.style.display = 'none'));
+
+  const start = (this.currentPage - 1) * this.itemsPerPage;
+  const end = start + this.itemsPerPage;
+  const pageRows = this.filteredRows.slice(start, end);
+  pageRows.forEach(row => (row.style.display = 'table-row'));
+
+  // تفعيل/تعطيل أزرار التنقل
+  this.prevBtn.disabled = this.currentPage === 1;
+  this.nextBtn.disabled = this.currentPage === this.getTotalPages();
+
+  // إنشاء أرقام الصفحات
+  this.pageNumbers.innerHTML = '';
+  for (let i = 1; i <= this.getTotalPages(); i++) {
+    const btn = document.createElement('button');
+    btn.textContent = i;
+    btn.className = 'w-8 h-8 rounded-full hover:bg-slate-700 hover:text-white transition';
+    if (i === this.currentPage) {
+      btn.classList.add('bg-slate-700', 'text-white');
+    }else {
+      btn.classList.add('bg-slate-300', 'text-gray-600');
+    }
+    btn.addEventListener('click', () => {
+      this.currentPage = i;
+      this.render();
+    });
+    this.pageNumbers.appendChild(btn);
+  }
+
+  // ✅ تحديث عدد النتائج المعروضة
+  const totalCountSpan = document.getElementById('totalCount');
+  if (totalCountSpan) totalCountSpan.textContent = this.filteredRows.length;
+
+  // ✅ عرض أو إخفاء رسالة "لا توجد نتائج"
+  const noResults = document.getElementById('noResults');
+  if (noResults) {
+    noResults.classList.toggle('hidden', this.filteredRows.length !== 0);
+  }
+}
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    new JobsPagination();
   });
+   // Modal functions
+// Modal functions
+function deleteItem(id) {
+  const modal = document.getElementById(`deleteNeighborhoodModal_${id}`);
+  if (modal) {
+    modal.classList.remove('hide');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      modal.classList.add('show');
+    }, 10);
+  }
+}
+
+
+function hideModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.remove('show');
+    modal.classList.add('hide');
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 400);
+  }
+}
+
 </script>

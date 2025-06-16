@@ -1,116 +1,3 @@
-<!-- <h1>All Technicians</h1>
-
-<form method="GET" action="/dashboard/technicians" style="position: relative;">
-  <input
-    type="text"
-    id="technicianSearchInput"
-    name="search"
-    placeholder="Search by Main Title"
-    value="<%= filters?.search || '' %>"
-    autocomplete="off"
-  />
-  <button type="submit">Search</button>
-  <% if (filters?.search) { %>
-    <a href="/dashboard/technicians" style="margin-left: 10px;">Clear</a>
-  <% } %>
-</form>
-
-<a href="/dashboard/technicians/new">Add New Technician</a>
-
-<ul>
-  <% technicians.forEach(t => { %>
-    <li>
-      <h3><%= t.mainTitle %></h3>
-
-      <% if (t.jobTechnicianPhoto) { %>
-        <img src="/uploads/technicians/<%= t.jobTechnicianPhoto %>" alt="Technician Photo" width="150">
-      <% } %>
-
-      <p><strong>Job:</strong> <%= t.jobName?.name %></p>
-
-      <p><strong>Neighborhoods:</strong>
-        <% t.neighborhoodNames.forEach(n => { %>
-          <%= n.name %><% if (t.neighborhoodNames.indexOf(n) !== t.neighborhoodNames.length - 1) { %>, <% } %>
-        <% }) %>
-      </p>
-
-      <p><strong>Description:</strong> <%= t.description %></p>
-      <p><strong>Phone Number:</strong> <%= t.phoneNumber %></p>
-
-      <div>
-        <a href="/dashboard/technicians/<%= t._id %>">View</a>
-        <a href="/dashboard/technicians/<%= t._id %>/edit">Edit</a>
-        <form action="/dashboard/technicians/<%= t._id %>?_method=DELETE" method="POST" style="display:inline;">
-          <button type="submit" onclick="return confirm('Delete this technician?')">Delete</button>
-        </form>
-      </div>
-    </li>
-  <% }) %>
-</ul>
-
-<script>
-  // Pass an array of technician main titles for autocomplete
-  const technicianTitles = <%- JSON.stringify(technicians.map(t => t.mainTitle)) %>;
-
-  const input = document.getElementById('technicianSearchInput');
-
-  // Create suggestions container
-  const suggestions = document.createElement('div');
-  suggestions.style.position = 'absolute';
-  suggestions.style.border = '1px solid #ccc';
-  suggestions.style.backgroundColor = '#fff';
-  suggestions.style.maxHeight = '150px';
-  suggestions.style.overflowY = 'auto';
-  suggestions.style.width = input.offsetWidth + 'px';
-  suggestions.style.zIndex = 1000;
-  suggestions.style.display = 'none';
-  suggestions.style.cursor = 'pointer';
-
-  input.parentElement.style.position = 'relative';
-  input.parentNode.insertBefore(suggestions, input.nextSibling);
-
-  input.addEventListener('input', () => {
-    const val = input.value.trim().toLowerCase();
-    suggestions.innerHTML = '';
-
-    if (!val) {
-      suggestions.style.display = 'none';
-      return;
-    }
-
-    const filtered = technicianTitles.filter(title => title.toLowerCase().includes(val));
-
-    if (filtered.length === 0) {
-      suggestions.style.display = 'none';
-      return;
-    }
-
-    filtered.forEach(title => {
-      const option = document.createElement('div');
-      option.textContent = title;
-      option.style.padding = '5px';
-
-      option.addEventListener('mouseenter', () => option.style.backgroundColor = '#eee');
-      option.addEventListener('mouseleave', () => option.style.backgroundColor = '#fff');
-
-      option.addEventListener('click', () => {
-        input.value = title;
-        suggestions.style.display = 'none';
-      });
-
-      suggestions.appendChild(option);
-    });
-
-    suggestions.style.display = 'block';
-  });
-
-  document.addEventListener('click', e => {
-    if (!suggestions.contains(e.target) && e.target !== input) {
-      suggestions.style.display = 'none';
-    }
-  });
-</script>
- -->
 <div class="ms-7 me-2">
   <!-- Success message at the top -->
   <% if (message && message.trim() !== '') { %>
@@ -146,9 +33,7 @@
         <th class="p-2">الرقم</th>
         <th class="p-2">مهن حي</th>
         <th class="p-2">اسم حى</th>
-        <!-- <th class="p-2">الوصف</th> -->
         <!-- <th class="p-2">العنوان الرئيسي</th> -->
-        <!-- <th class="p-2">الصورة</th> -->
         <th class="p-2">رقم الفون</th>
         <th class="p-2">التحكم</th>
       </tr>
@@ -163,17 +48,7 @@
               <%= n.name %><%= i < t.neighborhoodNames.length - 1 ? ', ' : '' %>
               <% }) %>
             </td>
-            <!-- <td class="p-2 max-w-xs truncate" title="<%= t.description %>"><%= t.description %></td> -->
             <!-- <td class="p-2 font-medium"><%= t.mainTitle %></td> -->
-            <!-- <td class="p-2">
-              <% if (t.jobTechnicianPhoto) { %>
-                <img src="/uploads/technicians/<%= t.jobTechnicianPhoto %>" alt="صورة الفني" class="w-12 h-12 rounded mx-auto object-cover border" />
-              <% } else { %>
-                <div class="w-12 h-12 rounded bg-gray-200 mx-auto flex items-center justify-center border">
-                  <i class="fa-solid fa-user text-gray-400"></i>
-                </div>
-              <% } %>
-            </td> -->
             <td class="p-2"><%= t.phoneNumber %></td>
             <td class="p-2">
               <div class="flex gap-2 justify-center">
@@ -216,32 +91,33 @@
   <div class="flex justify-between items-center mt-6 mb-6">
     <div id="pagination" class="flex items-center gap-1">
       <button id="prevBtn" class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center" disabled>
-        <i class="fa-solid fa-chevron-left"></i>
+        <i class="fa-solid fa-chevron-right"></i>
       </button>
       <div id="pageNumbers" class="flex gap-1 mx-3"></div>
       <button id="nextBtn" class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center">
-        <i class="fa-solid fa-chevron-right"></i>
+        <i class="fa-solid fa-chevron-left"></i>
       </button>
     </div>
 
     <div class="flex items-center gap-2">
+      <span class="text-sm whitespace-nowrap">عدد النتائج في الصفحة</span>
       <select id="itemsPerPage" class="border rounded px-2 py-1 text-sm">
         <option value="5">5</option>
         <option value="10" selected>10</option>
         <option value="15">15</option>
         <option value="30">30</option>
       </select>
-      <span class="text-sm whitespace-nowrap">عدد النتائج في الصفحة</span>
     </div>
   </div>
 <!-- Delete confirmation modals -->
 <% technicians.forEach(n => { %>
   <%- include('../layouts/confirmDelete', {
     modalId: `deleteNeighborhoodModal_${n._id}`,
-    message: 'هل أنت متأكد من أنك تريد حذف هذا الحي؟',
+    message: 'هل أنت متأكد من أنك تريد حذف هذا الفني؟',
     deleteAction: `/dashboard/neighborhoods/${n._id}?_method=DELETE`
   }) %>
 <% }) %>
+</div>
 </div>
 
 <script>
@@ -291,7 +167,6 @@
       this.filteredRows = [...this.allRows];
       this.currentPage = 1;
       this.render();
-      if(this.clearBtn) this.clearBtn.style.display = 'none';
       window.location.href = '/dashboard/technicians'; // مسح الفلتر والبحث من السيرفر
     }
 
@@ -314,7 +189,10 @@
         this.render();
       }
     }
-
+    goToPage(page) {
+    this.currentPage = page;
+    this.render();
+  }
     getTotalPages() {
       return Math.ceil(this.filteredRows.length / this.itemsPerPage) || 1;
     }
@@ -343,11 +221,11 @@
       for (let i = 1; i <= this.getTotalPages(); i++) {
         const pageBtn = document.createElement('button');
         pageBtn.textContent = i;
-        pageBtn.className = 'w-8 h-8 rounded-full hover:bg-slate-700 hover:text-white transition';
+        pageBtn.className = 'w-8 h-8 rounded-full hover:bg-slate-700 hover:text-white transition'
         if (i === this.currentPage) {
           pageBtn.classList.add('bg-slate-700', 'text-white');
         } else {
-          pageBtn.classList.add('bg-slate-300', 'text-gray-600');
+          pageBtn.classList.add('bg-slate-300', 'text-gray-600','hover:bg-gray-300');
         }
         pageBtn.addEventListener('click', () => {
           this.currentPage = i;
@@ -358,42 +236,35 @@
 
       this.totalCountSpan.textContent = this.filteredRows.length;
 
-      if (this.clearBtn) {
-        this.clearBtn.style.display = this.searchInput.value.trim() ? 'inline-block' : 'none';
-      }
+      
     }
   }
 
   window.addEventListener('DOMContentLoaded', () => {
     new TechniciansPagination();
   });
-  // Modal functions
+ // Modal functions
 function deleteItem(id) {
   const modal = document.getElementById(`deleteNeighborhoodModal_${id}`);
   if (modal) {
-    modal.classList.remove('hidden', 'hide');
-    modal.classList.add('show');
+    modal.classList.remove('hide');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      modal.classList.add('show');
+    }, 10);
   }
 }
+
 
 function hideModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) {
     modal.classList.remove('show');
     modal.classList.add('hide');
-
     setTimeout(() => {
-      modal.classList.add('hidden');
-      modal.classList.remove('hide');
-    }, 400); 
+      modal.style.display = 'none';
+    }, 400);
   }
 }
 
-// Close modal when clicking outside
-document.addEventListener('click', function(event) {
-  if (event.target.classList.contains('modal-backdrop')) {
-    const modalId = event.target.id;
-    hideModal(modalId);
-  }
-});
 </script>
