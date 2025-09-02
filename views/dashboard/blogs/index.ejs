@@ -1,0 +1,19 @@
+<h1>All blogs</h1>
+
+<a href="/dashboard/blogs/new">Add New Blog</a>
+<ul>
+    <% blogs.forEach(b=> { %>
+        <li>
+            <h3>
+                <%= b.title %>
+            </h3>
+            <div>
+                <a href="/dashboard/blogs/<%= b._id %>">View</a>
+                <a href="/dashboard/blogs/<%= b._id %>/edit">Edit</a>
+                <form action="/dashboard/blogs/<%= b._id %>?_method=DELETE" method="POST" style="display:inline;">
+                    <button type="submit" onclick="return confirm('Delete this blog?')">Delete</button>
+                </form>
+            </div>
+        </li>
+        <% }) %>
+</ul>
