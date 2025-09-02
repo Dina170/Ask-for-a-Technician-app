@@ -12,6 +12,7 @@ const jobRouter = require("./routes/dashboard/job.route");
 const technicianRouter = require("./routes/dashboard/technician.route");
 const publicHomeRouter = require("./routes/public/home.route");
 const publicTechnicianRouter = require("./routes/public/technician.route");
+const blogRouter = require("./routes/dashboard/blog.route");
 const authRouter = require("./routes/auth/auth.route");
 
 // Connect to MongoDB
@@ -40,6 +41,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/dashboard/neighborhoods", neighborhoodRouter);
 app.use("/dashboard/jobs", jobRouter);
 app.use("/dashboard/technicians", technicianRouter);
+app.use("/dashboard/blogs", blogRouter);
 
 app.use("/", publicHomeRouter); // homepage + job-based filtering
 app.use("/technicians", publicTechnicianRouter); // technician + neighborhood pages
