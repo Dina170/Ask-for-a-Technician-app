@@ -10,6 +10,7 @@ router.get("/showMoreTechnicians", technicianController.getAllTechnicians);
 router.get("/autocomplete", homeController.autocompleteTechnicians);
 router.get("/blogs", homeController.getAllBlogs);
 router.get("/blogs/:id", homeController.getBlogPosts);
-router.get("/posts/:slug", homeController.getPostDetails); // Use slug instead of id
+router.get("/posts/:slug", homeController.getPostDetails);
+router.get("/privacy-policy", homeController.getPrivacyPolicy);
 
 module.exports = router;
