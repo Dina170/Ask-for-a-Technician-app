@@ -1,4 +1,4 @@
-<h1>All blogs</h1>
+<h1>All Blogs</h1>
 
 <a href="/dashboard/blogs/new">Add New Blog</a>
 <ul>
@@ -7,6 +7,8 @@
             <h3>
                 <%= b.title %>
             </h3>
+            <p>Blog Category: <%= b.blog %>
+            </p>
             <div>
                 <a href="/dashboard/blogs/<%= b._id %>">View</a>
                 <a href="/dashboard/blogs/<%= b._id %>/edit">Edit</a>

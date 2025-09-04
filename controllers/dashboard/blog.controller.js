@@ -3,7 +3,7 @@ const Job = require("../../models/job");
 
 const getAllBlogs = async (req, res) => {
   try {
-    const blogs = await Blog.find().populate("job");
+    const blogs = await Blog.find();
     res.render("dashboard/blogs/index", { blogs });
   } catch (err) {
     console.error(err);
@@ -13,7 +13,7 @@ const getAllBlogs = async (req, res) => {
 
 const getBlogById = async (req, res) => {
   try {
-    const blog = await Blog.findById(req.params.id).populate("job");
+    const blog = await Blog.findById(req.params.id);
     if (!blog) return res.redirect("/dashboard/blogs");
     res.render("dashboard/blogs/show", { blog });
   } catch (err) {
@@ -34,28 +34,24 @@ const renderNewBlogForm = async (req, res) => {
 
 const createBlog = async (req, res) => {
   try {
-    const { title, jobId, description } = req.body;
-    if (!title || !jobId || !description) {
-      const jobs = await Job.find();
+    const { title, blog, description } = req.body;
+    if (!title || !blog || !description) {
       return res.render("dashboard/blogs/form", {
         blog: null,
-        jobs,
         error: "All fields are required",
       });
     }
     const newBlog = new Blog({
       title,
-      job: jobId,
+      blog,
       description,
     });
     await newBlog.save();
     res.redirect("/dashboard/blogs");
   } catch (err) {
     console.error(err);
-    const jobs = await Job.find();
     res.render("dashboard/blogs/form", {
       blog: null,
-      jobs,
       error: "Failed to create blog",
     });
   }
@@ -65,8 +61,7 @@ const editBlog = async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id);
     if (!blog) return res.redirect("/dashboard/blogs");
-    const jobs = await Job.find();
-    res.render("dashboard/blogs/form", { blog, jobs });
+    res.render("dashboard/blogs/form", { blog });
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/blogs");
@@ -74,29 +69,25 @@ const editBlog = async (req, res) => {
 };
 
 const updateBlog = async (req, res) => {
-  const { title, jobId, description } = req.body;
+  const { title, blog, description } = req.body;
   try {
-    if (!title || !jobId || !description) {
-      const jobs = await Job.find();
+    if (!title || !blog || !description) {
       return res.render("dashboard/blogs/form", {
-        blog: { _id: req.params.id, title, job: jobId, description },
-        jobs,
+        blog: { _id: req.params.id, title, blog, description },
         error: "All fields are required",
       });
     }
-    const blog = await Blog.findById(req.params.id);
-    if (!blog) return res.redirect("/dashboard/blogs");
-    blog.title = title;
-    blog.job = jobId;
-    blog.description = description;
-    await blog.save();
+    const existingBlog = await Blog.findById(req.params.id);
+    if (!existingBlog) return res.redirect("/dashboard/blogs");
+    existingBlog.title = title;
+    existingBlog.blog = blog;
+    existingBlog.description = description;
+    await existingBlog.save();
     res.redirect("/dashboard/blogs");
   } catch (err) {
     console.error(err);
-    const jobs = await Job.find();
     res.render("dashboard/blogs/form", {
-      blog: { _id: req.params.id, title, job: jobId, description },
-      jobs,
+      blog: { _id: req.params.id, title, blog, description },
       error: "Failed to update blog",
     });
   }
