@@ -37,8 +37,8 @@ const renderNewPostForm = async (req, res) => {
 
 const createPost = async (req, res) => {
   try {
-    const { blog, name, permanentLink, title, content } = req.body;
-    if (!blog || !name || !permanentLink || !title || !content) {
+    const { blog, name, permaLink, title, content } = req.body;
+    if (!blog || !name || !permaLink || !title || !content) {
       const blogs = await Blog.find();
       return res.render("dashboard/posts/form", {
         post: null,
@@ -46,7 +46,7 @@ const createPost = async (req, res) => {
         error: "All fields are required",
       });
     }
-    const newPost = new Post({ blog, name, permanentLink, title, content });
+    const newPost = new Post({ blog, name, permaLink, title, content });
     await newPost.save();
     res.redirect("/dashboard/posts");
   } catch (err) {
@@ -62,7 +62,9 @@ const createPost = async (req, res) => {
 
 const editPost = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id).populate("blog");
+    console.log(post);
+
     if (!post) return res.redirect("/dashboard/posts");
     const blogs = await Blog.find();
     res.render("dashboard/posts/form", { post, blogs });
@@ -73,12 +75,12 @@ const editPost = async (req, res) => {
 };
 
 const updatePost = async (req, res) => {
-  const { blog, name, permanentLink, title, content } = req.body;
+  const { blog, name, permaLink, title, content } = req.body;
   try {
-    if (!blog || !name || !permanentLink || !title || !content) {
+    if (!blog || !name || !permaLink || !title || !content) {
       const blogs = await Blog.find();
       return res.render("dashboard/posts/form", {
-        post: { _id: req.params.id, blog, name, permanentLink, title, content },
+        post: { _id: req.params.id, blog, name, permaLink, title, content },
         blogs,
         error: "All fields are required",
       });
@@ -87,7 +89,7 @@ const updatePost = async (req, res) => {
     if (!post) return res.redirect("/dashboard/posts");
     post.blog = blog;
     post.name = name;
-    post.permanentLink = permanentLink;
+    post.permaLink = permaLink;
     post.title = title;
     post.content = content;
     await post.save();
@@ -96,7 +98,7 @@ const updatePost = async (req, res) => {
     console.error(err);
     const blogs = await Blog.find();
     res.render("dashboard/posts/form", {
-      post: { _id: req.params.id, blog, name, permanentLink, title, content },
+      post: { _id: req.params.id, blog, name, permaLink, title, content },
       blogs,
       error: "Failed to update post",
     });

@@ -8,10 +8,10 @@
     <%= post.name %>
 </p>
 <p><strong>Permanent Link:</strong>
-    <%= post.permanentLink %>
+    <%= post.permaLink %>
 </p>
 <div>
-    <%- post.content %> <!-- Render content as raw HTML -->
+    <%- post.content %>
 </div>
 <a href="/dashboard/posts">Back to Posts</a> |
 <a href="/dashboard/posts/<%= post._id %>/edit">Edit</a>

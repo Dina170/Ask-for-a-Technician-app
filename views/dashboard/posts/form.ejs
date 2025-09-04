@@ -22,8 +22,8 @@
             <input type="text" name="name" placeholder="Post Name" value="<%= post?.name || '' %>" required>
 
             <label for="permanentLink">Permanent Link:</label>
-            <input type="text" name="permanentLink" placeholder="Permanent Link"
-                value="<%= post?.permanentLink || '' %>" required>
+            <input type="text" name="permaLink" placeholder="Permanent Link" value="<%= post?.permaLink || '' %>"
+                required>
 
             <label for="title">Title:</label>
             <input type="text" name="title" placeholder="Post Title" value="<%= post?.title || '' %>" required>
@@ -86,7 +86,6 @@
                 }
             });
 
-            // Sync Quill content with the hidden textarea
             document.querySelector('form').onsubmit = () => {
                 const content = editor.root.innerHTML.trim();
                 document.querySelector('#content').value = content;
