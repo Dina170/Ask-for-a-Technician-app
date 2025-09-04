@@ -1,33 +1,3 @@
-<!-- <h1>All Jobs</h1>
-<a href="/dashboard/jobs/new">Add New Job</a>
-
-<ul>
-  <% jobs.forEach(job=> { %>
-    <li>
-      <h3>
-        <%= job.name %>
-      </h3>
-      <img src="/uploads/jobs/<%= job.jobPhoto %>" alt="<%= job.name %>" width="100" />
-      <p>Main Description: <%= job.mainDescription %></p>
-      <p>Sub Description: <%= job.subDescription %></p>
-      <p>Neighborhood: <%= job.neighborhoodName?.name %></p>
-      <a href="/dashboard/jobs/<%= job._id %>">
-        <button type="button">View</button>
-      </a>
-      <a href="/dashboard/jobs/<%= job._id %>/edit">
-        <button type="button">Edit</button>
-      </a>
-      <form action="/dashboard/jobs/<%= job._id %>?_method=DELETE" method="POST" style="display:inline;">
-        <button type="submit">Delete</button>
-      </form>
-    </li>
-  <% }) %>
-</ul>
-
-<form action="/dashboard/jobs?_method=DELETE" method="POST">
-  <button type="submit">Delete All Jobs</button>
-</form> -->
-
 <div class="ms-7 me-2">
 <!-- Success message at the top -->
   <% if (message && message.trim() !== '') { %>
