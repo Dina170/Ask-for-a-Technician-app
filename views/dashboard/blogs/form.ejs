@@ -1,0 +1,28 @@
+<h1>
+    <%= blog ? 'Edit' : 'Add' %> Blog
+</h1>
+
+<% if (typeof error !=='undefined' ) { %>
+    <div style="color: red; margin-bottom: 1rem;">
+        <%= error %>
+    </div>
+    <% } %>
+
+        <form action="<%= blog ? '/dashboard/blogs/' + blog._id + '?_method=PUT' : '/dashboard/blogs' %>" method="POST">
+            <input type="text" name="title" placeholder="Blog Title" value="<%= blog?.title || '' %>" required>
+
+            <select name="jobId" required>
+                <% jobs.forEach(j=> { %>
+                    <option value="<%= j._id %>" <%=blog && blog.job.equals(j._id) ? 'selected' : '' %>>
+                        <%= j.name %>
+                    </option>
+                    <% }) %>
+            </select>
+
+            <textarea name="description" placeholder="Main Description"
+                required><%= blog?.description || '' %></textarea>
+
+            <button type="submit">
+                <%= blog ? 'Update' : 'Create' %>
+            </button>
+        </form>

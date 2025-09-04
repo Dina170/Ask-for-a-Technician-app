@@ -12,6 +12,7 @@ const jobRouter = require("./routes/dashboard/job.route");
 const technicianRouter = require("./routes/dashboard/technician.route");
 const publicHomeRouter = require("./routes/public/home.route");
 const publicTechnicianRouter = require("./routes/public/technician.route");
+const blogRouter = require("./routes/dashboard/blog.route");
 const authRouter = require("./routes/auth/auth.route");
 
 // Connect to MongoDB
