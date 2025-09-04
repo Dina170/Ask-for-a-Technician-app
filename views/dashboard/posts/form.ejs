@@ -1,0 +1,37 @@
+<h1>
+    <%= post ? "Edit" : "Add" %> Post
+</h1>
+
+<% if (typeof error !=='undefined' ) { %>
+    <div style="color: red; margin-bottom: 1rem;">
+        <%= error %>
+    </div>
+    <% } %>
+
+        <form action="<%= post ? '/dashboard/posts/' + post._id + '?_method=PUT' : '/dashboard/posts' %>" method="POST">
+            <label for="blog">Blog:</label>
+            <select name="blog" required>
+                <option value="">Select a blog</option>
+                <% blogs.forEach(b=> { %>
+                    <option value="<%= b._id %>" <%=post && post.blog.equals(b._id) ? 'selected' : '' %>><%= b.title %>
+                    </option>
+                    <% }) %>
+            </select>
+
+            <label for="name">Name:</label>
+            <input type="text" name="name" placeholder="Post Name" value="<%= post?.name || '' %>" required>
+
+            <label for="permanentLink">Permanent Link:</label>
+            <input type="text" name="permanentLink" placeholder="Permanent Link"
+                value="<%= post?.permanentLink || '' %>" required>
+
+            <label for="title">Title:</label>
+            <input type="text" name="title" placeholder="Post Title" value="<%= post?.title || '' %>" required>
+
+            <label for="content">Content:</label>
+            <textarea name="content" placeholder="Post Content" required><%= post?.content || '' %></textarea>
+
+            <button type="submit">
+                <%= post ? "Update" : "Create" %>
+            </button>
+        </form>

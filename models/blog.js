@@ -1,7 +1,7 @@
 const { Schema, model } = require("mongoose");
 
 const BlogSchema = new Schema({
-  blog: { type: String, required: true }, // Changed from ObjectId to String
+  blog: { type: String, required: true },
   title: { type: String, required: true },
   description: { type: String, required: true },
 });

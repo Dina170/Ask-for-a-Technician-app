@@ -14,6 +14,7 @@ const publicHomeRouter = require("./routes/public/home.route");
 const publicTechnicianRouter = require("./routes/public/technician.route");
 const blogRouter = require("./routes/dashboard/blog.route");
 const authRouter = require("./routes/auth/auth.route");
+const postRouter = require("./routes/dashboard/post.route");
 
 // Connect to MongoDB
 mongoose
@@ -42,6 +43,7 @@ app.use("/dashboard/neighborhoods", neighborhoodRouter);
 app.use("/dashboard/jobs", jobRouter);
 app.use("/dashboard/technicians", technicianRouter);
 app.use("/dashboard/blogs", blogRouter);
+app.use("/dashboard/posts", postRouter);
 
 app.use("/", publicHomeRouter); // homepage + job-based filtering
 app.use("/technicians", publicTechnicianRouter); // technician + neighborhood pages

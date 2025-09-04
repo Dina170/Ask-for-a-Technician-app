@@ -1,0 +1,31 @@
+<h1>All Posts</h1>
+
+<a href="/dashboard/posts/new">Add New Post</a>
+<ul>
+    <% posts.forEach(p=> { %>
+        <li>
+            <h3>
+                <%= p.title %>
+            </h3>
+            <p><strong>Blog:</strong>
+                <%= p.blog.title %>
+            </p>
+            <p><strong>Name:</strong>
+                <%= p.name %>
+            </p>
+            <p><strong>Permanent Link:</strong>
+                <%= p.permanentLink %>
+            </p>
+            <p>
+                <%= p.content.substring(0, 100) %>...
+            </p>
+            <div>
+                <a href="/dashboard/posts/<%= p._id %>">View</a>
+                <a href="/dashboard/posts/<%= p._id %>/edit">Edit</a>
+                <form action="/dashboard/posts/<%= p._id %>?_method=DELETE" method="POST" style="display:inline;">
+                    <button type="submit" onclick="return confirm('Delete this post?')">Delete</button>
+                </form>
+            </div>
+        </li>
+        <% }) %>
+</ul>
