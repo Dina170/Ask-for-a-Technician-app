@@ -10,9 +10,9 @@
 <p><strong>Permanent Link:</strong>
     <%= post.permanentLink %>
 </p>
-<p>
-    <%= post.content %>
-</p>
+<div>
+    <%- post.content %> <!-- Render content as raw HTML -->
+</div>
 <a href="/dashboard/posts">Back to Posts</a> |
 <a href="/dashboard/posts/<%= post._id %>/edit">Edit</a>
 <form action="/dashboard/posts/<%= post._id %>?_method=DELETE" method="POST" style="display:inline;">

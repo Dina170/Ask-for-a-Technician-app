@@ -38,6 +38,7 @@ app.use(
 
 // Serve files from the uploads folder statically
 app.use("/uploads", express.static("uploads"));
+app.use("/uploads/posts", express.static("uploads/posts"));
 
 app.use("/dashboard/neighborhoods", neighborhoodRouter);
 app.use("/dashboard/jobs", jobRouter);
