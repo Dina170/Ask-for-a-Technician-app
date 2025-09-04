@@ -1,3 +1,6 @@
+const fs = require("fs");
+const path = require("path");
+
 const Post = require("../../models/post");
 const Blog = require("../../models/blog");
 
@@ -102,6 +105,12 @@ const updatePost = async (req, res) => {
 
 const deletePost = async (req, res) => {
   try {
+    const post = await Post.findById(req.params.id);
+    if (!post) return res.redirect("/dashboard/posts");
+
+    // Extract image URLs from the content and delete them
+    deleteImg(post);
+
     await Post.findByIdAndDelete(req.params.id);
     res.redirect("/dashboard/posts");
   } catch (err) {
@@ -112,6 +121,13 @@ const deletePost = async (req, res) => {
 
 const deleteAllPosts = async (req, res) => {
   try {
+    const posts = await Post.find();
+
+    // Delete all images associated with all posts
+    posts.forEach((post) => {
+      deleteImg(post);
+    });
+
     await Post.deleteMany({});
     res.redirect("/dashboard/posts");
   } catch (err) {
@@ -119,6 +135,18 @@ const deleteAllPosts = async (req, res) => {
     res.redirect("/dashboard/posts");
   }
 };
+
+function deleteImg(post) {
+  const imageUrls = post.content.match(/<img src="([^"]+)"/g) || [];
+  imageUrls.forEach((imgTag) => {
+    const imagePath = imgTag.match(/src="([^"]+)"/)[1];
+    const fullPath = path.join(__dirname, "../..", imagePath);
+
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+    }
+  });
+}
 
 module.exports = {
   getAllPosts,
