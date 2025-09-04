@@ -1,0 +1,18 @@
+<h1>
+    <%= blog.blog %>
+</h1>
+
+<% posts.forEach(post=> { %>
+    <div class="post">
+        <h2><a href="/posts/<%= post.permaLink %>">
+                <%= post.title %>
+            </a></h2>
+        <p><strong>By:</strong>
+            <%= post.name %>
+        </p>
+        <div>
+            <%- post.content.substring(0, 200) %>
+        </div>
+        <a href="/posts/<%= post.permaLink %>">Read More</a>
+    </div>
+    <% }) %>
