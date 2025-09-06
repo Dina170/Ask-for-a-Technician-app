@@ -1,5 +1,6 @@
 const Blog = require("../../models/blog");
 const Job = require("../../models/job");
+const Post = require("../../models/post");
 
 const getAllBlogs = async (req, res) => {
   try {
@@ -95,6 +96,11 @@ const updateBlog = async (req, res) => {
 
 const deleteBlog = async (req, res) => {
   try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) return res.redirect("/dashboard/blogs");
+
+    await Post.deleteMany({ blog: blog._id });
+
     await Blog.findByIdAndDelete(req.params.id);
     res.redirect("/dashboard/blogs");
   } catch (err) {
@@ -105,6 +111,8 @@ const deleteBlog = async (req, res) => {
 
 const deleteAllBlogs = async (req, res) => {
   try {
+    await Post.deleteMany({});
+
     await Blog.deleteMany({});
     res.redirect("/dashboard/blogs");
   } catch (err) {
@@ -112,6 +120,7 @@ const deleteAllBlogs = async (req, res) => {
     res.redirect("/dashboard/blogs");
   }
 };
+
 module.exports = {
   renderNewBlogForm,
   createBlog,
