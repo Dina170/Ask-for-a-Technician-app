@@ -49,14 +49,14 @@ const createPost = async (req, res) => {
     }
     const newPost = new Post({ blog, name, permaLink, title, content });
     await newPost.save();
-    res.redirect("/dashboard/posts");
+    res.redirect("/dashboard/posts?message=تم إضافة مدونة بنجاح&messageType=add");
   } catch (err) {
     console.error(err);
     const blogs = await Blog.find();
     res.render("dashboard/posts/form", {
       post: null,
       blogs,
-      error: "Failed to create post",
+      error: err.message || "Failed to create post",
     });
   }
 };
@@ -94,14 +94,14 @@ const updatePost = async (req, res) => {
     post.title = title;
     post.content = content;
     await post.save();
-    res.redirect("/dashboard/posts");
+    res.redirect("/dashboard/posts?message=تم تعديل المدونة بنجاح&messageType=edit");
   } catch (err) {
     console.error(err);
     const blogs = await Blog.find();
     res.render("dashboard/posts/form", {
       post: { _id: req.params.id, blog, name, permaLink, title, content },
       blogs,
-      error: "Failed to update post",
+      error: err.message || "Failed to create post",
     });
   }
 };
@@ -115,7 +115,7 @@ const deletePost = async (req, res) => {
     deleteImg(post);
 
     await Post.findByIdAndDelete(req.params.id);
-    res.redirect("/dashboard/posts");
+    res.redirect("/dashboard/posts?message=تم حذف مدونة بنجاح&messageType=delete");
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/posts");
@@ -132,7 +132,7 @@ const deleteAllPosts = async (req, res) => {
     });
 
     await Post.deleteMany({});
-    res.redirect("/dashboard/posts");
+    res.redirect("/dashboard/posts?message=تم حذف جميع المدونات بنجاح&messageType=delete");
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/posts");

@@ -1,282 +1,255 @@
-<h1>All Posts</h1>
-
-<a href="/dashboard/posts/new">Add New Post</a>
-<ul>
-    <% posts.forEach(p=> { %>
-        <li>
-            <h3>
-                <%= p.title %>
-            </h3>
-            <p><strong>Blog:</strong>
-                <%= p.blog ? p.blog.title : "No Blog" %>
-            </p>
-            <p><strong>Name:</strong>
-                <%= p.name %>
-            </p>
-            <p><strong>Permanent Link:</strong>
-                <%= p.permaLink %>
-            </p>
-            <p>
-                <%- p.content %>
-            </p>
-            <div>
-                <a href="/dashboard/posts/<%= p._id %>">View</a>
-                <a href="/dashboard/posts/<%= p._id %>/edit">Edit</a>
-                <form action="/dashboard/posts/<%= p._id %>?_method=DELETE" method="POST" style="display:inline;">
-                    <button type="submit" onclick="return confirm('Delete this post?')">Delete</button>
-                </form>
-            </div>
-        </li>
-        <% }) %>
-</ul>
 <div class="ms-7 me-2">
 
   <!-- Success message -->
-  <% if (message && message.trim() !== '') { %>
+  <% if (message && message.trim() !=='' ) { %>
     <%- include('../layouts/success', { message, messageType }) %>
-  <% } %>
+      <% } %>
 
-  <!-- Header -->
-  <div class="flex flex-col md:flex-row justify-between mb-3 gap-2 mt-3">
-    <h1 class="text-xl md:text-2xl font-bold text-center md:text-right">
-      المقالات (<span id="totalPosts"><%= posts.length %></span>)
-    </h1>
-    <a href="/dashboard/posts/new" class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-600 transition">
-      + إضافة مقال
-    </a>
-  </div>
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between mb-3 gap-2 mt-3">
+          <h1 class="text-xl md:text-2xl font-bold text-center md:text-right">
+            مقالات المدونة (<span id="totalPosts">
+              <%= posts.length %>
+            </span>)
+          </h1>
+          <a href="/dashboard/posts/new"
+            class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-600 transition">
+            + إضافة مدونة
+          </a>
+        </div>
 
-  <!-- Breadcrumb -->
-  <div class="mb-4">
-    <p class="text-gray-600 text-right">
-      <a href="/dashboard/posts" class="hover:text-Sky-950 hover:font-medium">المقالات</a>
-    </p>
-  </div>
+        <!-- Breadcrumb -->
+        <div class="mb-4">
+          <p class="text-gray-600 text-right">
+            <a href="/dashboard/posts" class="hover:text-Sky-950 hover:font-medium"> مقالات المدونة </a>
+          </p>
+        </div>
 
-  <!-- Search Input -->
-  <div class="flex gap-3 mb-4">
-    <input
-      type="text"
-      id="postSearchInput"
-      placeholder="بحث عن المقال"
-      autocomplete="off"
-      class="flex-grow p-2 border rounded-md"
-    />
-    <button onclick="showModal('deleteAllPostsModal')" title="حذف المقالات"
-      class="bg-pink-100 text-red-600 px-4 py-2 rounded hover:bg-pink-300 w-max">
-      <i class="fa-solid fa-trash-can"></i>
-    </button>
-  </div>
+        <!-- Search Input -->
+        <div class="flex gap-3 mb-4">
+          <input type="text" id="postSearchInput" placeholder="بحث عن طريق اسم المدونة" autocomplete="off"
+            class="flex-grow p-2 border rounded-md" />
+          <button onclick="showModal('deleteAllPostsModal')" title="حذف المدونات"
+            class="bg-pink-100 text-red-600 px-4 py-2 rounded hover:bg-pink-300 w-max">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
 
-  <!-- Table -->
-  <div class="overflow-x-auto">
-    <table class="w-full bg-white text-center border-2 border-black text-sm md:text-base">
-      <thead class="bg-slate-700 text-white">
-        <tr>
-          <th class="p-2">#</th>
-          <th class="p-2">العنوان</th>
-          <th class="p-2">المدونة</th>
-          <th class="p-2">الاسم</th>
-          <th class="p-2">الرابط</th>
-          <th class="p-2">التحكم</th>
-        </tr>
-      </thead>
-      <tbody id="postTableBody">
-        <% posts.forEach((p, index) => { %>
-          <tr class="border-b hover:bg-gray-50 post-row" data-title="<%= p.title.toLowerCase() %>">
-            <td class="p-2"><%= index + 1 %></td>
-            <td class="p-2 font-medium"><%= p.title %></td>
-            <td class="p-2"><%= p.blog ? p.blog.title : "No Blog" %></td>
-            <td class="p-2"><%= p.name %></td>
-            <td class="p-2"><%= p.permaLink %></td>
-            <td class="p-2">
-              <div class="flex gap-2 justify-center">
-                <button
-                  type="button"
-                  onclick="deleteItem('<%= p._id %>')"
-                  class="bg-pink-100 text-red-600 w-10 h-10 flex items-center justify-center rounded-md hover:bg-pink-300 transition"
-                  title="حذف المقال">
-                  <i class="fa-solid fa-trash-can text-lg"></i>
-                </button>
-                <a href="/dashboard/posts/<%= p._id %>" class="bg-green-500 w-10 h-10 flex items-center justify-center rounded-md hover:bg-green-600 text-white transition" title="عرض المقال">
-                  <i class="fa-solid fa-eye text-lg"></i>
-                </a>
-                <a href="/dashboard/posts/<%= p._id %>/edit" class="bg-slate-800 w-10 h-10 flex items-center justify-center rounded-md hover:bg-slate-700 text-white transition" title="تعديل المقال">
-                  <i class="fa-solid fa-pen text-lg"></i>
-                </a>
-              </div>
-            </td>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
+        <!-- Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full bg-white text-center border-2 border-black text-sm md:text-base">
+            <thead class="bg-slate-700 text-white">
+              <tr>
+                <th class="p-2">الرقم</th>
+                <th class="p-2">اسم المدونة</th>
+                <th class="p-2">العنوان</th>
+                <th class="p-2">الرابط</th>
+                <th class="p-2">التحكم</th>
+              </tr>
+            </thead>
+            <tbody id="postTableBody">
+              <% posts.forEach((p, index)=> { %>
+                <tr class="border-b hover:bg-gray-50 post-row" data-title="<%= p.name.toLowerCase() %>">
+                  <td class="p-2">
+                    <%= index + 1 %>
+                  </td>
+                  <td class="p-2">
+                    <%= p.name %>
+                  </td>
+                  <td class="p-2 font-medium">
+                    <%= p.title %>
+                  </td>
+                  <td class="p-2">
+                    <%= p.permaLink %>
+                  </td>
+                  <td class="p-2">
+                    <div class="flex gap-2 justify-center">
+                      <button type="button" onclick="deleteItem('<%= p._id %>')"
+                        class="bg-pink-100 text-red-600 w-10 h-10 flex items-center justify-center rounded-md hover:bg-pink-300 transition"
+                        title="حذف المقال">
+                        <i class="fa-solid fa-trash-can text-lg"></i>
+                      </button>
+                      <a href="/dashboard/posts/<%= p._id %>"
+                        class="bg-green-500 w-10 h-10 flex items-center justify-center rounded-md hover:bg-green-600 text-white transition"
+                        title="عرض المقال">
+                        <i class="fa-solid fa-eye text-lg"></i>
+                      </a>
+                      <a href="/dashboard/posts/<%= p._id %>/edit"
+                        class="bg-slate-800 w-10 h-10 flex items-center justify-center rounded-md hover:bg-slate-700 text-white transition"
+                        title="تعديل المقال">
+                        <i class="fa-solid fa-pen text-lg"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                <% }) %>
+            </tbody>
+          </table>
 
-    <!-- رسالة عدم وجود نتائج -->
-    <div id="noResults" class="text-center py-8 text-gray-500 hidden">
-      <i class="fa-solid fa-search text-4xl mb-4 text-gray-300"></i>
-      <p class="text-lg">لا توجد مقالات.</p>
-    </div>
-  </div>
+          <!-- رسالة عدم وجود نتائج -->
+          <div id="noResults" class="text-center py-8 text-gray-500 hidden">
+            <i class="fa-solid fa-search text-4xl mb-4 text-gray-300"></i>
+            <p class="text-lg">لا توجد مقالات.</p>
+          </div>
+        </div>
 
-  <!-- Pagination -->
-  <div class="flex justify-between items-center mt-6 mb-6">
-    <div id="pagination" class="flex items-center gap-1">
-      <button id="postPrevBtn" class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center">
-        <i class="fa-solid fa-chevron-right"></i>
-      </button>
-      <div id="postPageNumbers" class="flex gap-1 mx-3"></div>
-      <button id="postNextBtn" class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center">
-        <i class="fa-solid fa-chevron-left"></i>
-      </button>
-    </div>
+        <!-- Pagination -->
+        <div class="flex justify-between items-center mt-6 mb-6">
+          <div id="pagination" class="flex items-center gap-1">
+            <button id="postPrevBtn"
+              class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+            <div id="postPageNumbers" class="flex gap-1 mx-3"></div>
+            <button id="postNextBtn"
+              class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+          </div>
 
-    <div class="flex items-center gap-2">
-      <span class="text-sm whitespace-nowrap">عدد النتائج في الصفحة</span>
-      <select id="itemsPerPage" class="border rounded px-2 py-1 text-sm">
-        <option value="5">5</option>
-        <option value="10" selected>10</option>
-        <option value="15">15</option>
-        <option value="30">30</option>
-      </select>
-    </div>
-  </div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm whitespace-nowrap">عدد النتائج في الصفحة</span>
+            <select id="itemsPerPage" class="border rounded px-2 py-1 text-sm">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="15">15</option>
+              <option value="30">30</option>
+            </select>
+          </div>
+        </div>
 
-  <!-- Delete confirmation modals -->
-  <% posts.forEach(n => { %>
-    <%- include('../layouts/confirmDelete', {
-      modalId: `deletePostModal_${n._id}`,
-      message: 'هل أنت متأكد من أنك تريد حذف هذا المقال؟',
-      deleteAction: `/dashboard/posts/${n._id}?_method=DELETE`
-    }) %>
-  <% }) %>
+        <!-- Delete confirmation modals -->
+        <% posts.forEach(n=> { %>
+          <%- include('../layouts/confirmDelete', { modalId: `deletePostModal_${n._id}`,
+            message: 'هل أنت متأكد من أنك تريد حذف هذا المقال؟' , deleteAction:
+            `/dashboard/posts/${n._id}?_method=DELETE` }) %>
+            <% }) %>
 
-  <%- include('../layouts/confirmDelete', { 
-        modalId: 'deleteAllPostsModal', 
-        message: 'هل أنت متأكد أنك تريد حذف جميع المقالات؟.', 
-        deleteAction: '/dashboard/posts?_method=DELETE' 
-  }) %>
+              <%- include('../layouts/confirmDelete', { modalId: 'deleteAllPostsModal' ,
+                message: 'هل أنت متأكد أنك تريد حذف جميع المقالات؟.' , deleteAction: '/dashboard/posts?_method=DELETE'
+                }) %>
 
 </div>
 
 <script>
-class PostsPagination {
-  constructor() {
-    this.currentPage = 1;
-    this.itemsPerPage = 10;
-
-    this.allRows = Array.from(document.querySelectorAll('.post-row'));
-    this.searchInput = document.getElementById('postSearchInput');
-    this.pageNumbers = document.getElementById('postPageNumbers');
-    this.prevBtn = document.getElementById('postPrevBtn');
-    this.nextBtn = document.getElementById('postNextBtn');
-    this.itemsSelect = document.getElementById('itemsPerPage');
-
-    this.filteredRows = [...this.allRows];
-
-    this.bindEvents();
-    this.render();
-  }
-
-  bindEvents() {
-    this.searchInput.addEventListener('input', () => this.filterData());
-    this.prevBtn.addEventListener('click', () => this.goToPreviousPage());
-    this.nextBtn.addEventListener('click', () => this.goToNextPage());
-    this.itemsSelect.addEventListener('change', () => {
-      this.itemsPerPage = parseInt(this.itemsSelect.value);
+  class PostsPagination {
+    constructor() {
       this.currentPage = 1;
-      this.render();
-    });
-  }
+      this.itemsPerPage = 10;
 
-  filterData() {
-    const searchTerm = this.searchInput.value.toLowerCase().trim();
-    this.filteredRows = this.allRows.filter(row => {
-      const title = row.dataset.title;
-      return !searchTerm || title.includes(searchTerm);
-    });
-    this.currentPage = 1;
-    this.render();
-  }
+      this.allRows = Array.from(document.querySelectorAll('.post-row'));
+      this.searchInput = document.getElementById('postSearchInput');
+      this.pageNumbers = document.getElementById('postPageNumbers');
+      this.prevBtn = document.getElementById('postPrevBtn');
+      this.nextBtn = document.getElementById('postNextBtn');
+      this.itemsSelect = document.getElementById('itemsPerPage');
 
-  goToPreviousPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
+      this.filteredRows = [...this.allRows];
+
+      this.bindEvents();
       this.render();
     }
-  }
 
-  goToNextPage() {
-    if (this.currentPage < this.getTotalPages()) {
-      this.currentPage++;
-      this.render();
-    }
-  }
-
-  getTotalPages() {
-    return Math.ceil(this.filteredRows.length / this.itemsPerPage) || 1;
-  }
-
-  render() {
-    this.allRows.forEach(row => (row.style.display = 'none'));
-
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    const end = start + this.itemsPerPage;
-    const pageRows = this.filteredRows.slice(start, end);
-    pageRows.forEach(row => (row.style.display = 'table-row'));
-
-    this.prevBtn.disabled = this.currentPage === 1;
-    this.nextBtn.disabled = this.currentPage === this.getTotalPages();
-
-    this.pageNumbers.innerHTML = '';
-    for (let i = 1; i <= this.getTotalPages(); i++) {
-      const btn = document.createElement('button');
-      btn.textContent = i;
-      btn.className = 'w-8 h-8 rounded-full hover:bg-slate-700 hover:text-white transition';
-      if (i === this.currentPage) {
-        btn.classList.add('bg-slate-700', 'text-white');
-      } else {
-        btn.classList.add('bg-slate-300', 'text-gray-600');
-      }
-      btn.addEventListener('click', () => {
-        this.currentPage = i;
+    bindEvents() {
+      this.searchInput.addEventListener('input', () => this.filterData());
+      this.prevBtn.addEventListener('click', () => this.goToPreviousPage());
+      this.nextBtn.addEventListener('click', () => this.goToNextPage());
+      this.itemsSelect.addEventListener('change', () => {
+        this.itemsPerPage = parseInt(this.itemsSelect.value);
+        this.currentPage = 1;
         this.render();
       });
-      this.pageNumbers.appendChild(btn);
     }
 
-    document.getElementById('totalPosts').textContent = this.filteredRows.length;
+    filterData() {
+      const searchTerm = this.searchInput.value.toLowerCase().trim();
+      this.filteredRows = this.allRows.filter(row => {
+        const title = row.dataset.title;
+        return !searchTerm || title.includes(searchTerm);
+      });
+      this.currentPage = 1;
+      this.render();
+    }
 
-    const noResults = document.getElementById('noResults');
-    if (noResults) {
-      noResults.classList.toggle('hidden', this.filteredRows.length !== 0);
+    goToPreviousPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        this.render();
+      }
+    }
+
+    goToNextPage() {
+      if (this.currentPage < this.getTotalPages()) {
+        this.currentPage++;
+        this.render();
+      }
+    }
+
+    getTotalPages() {
+      return Math.ceil(this.filteredRows.length / this.itemsPerPage) || 1;
+    }
+
+    render() {
+      this.allRows.forEach(row => (row.style.display = 'none'));
+
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      const pageRows = this.filteredRows.slice(start, end);
+      pageRows.forEach(row => (row.style.display = 'table-row'));
+
+      this.prevBtn.disabled = this.currentPage === 1;
+      this.nextBtn.disabled = this.currentPage === this.getTotalPages();
+
+      this.pageNumbers.innerHTML = '';
+      for (let i = 1; i <= this.getTotalPages(); i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = 'w-8 h-8 rounded-full hover:bg-slate-700 hover:text-white transition';
+        if (i === this.currentPage) {
+          btn.classList.add('bg-slate-700', 'text-white');
+        } else {
+          btn.classList.add('bg-slate-300', 'text-gray-600');
+        }
+        btn.addEventListener('click', () => {
+          this.currentPage = i;
+          this.render();
+        });
+        this.pageNumbers.appendChild(btn);
+      }
+
+      document.getElementById('totalPosts').textContent = this.filteredRows.length;
+
+      const noResults = document.getElementById('noResults');
+      if (noResults) {
+        noResults.classList.toggle('hidden', this.filteredRows.length !== 0);
+      }
     }
   }
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-  new PostsPagination();
-});
+  document.addEventListener('DOMContentLoaded', () => {
+    new PostsPagination();
+  });
 
-// Modal functions
-function deleteItem(id) {
-  const modal = document.getElementById(`deletePostModal_${id}`);
-  if (modal) {
-    modal.classList.remove('hide');
-    modal.style.display = 'flex';
-    setTimeout(() => {
-      modal.classList.add('show');
-    }, 10);
+  // Modal functions
+  function deleteItem(id) {
+    const modal = document.getElementById(`deletePostModal_${id}`);
+    if (modal) {
+      modal.classList.remove('hide');
+      modal.style.display = 'flex';
+      setTimeout(() => {
+        modal.classList.add('show');
+      }, 10);
+    }
   }
-}
 
-function hideModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (modal) {
-    modal.classList.remove('show');
-    modal.classList.add('hide');
-    setTimeout(() => {
-      modal.style.display = 'none';
-    }, 400);
+  function hideModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.remove('show');
+      modal.classList.add('hide');
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 400);
+    }
   }
-}
 </script>
