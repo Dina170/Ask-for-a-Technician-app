@@ -59,6 +59,11 @@ app.use("/dashboard/technicians",(req, res, next) => {
   next();
 }, technicianRouter);
 
+app.use("/dashboard/blogs",(req, res, next) => {
+  res.locals.layout = 'dashboard/layouts/sidebar';
+  next();
+}, blogRouter);
+
 app.use("/", publicHomeRouter); // homepage + job-based filtering
 app.use("/technicians", publicTechnicianRouter); // technician + neighborhood pages
 app.use("/auth", authRouter); // authentication routes

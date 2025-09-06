@@ -11,13 +11,7 @@
         <form action="<%= blog ? '/dashboard/blogs/' + blog._id + '?_method=PUT' : '/dashboard/blogs' %>" method="POST">
             <input type="text" name="title" placeholder="Blog Title" value="<%= blog?.title || '' %>" required>
 
-            <select name="jobId" required>
-                <% jobs.forEach(j=> { %>
-                    <option value="<%= j._id %>" <%=blog && blog.job.equals(j._id) ? 'selected' : '' %>>
-                        <%= j.name %>
-                    </option>
-                    <% }) %>
-            </select>
+            <input type="text" name="blog" placeholder="Blog Category" value="<%= blog?.blog || '' %>" required>
 
             <textarea name="description" placeholder="Main Description"
                 required><%= blog?.description || '' %></textarea>
@@ -26,3 +20,160 @@
                 <%= blog ? 'Update' : 'Create' %>
             </button>
         </form>
+
+       <div class="rounded-tl-3xl shadow-md border p-5 h-[100%] bg-white">
+  <div class="mb-6 px-6">
+    <h1 class="text-xl font-bold my-1 text-right">
+      <%= blog ? "تعديل المدونة" : "إضافة مدونة" %>
+    </h1>
+    <p class="text-gray-600 text-right">
+      <a href="/dashboard/blogs" class="hover:text-sky-950 hover:font-medium">المدونة</a> &gt;
+      <%= blog ? "تعديل مدونة" : "إضافة مدونة" %>
+    </p>
+  </div>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+  <div class="text-red-500 text-sm mb-4 text-right font-medium">
+    <strong class="font-bold">خطأ:</strong>
+    <%= error %>
+  </div>
+  <% } %>
+
+  <form id="blogForm"
+        action="<%= blog ? '/dashboard/blogs/' + blog._id + '?_method=PUT' : '/dashboard/blogs' %>"
+        method="POST" enctype="multipart/form-data">
+
+    <div class="bg-white rounded-lg px-6 py-4 space-y-6">
+
+      <!-- Blog Name -->
+      <div>
+        <label class="block text-right mb-2 required font-medium"> المدونة </label>
+        <input type="text" id="blogName" name="blog"
+               class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1"
+               placeholder="ادخل اسم المدونة" value="<%= blog?.blog || '' %>">
+        <p id="blogNameError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
+
+      <!-- Blog Title -->
+      <div>
+        <label class="block text-right mb-2 required font-medium">العنوان </label>
+        <input type="text" id="title" name="title"
+               class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1"
+               placeholder="ادخل عنوان المدونة" value="<%= blog?.title || '' %>">
+        <p id="titleError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
+
+      <!-- Blog Description -->
+      <div>
+        <label class="block text-right mb-2 required font-medium">الوصف </label>
+        <div id="descriptionEditor" dir="rtl" class="quill-container border rounded-md"></div>
+        <input type="hidden" name="description" id="descriptionInput" />
+        <p id="descriptionError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex justify-between mt-10">
+        <button type="submit"
+                class="bg-gray-400 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-md w-[45%] text-center flex items-center justify-center">
+          <i class="fa-regular fa-square-check me-2"></i>
+          <%= blog ? "تحديث" : "حفظ" %>
+        </button>
+        <a href="/dashboard/blogs"
+           class="bg-white border border-gray-700 hover:bg-gray-700 hover:text-white text-gray-800 font-bold py-3 px-4 rounded-md flex items-center justify-center w-[45%]">
+          رجوع <i class="fa-solid fa-arrow-left ms-2"></i>
+        </a>
+      </div>
+
+    </div>
+  </form>
+</div>
+
+<!-- Quill CSS & JS -->
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet" />
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<script>
+  // Initialize Quill
+  const descriptionEditor = new Quill('#descriptionEditor', {
+    theme: 'snow',
+    modules: {
+      toolbar: [
+        ['bold', 'italic', 'underline'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ align: [] }],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        [{ 'direction': 'rtl' }],
+        ['clean']
+      ]
+    }
+  });
+
+  // Load description if editing
+  <% if (blog && blog.description) { %>
+  document.addEventListener("DOMContentLoaded", function () {
+    descriptionEditor.root.innerHTML = <%- JSON.stringify(blog.description) %>;
+  });
+  <% } %>
+
+  // Validation
+  document.getElementById('blogForm').addEventListener('submit', function (e) {
+    let isValid = true;
+
+    // blog name
+    const blogName = document.getElementById('blogName').value.trim();
+    const blogNameError = document.getElementById('blogNameError');
+    if (!blogName) {
+      blogNameError.textContent = "اسم المدونة مطلوب";
+      blogNameError.classList.remove('hidden');
+      isValid = false;
+    } else {
+      blogNameError.classList.add('hidden');
+    }
+
+    // title
+    const title = document.getElementById('title').value.trim();
+    const titleError = document.getElementById('titleError');
+    if (!title) {
+      titleError.textContent = "العنوان مطلوب";
+      titleError.classList.remove('hidden');
+      isValid = false;
+    } else {
+      titleError.classList.add('hidden');
+    }
+
+    // description
+    const descriptionContent = descriptionEditor.getText().trim();
+    const descriptionError = document.getElementById('descriptionError');
+    if (!descriptionContent) {
+      descriptionError.textContent = "الوصف مطلوب";
+      descriptionError.classList.remove('hidden');
+      isValid = false;
+    } else {
+      descriptionError.classList.add('hidden');
+    }
+
+    // prevent submit if not valid
+    if (!isValid) {
+      e.preventDefault();
+      return;
+    }
+
+    // if valid, set hidden input value
+    document.getElementById('descriptionInput').value = descriptionEditor.root.innerHTML;
+  });
+</script>
+
+<style>
+  .quill-container {
+    height: 150px;
+  }
+  .ql-editor {
+    direction: rtl !important;
+    text-align: right !important;
+  }
+  .required::after {
+    content: " *";
+    color: red;
+  }
+</style>

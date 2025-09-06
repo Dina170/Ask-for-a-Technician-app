@@ -72,7 +72,7 @@
           <td class="p-2"><%= job.neighborhoodName?.name %></td> -->
           <td class="p-2">
             <div class="flex gap-2 justify-center">
-                <button type="submit" onclick="deleteItem('<%= job._id %>')" class="bg-pink-100 text-red-600 w-10 h-10 flex items-center justify-center rounded-md hover:bg-pink-300 transition" title="حذف الوظيفة">
+                <button onclick="deleteItem('<%= job._id %>')" class="bg-pink-100 text-red-600 w-10 h-10 flex items-center justify-center rounded-md hover:bg-pink-300 transition" title="حذف الوظيفة">
                   <i class="fa-solid fa-trash-can text-lg"></i>
                 </button>
               <a href="/dashboard/jobs/<%= job._id %>" class="bg-green-500 w-10 h-10 flex items-center justify-center rounded-md hover:bg-green-600 text-white transition" title="عرض الوظيفة">
@@ -117,11 +117,11 @@
   </div>
 </div>
 <!-- Delete confirmation modals -->
-<% jobs.forEach(n => { %>
+<% jobs.forEach(job => { %>
   <%- include('../layouts/confirmDelete', {
-    modalId: `deleteNeighborhoodModal_${n._id}`,
+    modalId: `deleteJobModal_${job._id}`,
     message: 'هل أنت متأكد من أنك تريد حذف هذه المهنة؟',
-    deleteAction: `/dashboard/neighborhoods/${n._id}?_method=DELETE`
+    deleteAction: `/dashboard/jobs/${job._id}?_method=DELETE`
   }) %>
 <% }) %>
 </div>
@@ -253,10 +253,9 @@
   document.addEventListener('DOMContentLoaded', () => {
     new JobsPagination();
   });
-   // Modal functions
 // Modal functions
 function deleteItem(id) {
-  const modal = document.getElementById(`deleteNeighborhoodModal_${id}`);
+  const modal = document.getElementById(`deleteJobModal_${id}`);
   if (modal) {
     modal.classList.remove('hide');
     modal.style.display = 'flex';

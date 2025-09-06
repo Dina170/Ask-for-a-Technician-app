@@ -1,19 +1,139 @@
-<h1>All blogs</h1>
+<div class="ms-7 me-2">
+<!-- Success message at the top -->
+ 
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row justify-between mb-3 gap-2 mt-3">
+    <h1 class="text-xl md:text-2xl font-bold text-center md:text-right">
+     المدونة (<span id="totalBlogs"><%= blogs.length %></span>)
+    </h1>
+    <a href="/dashboard/blogs/new" class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-600 transition">+ إضافة مدونة </a>
+  </div>
 
-<a href="/dashboard/blogs/new">Add New Blog</a>
-<ul>
-    <% blogs.forEach(b=> { %>
-        <li>
-            <h3>
-                <%= b.title %>
-            </h3>
-            <div>
-                <a href="/dashboard/blogs/<%= b._id %>">View</a>
-                <a href="/dashboard/blogs/<%= b._id %>/edit">Edit</a>
-                <form action="/dashboard/blogs/<%= b._id %>?_method=DELETE" method="POST" style="display:inline;">
-                    <button type="submit" onclick="return confirm('Delete this blog?')">Delete</button>
-                </form>
-            </div>
-        </li>
+  <!-- Breadcrumb -->
+  <div class="mb-4">
+    <p class="text-gray-600 text-right">
+      <a href="/dashboard/blogs" class="hover:text-Sky-950 hover:font-medium">المدونة</a>
+    </p>
+  </div>
+
+  <!-- Search Input -->
+  <div class="flex  gap-3 mb-4">
+    <input
+      type="text"
+      id="blogSearchInput"
+      placeholder="بحث عن عنوان المدونة"
+      autocomplete="off"
+      class="flex-grow p-2 border rounded-md"
+    />
+    <button id="clearBlogSearch" class="bg-pink-100 text-red-600 px-4 py-2 rounded hover:bg-pink-300 w-max">
+      <i class="fa-solid fa-trash-can"></i> 
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="overflow-x-auto">
+    <table class="w-full bg-white text-center border-2 border-black text-sm md:text-base">
+      <thead class="bg-slate-700 text-white">
+        <tr>
+          <th class="p-2">الرقم</th>
+          <th class="p-2">العنوان</th>
+          <th class="p-2">التحكم</th>
+        </tr>
+      </thead>
+      <tbody id="blogTableBody">
+        <% blogs.forEach((b, index) => { %>
+          <tr class="border-b hover:bg-gray-50 blog-row" data-title="<%= b.title.toLowerCase() %>">
+            <td class="p-2"><%= index + 1 %></td>
+            <td class="p-2 font-medium"><%= b.title %></td>
+            <td class="p-2">
+              <div class="flex gap-2 justify-center">
+                <button
+                  type="button"
+                  onclick="deleteItem('<%= b._id %>')"
+                  class="bg-pink-100 text-red-600 w-10 h-10 flex items-center justify-center rounded-md hover:bg-pink-300 transition"
+                  title="حذف المدونة"
+                >
+                  <i class="fa-solid fa-trash-can text-lg"></i>
+                </button>
+                <a href="/dashboard/blogs/<%= b._id %>" class="bg-green-500 w-10 h-10 flex items-center justify-center rounded-md hover:bg-green-600 text-white transition" title="عرض المدونة">
+                  <i class="fa-solid fa-eye text-lg"></i>
+                </a>
+                <a href="/dashboard/blogs/<%= b._id %>/edit" class="bg-slate-800 w-10 h-10 flex items-center justify-center rounded-md hover:bg-slate-700 text-white transition" title="تعديل المدونة">
+                  <i class="fa-solid fa-pen text-lg"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
         <% }) %>
-</ul>
+      </tbody>
+    </table>
+
+    <!-- رسالة عدم وجود نتائج -->
+    <div id="noResults" class="text-center py-8 text-gray-500 hidden">
+      <i class="fa-solid fa-search text-4xl mb-4 text-gray-300"></i>
+      <p class="text-lg">لا توجد نتائج تطابق البحث.</p>
+    </div>
+  </div>
+
+  <!-- Delete confirmation modals -->
+<% blogs.forEach(n => { %>
+  <%- include('../layouts/confirmDelete', {
+    modalId: `deleteBlogModal_${n._id}`,
+    message: 'هل أنت متأكد من أنك تريد حذف هذه المدونة؟',
+    deleteAction: `/dashboard/blogs/${n._id}?_method=DELETE`
+  }) %>
+<% }) %>
+</div>
+
+<script>
+  // Blog search functionality
+  const searchInput = document.getElementById('blogSearchInput');
+  const clearBtn = document.getElementById('clearBlogSearch');
+  const allRows = Array.from(document.querySelectorAll('.blog-row'));
+
+  const filterBlogs = () => {
+    const term = searchInput.value.toLowerCase().trim();
+    let visibleCount = 0;
+    allRows.forEach(row => {
+      if (row.dataset.title.includes(term)) {
+        row.style.display = 'table-row';
+        visibleCount++;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+    document.getElementById('noResults').classList.toggle('hidden', visibleCount > 0);
+    document.getElementById('totalBlogs').textContent = visibleCount;
+  }
+
+  searchInput.addEventListener('input', filterBlogs);
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    filterBlogs();
+  });
+
+  document.addEventListener('DOMContentLoaded', filterBlogs);
+  // Modal functions
+function deleteItem(id) {
+  const modal = document.getElementById(`deleteBlogModal_${id}`);
+  if (modal) {
+    modal.classList.remove('hide');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      modal.classList.add('show');
+    }, 10);
+  }
+}
+
+
+function hideModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.remove('show');
+    modal.classList.add('hide');
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 400);
+  }
+  }
+</script>

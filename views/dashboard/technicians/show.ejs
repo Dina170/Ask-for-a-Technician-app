@@ -30,7 +30,7 @@
         <label class="block text-right mb-2 required font-medium">عنوان رئيسي</label>
         <input type="text" name="mainTitle"  readonly disabled
         class="w-full p-2 border rounded-md text-right bg-gray-50 focus:outline-blue-950 focus:outline-1"
-        value="<%=technician.mainTitle %>">
+        value="<%= technician.mainTitle %>">
       </div>
       <!-- Phone -->
       <div class="mb-6">
@@ -99,7 +99,8 @@ const initQuillEditor = () => {
       modules: { toolbar: toolbarOptions }
     });
     
-      editor.root.innerHTML = <%- JSON.stringify(technician.description) %>;
+      editor.root.innerHTML = `<%- JSON.stringify(technician.description || '') %>`;
+
     
     return editor;
   } catch (error) {

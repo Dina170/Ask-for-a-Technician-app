@@ -112,9 +112,9 @@
 <!-- Delete confirmation modals -->
 <% technicians.forEach(n => { %>
   <%- include('../layouts/confirmDelete', {
-    modalId: `deleteNeighborhoodModal_${n._id}`,
+    modalId: `deleteTechModal_${n._id}`,
     message: 'هل أنت متأكد من أنك تريد حذف هذا الفني؟',
-    deleteAction: `/dashboard/neighborhoods/${n._id}?_method=DELETE`
+    deleteAction: `/dashboard/technicians/${n._id}?_method=DELETE`
   }) %>
 <% }) %>
 </div>
@@ -245,7 +245,7 @@
   });
  // Modal functions
 function deleteItem(id) {
-  const modal = document.getElementById(`deleteNeighborhoodModal_${id}`);
+  const modal = document.getElementById(`deleteTechModal_${id}`);
   if (modal) {
     modal.classList.remove('hide');
     modal.style.display = 'flex';
