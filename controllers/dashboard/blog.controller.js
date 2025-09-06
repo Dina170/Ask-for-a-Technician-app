@@ -4,7 +4,7 @@ const Job = require("../../models/job");
 const getAllBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find();
-    const { message, messageType } = req.query; // هنا بناخدهم من الquery string
+    const { message, messageType } = req.query; 
 
     res.render("dashboard/blogs/index", { blogs, message, messageType });
   } catch (err) {

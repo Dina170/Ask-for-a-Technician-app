@@ -7,7 +7,8 @@ const Blog = require("../../models/blog");
 const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find().populate("blog");
-    res.render("dashboard/posts/index", { posts });
+    const { message, messageType } = req.query; 
+    res.render("dashboard/posts/index", { posts, message, messageType });
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard");

@@ -64,11 +64,14 @@ app.use("/dashboard/blogs",(req, res, next) => {
   res.locals.layout = 'dashboard/layouts/sidebar';
   next();
 }, blogRouter);
+app.use("/dashboard/posts",(req, res, next) => {
+  res.locals.layout = 'dashboard/layouts/sidebar';
+  next();
+}, postRouter);
 // Serve files from the uploads folder statically
 app.use("/uploads", express.static("uploads"));
 app.use("/uploads/posts", express.static("uploads/posts"));
 
-app.use("/dashboard/posts", postRouter);
 
 app.use("/", publicHomeRouter); // homepage + job-based filtering
 app.use("/technicians", publicTechnicianRouter); // technician + neighborhood pages
