@@ -14,6 +14,7 @@ const publicHomeRouter = require("./routes/public/home.route");
 const publicTechnicianRouter = require("./routes/public/technician.route");
 const blogRouter = require("./routes/dashboard/blog.route");
 const authRouter = require("./routes/auth/auth.route");
+const postRouter = require("./routes/dashboard/post.route");
 
 // Connect to MongoDB
 mongoose
@@ -63,6 +64,11 @@ app.use("/dashboard/blogs",(req, res, next) => {
   res.locals.layout = 'dashboard/layouts/sidebar';
   next();
 }, blogRouter);
+// Serve files from the uploads folder statically
+app.use("/uploads", express.static("uploads"));
+app.use("/uploads/posts", express.static("uploads/posts"));
+
+app.use("/dashboard/posts", postRouter);
 
 app.use("/", publicHomeRouter); // homepage + job-based filtering
 app.use("/technicians", publicTechnicianRouter); // technician + neighborhood pages

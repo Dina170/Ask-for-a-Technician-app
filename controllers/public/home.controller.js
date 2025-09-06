@@ -1,7 +1,6 @@
-const Job = require('../../models/job');
-const Technician = require('../../models/technician');
-
-
+const Job = require("../../models/job");
+const Technician = require("../../models/technician");
+const Blog = require("../../models/blog");
 
 exports.getHomePage = async (req, res) => {
   try {
@@ -16,8 +15,8 @@ exports.getHomePage = async (req, res) => {
     ]);
 
     const jobId = req.query.jobId;
-    const technician = req.query.technician || '';
-    const neighborhood = req.query.neighborhood || '';
+    const technician = req.query.technician || "";
+    const neighborhood = req.query.neighborhood || "";
 
     const query = {};
 
@@ -26,39 +25,35 @@ exports.getHomePage = async (req, res) => {
     }
 
     if (technician.trim()) {
-      query.mainTitle = { $regex: technician.trim(), $options: 'i' };
+      query.mainTitle = { $regex: technician.trim(), $options: "i" };
     }
 
     // Step 1: Find all matching technicians (we'll filter neighborhoods in JS)
     const techniciansRaw = await Technician.find(query)
-      .populate('jobName')
-      .populate('neighborhoodNames');
+      .populate("jobName")
+      .populate("neighborhoodNames");
 
     // Step 2: If neighborhood filter is present, filter after population
     const technicians = neighborhood.trim()
-      ? techniciansRaw.filter(t =>
-          t.neighborhoodNames.some(n =>
+      ? techniciansRaw.filter((t) =>
+          t.neighborhoodNames.some((n) =>
             n.name.toLowerCase().includes(neighborhood.trim().toLowerCase())
           )
         )
       : techniciansRaw;
 
-    res.render('public/home', {
+    res.render("public/home", {
       jobs: uniqueJobs,
       technicians,
       technician,
       neighborhood,
-      selectedJobId: jobId || '',
+      selectedJobId: jobId || "",
     });
-
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
   }
 };
-
-
-
 
 // exports.autocompleteTechnicians = async (req, res) => {
 //   try {
@@ -129,56 +124,96 @@ exports.getHomePage = async (req, res) => {
 
 exports.autocompleteTechnicians = async (req, res) => {
   try {
-    const search = req.query.q?.trim() || '';
-    const type = req.query.type || 'technician'; // default to technician if not provided
+    const search = req.query.q?.trim() || "";
+    const type = req.query.type || "technician"; // default to technician if not provided
 
     if (!search) return res.json([]);
 
-    if (type === 'technician') {
+    if (type === "technician") {
       // Find matching technicians by mainTitle
       const technicianResults = await Technician.find({
-        mainTitle: { $regex: search, $options: 'i' }
-      }).select('mainTitle').limit(10);
+        mainTitle: { $regex: search, $options: "i" },
+      })
+        .select("mainTitle")
+        .limit(10);
 
-      const technicianNames = technicianResults.map(t => t.mainTitle);
+      const technicianNames = technicianResults.map((t) => t.mainTitle);
       return res.json(technicianNames);
-
-    } else if (type === 'neighborhood') {
+    } else if (type === "neighborhood") {
       // Find matching neighborhoods by name using aggregation and lookup
       const neighborhoodResults = await Technician.aggregate([
         { $unwind: "$neighborhoodNames" },
         {
           $lookup: {
-            from: "neighborhoods",       // MongoDB collection name
+            from: "neighborhoods", // MongoDB collection name
             localField: "neighborhoodNames",
             foreignField: "_id",
-            as: "neighborhoodInfo"
-          }
+            as: "neighborhoodInfo",
+          },
         },
-        { $unwind: "$neighborhoodInfo" },
+        { $unwind: "neighborhoodInfo" },
         {
           $match: {
-            "neighborhoodInfo.name": { $regex: search, $options: 'i' }
-          }
+            "neighborhoodInfo.name": { $regex: search, $options: "i" },
+          },
         },
         {
           $group: {
-            _id: "$neighborhoodInfo.name"
-          }
+            _id: "neighborhoodInfo.name",
+          },
         },
-        { $limit: 10 }
+        { $limit: 10 },
       ]);
 
-      const neighborhoodNames = neighborhoodResults.map(n => n._id);
+      const neighborhoodNames = neighborhoodResults.map((n) => n._id);
       return res.json(neighborhoodNames);
-
     } else {
       // Invalid type parameter
       return res.status(400).json({ error: "Invalid type parameter" });
     }
-
   } catch (err) {
     console.error("Autocomplete error:", err);
     res.status(500).send("Internal Server Error");
   }
+};
+
+exports.getAllBlogs = async (req, res) => {
+  try {
+    const blogs = await Blog.find();
+    res.status(200).json(blogs);
+  } catch (err) {
+    console.error(err);
+    res.redirect("/dashboard");
+  }
+};
+
+exports.getBlogPosts = async (req, res) => {
+  try {
+    const blogId = req.params.id;
+    const blog = await Blog.findById(blogId);
+    if (!blog) return res.status(404).send("Blog not found");
+    const posts = await require("../../models/post").find({ blog: blogId });
+    res.render("public/blogPosts", { blog, posts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.getPostDetails = async (req, res) => {
+  try {
+    const permaLink = req.params.slug;
+    const post = await require("../../models/post")
+      .findOne({ permaLink })
+      .populate("blog");
+    if (!post) return res.status(404).send("Post not found");
+    res.render("public/postDetails", { post });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.getPrivacyPolicy = (req, res) => {
+  res.render("public/privacyPolicy");
 };

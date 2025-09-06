@@ -5,6 +5,7 @@
       <a href="/dashboard/blogs" class="hover:text-sky-950 hover:font-medium">المدونة</a> &gt; عرض المدونة
     </p>
   </div>
+  
 
   <div class="bg-white rounded-lg px-6 py-4">
     <!-- Blog Name -->
@@ -35,3 +36,13 @@
     </div>
   </div>
 </div>
+<p>
+    <%= blog.description %>
+</p>
+<p>Blog Category: <%= blog.blog %>
+</p>
+<a href="/dashboard/blogs">Back to Blogs</a> |
+<a href="/dashboard/blogs/<%= blog._id %>/edit">Edit</a>
+<form action="/dashboard/blogs/<%= blog._id %>?_method=DELETE" method="POST" style="display:inline;">
+    <button type="submit" onclick="return confirm('Delete this blog?')">Delete</button>
+</form>

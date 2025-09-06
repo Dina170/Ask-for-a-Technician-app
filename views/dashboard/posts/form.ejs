@@ -1,0 +1,93 @@
+<h1>
+    <%= post ? "Edit" : "Add" %> Post
+</h1>
+
+<% if (typeof error !=='undefined' ) { %>
+    <div style="color: red; margin-bottom: 1rem;">
+        <%= error %>
+    </div>
+    <% } %>
+
+        <form action="<%= post ? '/dashboard/posts/' + post._id + '?_method=PUT' : '/dashboard/posts' %>" method="POST">
+            <label for="blog">Blog:</label>
+            <select name="blog" required>
+                <option value="">Select a blog</option>
+                <% blogs.forEach(b=> { %>
+                    <option value="<%= b._id %>" <%=post && post.blog.equals(b._id) ? 'selected' : '' %>><%= b.title %>
+                    </option>
+                    <% }) %>
+            </select>
+
+            <label for="name">Name:</label>
+            <input type="text" name="name" placeholder="Post Name" value="<%= post?.name || '' %>" required>
+
+            <label for="permanentLink">Permanent Link:</label>
+            <input type="text" name="permaLink" placeholder="Permanent Link" value="<%= post?.permaLink || '' %>"
+                required>
+
+            <label for="title">Title:</label>
+            <input type="text" name="title" placeholder="Post Title" value="<%= post?.title || '' %>" required>
+
+            <label for="content">Content:</label>
+            <div id="editor-container">
+                <%- post?.content || '' %>
+            </div>
+            <!-- <textarea name="content" id="content" style="display: none;" required><%= post?.content || '' %></textarea> -->
+            <input type="hidden" name="content" id="content">
+            <button type="submit">
+                <%= post ? "Update" : "Create" %>
+            </button>
+        </form>
+
+        <!-- Include Quill.js -->
+        <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+        <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+
+        <script>
+            const editor = new Quill('#editor-container', {
+                theme: 'snow',
+                placeholder: 'Write your content here...',
+                modules: {
+                    toolbar: {
+                        container: [
+                            [{ header: [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            ['link', 'image', 'blockquote', 'code-block'],
+                            [{ list: 'ordered' }, { list: 'bullet' }],
+                            [{ align: [] }],
+                            ['clean']
+                        ],
+                        handlers: {
+                            image: function () {
+                                const input = document.createElement('input');
+                                input.setAttribute('type', 'file');
+                                input.setAttribute('accept', 'image/*');
+                                input.click();
+                                input.onchange = async () => {
+                                    const file = input.files[0];
+                                    const formData = new FormData();
+                                    formData.append('image', file);
+
+                                    const res = await fetch('/dashboard/posts/upload-image', {
+                                        method: 'POST',
+                                        body: formData
+                                    });
+                                    const data = await res.json();
+                                    if (data.success) {
+                                        const range = editor.getSelection();
+                                        editor.insertEmbed(range.index, 'image', data.url);
+                                    } else {
+                                        alert('Image upload failed');
+                                    }
+                                };
+                            }
+                        }
+                    }
+                }
+            });
+
+            document.querySelector('form').onsubmit = () => {
+                const content = editor.root.innerHTML.trim();
+                document.querySelector('#content').value = content;
+            };
+        </script>
