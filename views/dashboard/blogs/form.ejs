@@ -1,89 +1,59 @@
-<h1>
-    <%= blog ? 'Edit' : 'Add' %> Blog
-</h1>
-
-<% if (typeof error !=='undefined' ) { %>
-    <div style="color: red; margin-bottom: 1rem;">
-        <%= error %>
-    </div>
-    <% } %>
-
-        <form action="<%= blog ? '/dashboard/blogs/' + blog._id + '?_method=PUT' : '/dashboard/blogs' %>" method="POST">
-            <input type="text" name="title" placeholder="Blog Title" value="<%= blog?.title || '' %>" required>
-
-            <input type="text" name="blog" placeholder="Blog Category" value="<%= blog?.blog || '' %>" required>
-
-            <textarea name="description" placeholder="Main Description"
-                required><%= blog?.description || '' %></textarea>
-
-            <button type="submit">
-                <%= blog ? 'Update' : 'Create' %>
-            </button>
-        </form>
-
-       <div class="rounded-tl-3xl shadow-md border p-5 h-[100%] bg-white">
+<div class="rounded-tl-3xl shadow-md border p-5 h-[100%] bg-white">
   <div class="mb-6 px-6">
     <h1 class="text-xl font-bold my-1 text-right">
-      <%= blog ? "تعديل المدونة" : "إضافة مدونة" %>
+      <%= blog ? "تعديل مدونة" : "إضافة مدونة" %>
     </h1>
     <p class="text-gray-600 text-right">
-      <a href="/dashboard/blogs" class="hover:text-sky-950 hover:font-medium">المدونة</a> &gt;
+      <a href="/dashboard/blogs" class="hover:text-Sky-950 hover:font-medium">المدونة</a> &gt; 
       <%= blog ? "تعديل مدونة" : "إضافة مدونة" %>
     </p>
   </div>
 
-  <% if (typeof error !== 'undefined' && error) { %>
-  <div class="text-red-500 text-sm mb-4 text-right font-medium">
-    <strong class="font-bold">خطأ:</strong>
-    <%= error %>
-  </div>
-  <% } %>
+  <form id="blogForm" 
+        action="<%= blog ? '/dashboard/blogs/' + blog._id + '?_method=PUT' : '/dashboard/blogs' %>" 
+        method="POST">
 
-  <form id="blogForm"
-        action="<%= blog ? '/dashboard/blogs/' + blog._id + '?_method=PUT' : '/dashboard/blogs' %>"
-        method="POST" enctype="multipart/form-data">
+    <div class="bg-white rounded-lg px-6 py-2 space-y-6">
 
-    <div class="bg-white rounded-lg px-6 py-4 space-y-6">
-
-      <!-- Blog Name -->
+        
+        <!-- Blog Category -->
       <div>
-        <label class="block text-right mb-2 required font-medium"> المدونة </label>
-        <input type="text" id="blogName" name="blog"
+        <label class="block text-right mb-2 required font-medium">المدونة</label>
+        <input type="text" name="blog" id="blogCategory"
                class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1"
-               placeholder="ادخل اسم المدونة" value="<%= blog?.blog || '' %>">
-        <p id="blogNameError" class="text-red-500 text-sm mt-1 hidden"></p>
+               placeholder="ادخل المدونة"
+               value="<%= blog?.blog || '' %>">
+        <p id="blogCategoryError" class="text-red-500 text-sm mt-1 hidden"></p>
       </div>
 
       <!-- Blog Title -->
       <div>
-        <label class="block text-right mb-2 required font-medium">العنوان </label>
-        <input type="text" id="title" name="title"
+        <label class="block text-right mb-2 required font-medium">عنوان المدونة</label>
+        <input type="text" name="title" id="blogTitle"
                class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1"
-               placeholder="ادخل عنوان المدونة" value="<%= blog?.title || '' %>">
-        <p id="titleError" class="text-red-500 text-sm mt-1 hidden"></p>
+               placeholder="ادخل عنوان المدونة"
+               value="<%= blog?.title || '' %>">
+        <p id="blogTitleError" class="text-red-500 text-sm mt-1 hidden"></p>
       </div>
 
-      <!-- Blog Description -->
+      <!-- Description (Quill) -->
       <div>
-        <label class="block text-right mb-2 required font-medium">الوصف </label>
+        <label class="block text-right mb-2 required font-medium">الوصف</label>
         <div id="descriptionEditor" dir="rtl" class="quill-container border rounded-md"></div>
-        <input type="hidden" name="description" id="descriptionInput" />
+        <input  type="hidden" name="description" id="descriptionInput" />
         <p id="descriptionError" class="text-red-500 text-sm mt-1 hidden"></p>
       </div>
-
       <!-- Buttons -->
       <div class="flex justify-between mt-10">
-        <button type="submit"
+        <button type="submit" 
                 class="bg-gray-400 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-md w-[45%] text-center flex items-center justify-center">
-          <i class="fa-regular fa-square-check me-2"></i>
-          <%= blog ? "تحديث" : "حفظ" %>
+          <i class="fa-regular fa-square-check me-2"></i><%= blog ? "تحديث" : "حفظ" %>
         </button>
-        <a href="/dashboard/blogs"
+        <a href="/dashboard/blogs" 
            class="bg-white border border-gray-700 hover:bg-gray-700 hover:text-white text-gray-800 font-bold py-3 px-4 rounded-md flex items-center justify-center w-[45%]">
           رجوع <i class="fa-solid fa-arrow-left ms-2"></i>
         </a>
       </div>
-
     </div>
   </form>
 </div>
@@ -94,74 +64,88 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <script>
-  // Initialize Quill
-  const descriptionEditor = new Quill('#descriptionEditor', {
+document.addEventListener("DOMContentLoaded", () => {
+  // إعداد Quill
+  const toolbarOptions = [
+    ['bold', 'italic', 'underline'],
+    [{ 'color': [] }, { 'background': [] }],
+    [{ align: [] }],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ 'direction': 'rtl' }],
+    ['clean']
+  ];
+
+  const editor = new Quill('#descriptionEditor', {
     theme: 'snow',
-    modules: {
-      toolbar: [
-        ['bold', 'italic', 'underline'],
-        [{ 'color': [] }, { 'background': [] }],
-        [{ align: [] }],
-        [{ list: 'ordered' }, { list: 'bullet' }],
-        [{ 'direction': 'rtl' }],
-        ['clean']
-      ]
+    modules: { toolbar: toolbarOptions }
+  });
+
+  // تحميل البيانات القديمة لو تعديل
+  `<% if (blog && blog.description) { %>`
+    editor.root.innerHTML = <%- JSON.stringify(blog.description) %>;
+  `<% } %>`
+
+  // دوال إظهار/إخفاء الأخطاء
+  const showError = (id, msg) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.textContent = msg;
+      el.classList.remove('hidden');
     }
-  });
+  };
+  const hideError = (id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.textContent = '';
+      el.classList.add('hidden');
+    }
+  };
 
-  // Load description if editing
-  <% if (blog && blog.description) { %>
-  document.addEventListener("DOMContentLoaded", function () {
-    descriptionEditor.root.innerHTML = <%- JSON.stringify(blog.description) %>;
-  });
-  <% } %>
-
-  // Validation
-  document.getElementById('blogForm').addEventListener('submit', function (e) {
+  // التحقق عند الإرسال
+  document.getElementById("blogForm").addEventListener("submit", (e) => {
     let isValid = true;
 
-    // blog name
-    const blogName = document.getElementById('blogName').value.trim();
-    const blogNameError = document.getElementById('blogNameError');
-    if (!blogName) {
-      blogNameError.textContent = "اسم المدونة مطلوب";
-      blogNameError.classList.remove('hidden');
+    // reset errors
+    ['blogCategoryError', 'blogTitleError', 'descriptionError'].forEach(hideError);
+
+    const blogCategory = document.getElementById("blogCategory").value.trim();
+    const blogTitle = document.getElementById("blogTitle").value.trim();
+    const descriptionText = editor.getText().trim();
+
+    // تحقق من المدونة
+    if (!blogCategory) {
+      showError("blogCategoryError", "اسم المدونة مطلوب.");
       isValid = false;
-    } else {
-      blogNameError.classList.add('hidden');
     }
 
-    // title
-    const title = document.getElementById('title').value.trim();
-    const titleError = document.getElementById('titleError');
-    if (!title) {
-      titleError.textContent = "العنوان مطلوب";
-      titleError.classList.remove('hidden');
+    // تحقق من العنوان
+    if (!blogTitle) {
+      showError("blogTitleError", "عنوان المدونة مطلوب.");
       isValid = false;
-    } else {
-      titleError.classList.add('hidden');
+    } else if (blogTitle.length < 3) {
+      showError("blogTitleError", "عنوان المدونة يجب أن يكون على الأقل 3 أحرف.");
+      isValid = false;
     }
 
-    // description
-    const descriptionContent = descriptionEditor.getText().trim();
-    const descriptionError = document.getElementById('descriptionError');
-    if (!descriptionContent) {
-      descriptionError.textContent = "الوصف مطلوب";
-      descriptionError.classList.remove('hidden');
+    // تحقق من الوصف
+    if (!descriptionText) {
+      showError("descriptionError", "الوصف مطلوب.");
       isValid = false;
-    } else {
-      descriptionError.classList.add('hidden');
+    } else if (descriptionText.length < 3) {
+      showError("descriptionError", "الوصف يجب أن يكون على الأقل 3 أحرف.");
+      isValid = false;
     }
 
-    // prevent submit if not valid
-    if (!isValid) {
+    // لو صحيح نحط المحتوى في hidden input
+    if (isValid) {
+      document.getElementById("descriptionInput").value = editor.root.innerHTML;
+    } else {
       e.preventDefault();
-      return;
+      const firstError = document.querySelector('.text-red-500:not(.hidden)');
+      firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-
-    // if valid, set hidden input value
-    document.getElementById('descriptionInput').value = descriptionEditor.root.innerHTML;
   });
+});
 </script>
 
 <style>

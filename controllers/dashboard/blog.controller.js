@@ -4,7 +4,9 @@ const Job = require("../../models/job");
 const getAllBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find();
-    res.render("dashboard/blogs/index", { blogs });
+    const { message, messageType } = req.query; // هنا بناخدهم من الquery string
+
+    res.render("dashboard/blogs/index", { blogs, message, messageType });
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard");
@@ -47,7 +49,7 @@ const createBlog = async (req, res) => {
       description,
     });
     await newBlog.save();
-    res.redirect("/dashboard/blogs");
+    res.redirect("/dashboard/blogs?message=تم إضافة مدونة بنجاح&messageType=add");
   } catch (err) {
     console.error(err);
     res.render("dashboard/blogs/form", {
@@ -83,7 +85,7 @@ const updateBlog = async (req, res) => {
     existingBlog.blog = blog;
     existingBlog.description = description;
     await existingBlog.save();
-    res.redirect("/dashboard/blogs");
+    res.redirect("/dashboard/blogs?message=تم تعديل المدونة بنجاح&messageType=edit");
   } catch (err) {
     console.error(err);
     res.render("dashboard/blogs/form", {
@@ -96,7 +98,7 @@ const updateBlog = async (req, res) => {
 const deleteBlog = async (req, res) => {
   try {
     await Blog.findByIdAndDelete(req.params.id);
-    res.redirect("/dashboard/blogs");
+    res.redirect("/dashboard/blogs?message=تم حذف مدونة بنجاح&messageType=delete");
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/blogs");
@@ -106,7 +108,7 @@ const deleteBlog = async (req, res) => {
 const deleteAllBlogs = async (req, res) => {
   try {
     await Blog.deleteMany({});
-    res.redirect("/dashboard/blogs");
+    res.redirect("/dashboard/blogs?message=تم حذف جميع المدونات بنجاح&messageType=delete");
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/blogs");
