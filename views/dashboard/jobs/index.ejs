@@ -34,9 +34,9 @@
   />
 
   <!-- Clear button -->
-  <button id="clearJobSearch" class="bg-pink-100 text-red-600 px-4 py-2 rounded hover:bg-pink-300">
-    <i class="fa-solid fa-trash-can"></i>
-  </button>
+   <button onclick="showModal('deleteAllJobsModal')" title="حذف المهن" class="bg-pink-100 text-red-600 px-4 py-2 rounded hover:bg-pink-300 w-max">
+      <i class="fa-solid fa-trash-can"></i> 
+    </button>
 </div>
 </div>
 <!-- Table -->
@@ -124,6 +124,14 @@
     deleteAction: `/dashboard/jobs/${job._id}?_method=DELETE`
   }) %>
 <% }) %>
+
+
+<%- include('../layouts/confirmDelete', { 
+      modalId: 'deleteAllJobsModal', 
+      message: 'هل أنت متأكد أنك تريد حذف جميع المهن؟', 
+      deleteAction: '/dashboard/jobs?_method=DELETE' 
+}) %>
+
 </div>
 <!-- Script -->
 <script>
@@ -134,7 +142,6 @@
 
       this.allRows = Array.from(document.querySelectorAll('.job-row'));
       this.searchInput = document.getElementById('jobSearchInput');
-      this.clearBtn = document.getElementById('clearJobSearch');
       this.pageNumbers = document.getElementById('jobPageNumbers');
       this.prevBtn = document.getElementById('jobPrevBtn');
       this.nextBtn = document.getElementById('jobNextBtn');
@@ -149,7 +156,6 @@
 
     bindEvents() {
       this.searchInput.addEventListener('input', () => this.filterData());
-      this.clearBtn.addEventListener('click', () => this.clearSearch());
       this.selectInput.addEventListener('change', () => this.filterData());
       this.prevBtn.addEventListener('click', () => this.goToPreviousPage());
       this.nextBtn.addEventListener('click', () => this.goToNextPage());
@@ -158,14 +164,6 @@
       this.currentPage = 1;
       this.render();
     });
-    }
-
-    clearSearch() {
-      this.searchInput.value = '';
-      this.selectInput.value = 'all';
-      this.filteredRows = [...this.allRows];
-      this.currentPage = 1;
-      this.render();
     }
 
     filterData() {

@@ -18,12 +18,14 @@
           type="text"
           id="searchInput"
           name="search"
-          placeholder=" ابحث حسب اسم الفني (العنوان الرئيسي)"
+          placeholder=" ابحث حسب عنوان الفنى"
           autocomplete="off"
           value="<%= filters?.search || '' %>"
           class="flex-grow p-2 border rounded-md focus:outline-none focus:border-blue-500"
         />
-        <button id="clearBtn" class="bg-pink-100 text-red-600 px-4 py-2 rounded hover:bg-pink-300 transition ml-2" aria-label="مسح البحث"  onclick="window.location.reload()"><i class="fa-solid fa-trash-can"></i></button>
+         <button onclick="showModal('deleteAllTechModal')" title="حذف الفنيين" class="bg-pink-100 text-red-600 px-4 py-2 rounded hover:bg-pink-300 w-max">
+      <i class="fa-solid fa-trash-can"></i> 
+    </button>
     </div>
   </div>
 
@@ -117,6 +119,13 @@
     deleteAction: `/dashboard/technicians/${n._id}?_method=DELETE`
   }) %>
 <% }) %>
+
+<%- include('../layouts/confirmDelete', { 
+      modalId: 'deleteAllTechModal', 
+      message: 'هل أنت متأكد أنك تريد حذف جميع الفنيين؟', 
+      deleteAction: '/dashboard/technicians?_method=DELETE' 
+}) %>
+
 </div>
 </div>
 
@@ -129,7 +138,6 @@
       this.filteredRows = [...this.allRows];
       
       this.searchInput = document.getElementById('searchInput');
-      this.clearBtn = document.getElementById('clearBtn');
       this.itemsPerPageSelect = document.getElementById('itemsPerPage');
       this.prevBtn = document.getElementById('prevBtn');
       this.nextBtn = document.getElementById('nextBtn');
@@ -143,9 +151,6 @@
 
     bindEvents() {
       this.searchInput.addEventListener('input', () => this.handleSearch());
-      if (this.clearBtn) {
-        this.clearBtn.addEventListener('click', () => this.clearSearch());
-      }
       this.itemsPerPageSelect.addEventListener('change', () => this.handleItemsPerPageChange());
       this.prevBtn.addEventListener('click', () => this.goToPreviousPage());
       this.nextBtn.addEventListener('click', () => this.goToNextPage());
@@ -160,14 +165,6 @@
       }
       this.currentPage = 1;
       this.render();
-    }
-
-    clearSearch() {
-      this.searchInput.value = '';
-      this.filteredRows = [...this.allRows];
-      this.currentPage = 1;
-      this.render();
-      window.location.href = '/dashboard/technicians'; // مسح الفلتر والبحث من السيرفر
     }
 
     handleItemsPerPageChange() {

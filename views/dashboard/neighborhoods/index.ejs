@@ -18,13 +18,8 @@
 <div class="flex flex-col md:flex-row items-center gap-3 mb-4">
   <div class="flex items-center gap-3 flex-grow max-w-[1300px]">
     <input type="text" id="searchInput" placeholder="بحث عن طريق اسم الحي" class="flex-grow p-2 border rounded-md focus:outline-none focus:border-blue-500"/>
-    <button
-      id="clearBtn"
-      class="bg-pink-100 text-red-600 px-4 py-3 rounded-md hover:bg-pink-300 transition"
-      aria-label="مسح البحث"
-      onclick="window.location.reload()"
-    >
-      <i class="fa-solid fa-trash-can"></i>
+    <button onclick="showModal('deleteAllNeighborhoodsModal')" title="حذف الاحياء" class="bg-pink-100 text-red-600 px-4 py-2 rounded hover:bg-pink-300 w-max">
+      <i class="fa-solid fa-trash-can"></i> 
     </button>
   </div>
 </div>
@@ -128,6 +123,13 @@
     deleteAction: `/dashboard/neighborhoods/${n._id}?_method=DELETE`
   }) %>
 <% }) %>
+
+<%- include('../layouts/confirmDelete', { 
+      modalId: 'deleteAllNeighborhoodsModal', 
+      message: 'هل أنت متأكد أنك تريد حذف جميع الاحياء؟', 
+      deleteAction: '/dashboard/neighborhoods?_method=DELETE' 
+}) %>
+
 </div>
 <script>
 
@@ -155,16 +157,15 @@ class NeighborhoodsPagination {
   }
 
   initializeElements() {
-    this.searchInput = document.getElementById('searchInput');
-    this.clearBtn = document.getElementById('clearBtn');
-    this.itemsPerPageSelect = document.getElementById('itemsPerPage');
-    // this.pagination = document.getElementById('pagination');
-    this.prevBtn = document.getElementById('prevBtn');
-    this.nextBtn = document.getElementById('nextBtn');
-    this.pageNumbers = document.getElementById('pageNumbers');
-    this.noResults = document.getElementById('noResults');
-    this.tableBody = document.getElementById('tableBody');
-  }
+  this.searchInput = document.getElementById('searchInput');
+  this.itemsPerPageSelect = document.getElementById('itemsPerPage');
+  this.prevBtn = document.getElementById('prevBtn');
+  this.nextBtn = document.getElementById('nextBtn');
+  this.pageNumbers = document.getElementById('pageNumbers');
+  this.noResults = document.getElementById('noResults');
+  this.tableBody = document.getElementById('tableBody');
+}
+
 
   bindEvents() {
     // Search functionality
@@ -192,11 +193,6 @@ class NeighborhoodsPagination {
     this.currentPage = 1;
     this.updateCounts();
     this.render();
-  }
-
-  clearSearch() {
-    this.searchInput.value = '';
-    this.handleSearch();
   }
 
   handleItemsPerPageChange() {

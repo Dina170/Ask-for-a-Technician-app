@@ -208,7 +208,7 @@ const updateTechnician = async (req, res) => {
     }
 
     await technician.save();
-    res.redirect("/dashboard/technicians");
+    res.redirect("/dashboard/technicians?message=تم تعديل فنى بنجاح&messageType=edit");
   } catch (err) {
     console.error(err);
 
@@ -230,7 +230,7 @@ const updateTechnician = async (req, res) => {
 const deleteAllTechnicians = async (req, res) => {
   try {
     await Technician.deleteMany({});
-    res.redirect("/dashboard/technicians");
+    res.redirect("/dashboard/technicians?message=تم حذف جميع الفنيين بنجاح&messageType=delete");
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/technicians");
@@ -241,7 +241,7 @@ const deleteAllTechnicians = async (req, res) => {
 const deleteTechnician = async (req, res) => {
   try {
     await Technician.findByIdAndDelete(req.params.id);
-    res.redirect("/dashboard/technicians");
+    res.redirect("/dashboard/technicians?message=تم حذف فنى بنجاح&messageType=delete");
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/technicians");
