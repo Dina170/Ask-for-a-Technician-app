@@ -1,10 +1,7 @@
-<h1>
-    <%= technician ? "Edit" : "Add" %> Technician
-</h1>
-
 <% if (errors && errors.length > 0) { %>
-  <div class="error-messages" style="color: red; margin-bottom: 1em;">
-    <ul>
+  <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+    <strong class="font-bold">خطأ:</strong>
+    <ul class="list-disc list-inside">
       <% errors.forEach(error => { %>
         <li><%= error.msg || error %></li>
       <% }) %>
@@ -12,88 +9,508 @@
   </div>
 <% } %>
 
-<form action="<%= technician ? '/dashboard/technicians/' + technician._id + '?_method=PUT' : '/dashboard/technicians' %>" method="POST"
-    enctype="multipart/form-data">
+<div class="rounded-tl-3xl shadow-md border p-5 h-[100%] bg-white">
+  <div class="mb-6 px-6">
+    <h1 class="text-xl font-bold my-1 text-right"><%= technician ? "تعديل بيانات فني" : "إضافة فني" %></h1>
+    <p class="text-gray-600 text-right">
+      <a href="/dashboard/technicians" class="hover:text-Sky-950 hover:font-medium">الفنيين</a> &gt; <%= technician ? "تعديل بيانات فني" : "إضافة فني" %>
+    </p>
+  </div>
 
-    <label for="jobName">Job:</label>
-    <select name="jobName" id="jobName" required>
-        <option value="">Select a job</option>
-        <% jobNames.forEach(jobName => { %>
-            <option value="<%= jobName %>" 
-                <%= technician && technician.jobName?.name === jobName ? 'selected' : '' %>>
-                <%= jobName %>
-            </option>
-        <% }) %>
-    </select>
+  <form id="techForm" action="<%= technician ? '/dashboard/technicians/' + technician._id + '?_method=PUT' : '/dashboard/technicians' %>" method="POST" enctype="multipart/form-data">
 
-    <!-- Neighborhoods (Multiple Select) -->
-    <div class="form-group">
-        <label for="neighborhoodNames">Neighborhoods (Hold Ctrl/Cmd to select multiple):</label>
-        <select name="neighborhoodNames" id="neighborhoodNames" multiple required>
-            <!-- Will be populated by JavaScript -->
-            <% if (technician && technician.neighborhoodNames) { %>
-                <% neighborhoods.forEach(n => { %>
-                    <option value="<%= n._id %>" 
-                        <%= technician.neighborhoodNames.some(nId => nId.equals(n._id)) ? 'selected' : '' %>>
-                        <%= n.name %>
-                    </option>
-                <% }) %>
-            <% } %>
-        </select>
+    <div class="bg-white rounded-lg px-6 py-2 space-y-6">
+
+   <!-- Job Select -->
+    <div>
+      <label class="block text-right mb-2 required font-medium">المهنة</label>
+      <select name="jobName" id="jobName" 
+              class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1">
+        <option value="">اختر مهنة</option>
+        <% if (typeof jobNames !== 'undefined' && jobNames.length > 0) { %>
+          <% jobNames.forEach(job => { %>
+            <option value="<%= job %>" <%= technician && technician.jobName && technician.jobName.name === job ? 'selected' : '' %>><%= job %></option>
+          <% }) %>
+        <% } %>
+      </select>
+      <p id="jobNameError" class="text-red-500 text-sm mt-1 hidden"></p>
     </div>
 
-    <label for="mainTitle">Main Title:</label>
-    <input type="text" name="mainTitle" value="<%= technician?.mainTitle || '' %>" required>
+      <!-- Neighborhood Dropdown -->
+      <div class="mt-4 relative">
+        <label class="block text-right mb-2 required font-medium">الأحياء</label>
 
-    <label for="description">Description:</label>
-    <textarea name="description" required><%= technician?.description || '' %></textarea>
+        <button type="button" id="neighborhoodDropdownBtn"
+          class="p-2 border rounded-md bg-white w-full text-right relative z-10 flex justify-between items-center">
+          <span>اختر الأحياء</span>
+          <svg id="dropdownArrow" class="w-4 h-4 text-black transition-transform transform "
+              fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
 
-    <label for="phoneNumber">Phone Number:</label>
-    <input type="tel" name="phoneNumber" value="<%= technician?.phoneNumber || '' %>"
-        placeholder="+9665xxxxxxxx or 05xxxxxxxx">
+        <div id="dropdownMenu" class="absolute w-full bg-white border rounded-md  p-2 shadow-md hidden z-50 max-h-60 overflow-y-auto">
+          <p id="dropdownMessage" class="text-red-500 text-right">اختر وظيفة أولًا</p>
+        </div>
 
-    <% if (technician && technician.jobTechnicianPhoto) { %>
-        <p>Current Photo:</p>
-        <img src="/uploads/technicians/<%= technician.jobTechnicianPhoto %>" width="150">
-    <% } %>
+      <div id="selectedNeighborhoods" class="mt-2 flex flex-wrap gap-2"></div>
+      <p id="neighborhoodsError" class="text-red-500 text-sm mt-1 hidden"></p>
 
-    <label for="jobTechnicianPhoto">Upload Photo:</label>
-    <input type="file" name="jobTechnicianPhoto" <%= technician ? '' : 'required' %>>
+      </div>
 
-    <button type="submit">
-        <%= technician ? "Update" : "Add" %>
-    </button>
-</form>
+            
+      <!-- Main Title -->
+      <div>
+        <label class="block text-right mb-2 required font-medium">عنوان رئيسي</label>
+        <input type="text" name="mainTitle" 
+               class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1"
+               placeholder="ادخل عنوان فني"
+               value="<%= technician && technician.mainTitle ? technician.mainTitle : '' %>">
+        <p id="mainTitleError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
 
-<a href="/dashboard/technicians">Back to List</a>
+      <!-- Phone Number -->
+      <div>
+        <label class="block text-right mb-2 font-medium">رقم فون</label>
+        <input type="tel" name="phoneNumber"
+               class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1"
+               placeholder="  أمثلة: 512345678 أو 0512345678 أو 966512345678"
+               value="<%= technician && technician.phoneNumber ? technician.phoneNumber : '' %>">
+        <p id="phoneError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
 
+      <!-- Photo Upload -->
+      <div>
+        <label class="block text-right mb-2 <%= technician ? '' : 'required' %> font-medium">صورة الفني</label>
+
+        <% if (technician && technician.jobTechnicianPhoto) { %>
+          <!-- Edit mode -->
+          <div id="editPreview" class="px-4 w-full h-11 rounded-md flex items-center relative border mb-2">
+            <img src="/uploads/technicians/<%= technician.jobTechnicianPhoto %>" 
+                 class="w-9 h-9 object-cover rounded-md border" id="editImg">
+            <span class="absolute top-0 left-0 bg-white w-10 h-10 text-red-500 rounded-full p-1 text-xs cursor-pointer flex justify-center z-40 items-center"
+                  onclick="removeEditPhoto()">
+              <i class="fa-solid fa-trash"></i>
+            </span>
+          </div>
+          <div id="uploadInputEdit" class="hidden flex border rounded-lg mb-2">
+            <div class="px-4 w-full h-10 flex items-center">
+              <label for="fileInputEdit" class="cursor-pointer w-full flex items-center justify-between">
+                <i class="fa-solid fa-cloud-arrow-up text-gray-500"></i>
+                <span class="text-gray-800 border rounded-md px-1 py-0.5 border-gray-800 text-xs hover:bg-gray-700 hover:text-white">اختر ملف</span>
+              </label>
+              <input type="file" name="jobTechnicianPhoto" id="fileInputEdit" class="hidden" accept="image/*">
+            </div>
+          </div>
+        <% } else { %>
+          <!-- Add mode -->
+          <div id="addPreview" class="relative hidden w-32 h-32 border border-gray-300 rounded-md bg-gray-100 mb-4 bg-cover bg-center"></div>
+          <div id="uploadInputAdd" class="flex border rounded-lg mb-2">
+            <div class="px-4 w-full h-10 flex items-center">
+              <label for="fileInputAdd" class="cursor-pointer w-full flex items-center justify-between">
+                <i class="fa-solid fa-cloud-arrow-up text-gray-500"></i>
+                <span class="text-gray-800 border rounded-md px-1 py-0.5 border-gray-800 text-xs hover:bg-gray-700 hover:text-white">اختر ملف</span>
+              </label>
+              <input type="file" name="jobTechnicianPhoto" id="fileInputAdd" class="hidden" accept="image/*">
+            </div>
+          </div>
+        <% } %>
+        <p id="photoError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
+      
+      <!-- Description with Quill Editor -->
+      <div>
+        <label class="block text-right mb-2 required font-medium">الوصف</label>
+        <div id="descriptionEditor" dir="rtl" class="quill-container border rounded-md"></div>
+        <input type="hidden" name="description" id="descriptionInput" />
+        <p id="descriptionError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex justify-between mt-10">
+        <button type="submit" 
+                class="bg-gray-400 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-md w-[45%] text-center flex items-center justify-center">
+          <i class="fa-regular fa-square-check me-2"></i><%= technician ? "تحديث" : "حفظ" %>
+        </button>
+        <a href="/dashboard/technicians" 
+           class="bg-white border border-gray-700 hover:bg-gray-700 hover:text-white text-gray-800 font-bold py-3 px-4 rounded-md flex items-center justify-center w-[45%]">
+          رجوع <i class="fa-solid fa-arrow-left ms-2"></i>
+        </a>
+      </div>
+
+    </div>
+  </form>
+</div>
+
+<!-- Quill CSS & JS -->
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet" />
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 <script>
-    const jobNeighborhoodMap = JSON.parse('<%- jobNeighborhoodMap %>');
-    const jobSelect = document.getElementById('jobName');
-    const neighborhoodSelect = document.getElementById('neighborhoodNames');
-    
-    jobSelect.addEventListener('change', function() {
-        const selectedJob = this.value;
-        neighborhoodSelect.innerHTML = '';
-        
-        if (selectedJob && jobNeighborhoodMap[selectedJob]) {
-            jobNeighborhoodMap[selectedJob].forEach(neighborhood => {
-                const option = document.createElement('option');
-                option.value = neighborhood._id;
-                option.textContent = neighborhood.name;
-                
-                <% if (technician && technician.neighborhoodNames) { %>
-                    if (<%= technician.neighborhoodNames.map(n => n.toString()).includes('" + neighborhood._id + "') %>) {
-                        option.selected = true;
-                    }
-                <% } %>
-                
-                neighborhoodSelect.appendChild(option);
-            });
-        }
+// =============================================
+// 1. CONSTANTS AND INITIALIZATIONS
+// =============================================
+
+// Initialize Quill editor
+const initQuillEditor = () => {
+  const toolbarOptions = [
+    ['bold', 'italic', 'underline'],
+    [{ 'color': [] }, { 'background': [] }],
+    [{ align: [] }],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ 'direction': 'rtl' }],
+    ['clean']
+  ];
+
+  try {
+    const editor = new Quill('#descriptionEditor', {
+      theme: 'snow',
+      modules: { toolbar: toolbarOptions }
     });
     
-    <% if (technician && technician.jobName) { %>
-        jobSelect.dispatchEvent(new Event('change'));
+    <% if (technician && technician.description) { %>
+      editor.root.innerHTML = <%- JSON.stringify(technician.description) %>;
     <% } %>
+    
+    return editor;
+  } catch (error) {
+    console.error('Error initializing Quill:', error);
+    return null;
+  }
+};
+
+// Initialize global variables
+const isEdit = <%= technician ? 'true' : 'false' %>;
+const descriptionEditor = initQuillEditor();
+
+// Initialize data
+let jobNeighborhoodMap = {};
+let selectedNeighborhoods = [];
+
+try {
+  <% if (typeof jobNeighborhoodMap !== 'undefined') { %>
+    jobNeighborhoodMap = <%- jobNeighborhoodMap %>;
+  <% } %>
+  
+  <% if (typeof selectedNeighborhoodIds !== 'undefined') { %>
+    selectedNeighborhoods = <%- JSON.stringify(selectedNeighborhoodIds) %>;
+  <% } %>
+} catch (error) {
+  console.error('Error loading initial data:', error);
+}
+
+// DOM Elements
+const elements = {
+  jobDropdown: document.getElementById("jobName"),
+  dropdownBtn: document.getElementById("neighborhoodDropdownBtn"),
+  dropdownMenu: document.getElementById("dropdownMenu"),
+  selectedList: document.getElementById("selectedNeighborhoods"),
+  dropdownMessage: document.getElementById("dropdownMessage"),
+  techForm: document.getElementById("techForm"),
+  fileInput: document.getElementById(isEdit ? 'fileInputEdit' : 'fileInputAdd'),
+  uploadDiv: document.getElementById(isEdit ? 'uploadInputEdit' : 'uploadInputAdd'),
+  previewDiv: document.getElementById(isEdit ? 'editPreview' : 'addPreview')
+};
+
+// =============================================
+// 2. UTILITY FUNCTIONS
+// =============================================
+
+const showError = (elementId, message) => {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.textContent = message;
+    element.classList.remove('hidden');
+  }
+};
+
+const hideError = (elementId) => {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.textContent = '';
+    element.classList.add('hidden');
+  }
+};
+
+const removeEditPhoto = () => {
+  if (!isEdit) return;
+  
+  document.getElementById('editPreview').classList.add('hidden');
+  document.getElementById('uploadInputEdit').classList.remove('hidden');
+  document.getElementById('fileInputEdit').value = '';
+};
+
+// =============================================
+// 3. NEIGHBORHOOD SELECTION LOGIC
+// =============================================
+
+const updateHiddenInputs = () => {
+  if (!elements.dropdownMenu) return;
+  
+  const checked = elements.dropdownMenu.querySelectorAll("input[type='checkbox']:checked");
+  const ids = Array.from(checked).map(cb => cb.value);
+
+  // Remove old hidden inputs
+  document.querySelectorAll("input[name='neighborhoodNames']").forEach(el => el.remove());
+
+  // Add new hidden inputs
+  ids.forEach(id => {
+    const hidden = document.createElement("input");
+    hidden.type = "hidden";
+    hidden.name = "neighborhoodNames";
+    hidden.value = id;
+    elements.techForm.appendChild(hidden);
+  });
+
+  // Update display
+  if (elements.selectedList) {
+    elements.selectedList.innerHTML = "";
+    Array.from(checked).forEach(cb => {
+      const name = cb.nextSibling.textContent;
+      const span = document.createElement("span");
+      span.textContent = name.trim();
+      span.classList.add("bg-blue-100", "text-blue-800", "px-2", "py-1", "rounded", "text-sm");
+      elements.selectedList.appendChild(span);
+    });
+  }
+
+  if (elements.dropdownBtn) {
+    const span = elements.dropdownBtn.querySelector("span");
+    if (span) {
+      span.textContent = ids.length > 0 ? `الأحياء المختارة (${ids.length})` : "اختر الأحياء";
+    }
+  }
+};
+
+const populateNeighborhoods = (jobName) => {
+  if (!elements.dropdownMenu) return;
+  
+  elements.dropdownMenu.innerHTML = "";
+
+  if (!jobName || !jobNeighborhoodMap[jobName] || jobNeighborhoodMap[jobName].length === 0) {
+    const msg = document.createElement("p");
+    msg.textContent = "اختر وظيفة أولًا";
+    msg.classList.add("text-red-500", "text-right");
+    elements.dropdownMenu.appendChild(msg);
+    updateHiddenInputs();
+    return;
+  }
+
+  const neighborhoods = jobNeighborhoodMap[jobName];
+  
+  neighborhoods.forEach(n => {
+    const label = document.createElement("label");
+    label.classList.add("block", "text-right", "p-1", "hover:cursor-pointer", "hover:bg-gray-100");
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.value = n._id;
+    checkbox.classList.add("me-2");
+    checkbox.addEventListener("change", updateHiddenInputs);
+
+    // Check if this neighborhood was previously selected
+    if (selectedNeighborhoods.includes(n._id.toString())) {
+      checkbox.checked = true;
+    }
+
+    label.appendChild(checkbox);
+    label.append(" " + n.name);
+    elements.dropdownMenu.appendChild(label);
+  });
+
+  updateHiddenInputs();
+};
+
+// =============================================
+// 4. IMAGE UPLOAD HANDLING
+// =============================================
+
+const setupImageUpload = () => {
+  if (!elements.fileInput || !elements.previewDiv) return;
+
+  elements.fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      if (isEdit) {
+        // Edit mode preview
+        elements.previewDiv.classList.remove('hidden');
+        elements.uploadDiv.classList.add('hidden');
+        const img = document.getElementById('editImg');
+        if (img) img.src = event.target.result;
+      } else {
+        // Add mode preview
+        elements.previewDiv.style.backgroundImage = `url('${event.target.result}')`;
+        elements.previewDiv.classList.remove('hidden');
+        elements.uploadDiv.classList.add('hidden');
+         const deleteIcon = document.createElement('span');
+        deleteIcon.innerHTML = '&times;';
+        deleteIcon.className = 'absolute top-1.5 right-1 bg-gray-100 font-medium w-5 h-5 text-gray-700 rounded-full flex justify-center items-center cursor-pointer text-lg';
+        deleteIcon.onclick = () => {
+          addPreview.innerHTML = '';
+          addPreview.classList.add('hidden');
+          document.getElementById('uploadInputAdd').classList.remove('hidden');
+          document.getElementById('fileInputAdd').value = '';
+        };
+        addPreview.appendChild(deleteIcon);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
+// =============================================
+// 5. FORM VALIDATION
+// =============================================
+
+const validateForm = () => {
+  // Reset all error messages
+  ['jobNameError', 'neighborhoodsError', 'mainTitleError', 'phoneError', 'photoError', 'descriptionError']
+    .forEach(id => hideError(id));
+
+  let isValid = true;
+
+  // Get form elements
+  const jobName = elements.jobDropdown?.value;
+  const mainTitle = document.querySelector("input[name='mainTitle']")?.value?.trim();
+  const phoneNumber = document.querySelector("input[name='phoneNumber']")?.value?.trim();
+  const selectedNeighborhoods = document.querySelectorAll("input[name='neighborhoodNames']");
+  const hasOldPhoto = <%= technician && technician.jobTechnicianPhoto ? 'true' : 'false' %>;
+  const descriptionText = descriptionEditor?.getText()?.trim() || '';
+  
+  // Validate job name
+  if (!jobName) {
+    showError('jobNameError', 'يجب اختيار مهنة.');
+    isValid = false;
+  }
+
+  // Validate neighborhoods
+  if (selectedNeighborhoods.length === 0) {
+    showError('neighborhoodsError', 'يجب اختيار حي واحد على الأقل.');
+    isValid = false;
+  }
+
+  // Validate main title
+  if (!mainTitle) {
+    showError('mainTitleError', 'العنوان الرئيسي مطلوب.');
+    isValid = false;
+  } else if (mainTitle.length < 5) {
+    showError('mainTitleError', 'العنوان يجب أن يكون على الأقل 5 حروف.');
+    isValid = false;
+  }
+
+  // Validate phone number
+  if (!phoneNumber) {
+    showError('phoneError', 'رقم الفون مطلوب');
+    isValid = false;
+  } else if (!/^(?:\+966|0)?5\d{8}$/.test(phoneNumber)) {
+    showError('phoneError', 'رقم الفون غير صحيح. يجب أن يكون رقم سعودى');
+    isValid = false;
+  }
+
+  // Validate description
+  if (!descriptionText) {
+    showError('descriptionError', 'الوصف مطلوب.');
+    isValid = false;
+  } else if (descriptionText.length < 10) {
+    showError('descriptionError', 'الوصف يجب أن يكون على الأقل 10 حرفاً.');
+    isValid = false;
+  }
+
+  // Validate photo
+  const editPreviewVisible = isEdit && document.getElementById('editPreview') && 
+                            !document.getElementById('editPreview').classList.contains('hidden');
+  const addPreviewVisible = !isEdit && document.getElementById('addPreview') && 
+                           !document.getElementById('addPreview').classList.contains('hidden');
+  const fileUploaded = elements.fileInput?.files?.length > 0;
+
+  if ((!isEdit && !addPreviewVisible && !fileUploaded) || 
+      (isEdit && !editPreviewVisible && !fileUploaded )) {
+    showError('photoError', 'يجب رفع صورة للفني.');
+    isValid = false;
+  } else if (fileUploaded) {
+    const file = elements.fileInput.files[0];
+    if (!['image/jpeg', 'image/png', 'image/jpg', 'image/webp'].includes(file.type)) {
+      showError('photoError', 'الملف يجب أن يكون صورة بصيغة JPG أو PNG أو WebP.');
+      isValid = false;
+    }
+  }
+
+  return isValid;
+};
+
+// =============================================
+// 6. EVENT LISTENERS AND INITIALIZATION
+// =============================================
+
+const setupEventListeners = () => {
+  // Job dropdown change
+  if (elements.jobDropdown) {
+    elements.jobDropdown.addEventListener("change", () => {
+      populateNeighborhoods(elements.jobDropdown.value);
+    });
+  }
+
+  // Neighborhood dropdown toggle
+  if (elements.dropdownBtn) {
+    elements.dropdownBtn.addEventListener("click", () => {
+      elements.dropdownMenu.classList.toggle("hidden");
+    });
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener("click", (event) => {
+    if (!elements.dropdownBtn?.contains(event.target) && 
+        !elements.dropdownMenu?.contains(event.target)) {
+      elements.dropdownMenu.classList.add("hidden");
+    }
+  });
+
+  // Form submission
+  if (elements.techForm) {
+    elements.techForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      
+      // Set description value
+      if (descriptionEditor) {
+        document.getElementById("descriptionInput").value = descriptionEditor.root.innerHTML;
+      }
+      
+      if (validateForm()) {
+        e.target.submit();
+      } else {
+        const firstError = document.querySelector('.text-red-500:not(.hidden)');
+        firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  }
+};
+
+// Initialize the application
+const init = () => {
+  setupEventListeners();
+  setupImageUpload();
+  
+  // Trigger initial population if in edit mode
+  if (isEdit && elements.jobDropdown?.value) {
+    populateNeighborhoods(elements.jobDropdown.value);
+  }
+};
+
+// Start the application when DOM is loaded
+document.addEventListener("DOMContentLoaded", init);
 </script>
+
+<style>
+  .quill-container {
+    height: 150px;
+  }
+  .ql-editor {
+  direction: rtl !important;
+  text-align: right !important;
+}
+  #dropdownArrow {
+    stroke: black;
+  }
+</style>

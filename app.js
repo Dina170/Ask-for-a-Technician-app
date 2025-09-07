@@ -36,9 +36,20 @@ app.use(
   })
 );
 app.use(expressLayouts);
+
 // Serve files from the uploads folder statically
 app.use('/uploads', express.static('uploads'));
 app.use("/static", express.static("public"));
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "secret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+
 
 // app.set('layout', 'layouts/main'); // default layout for public pages
 
@@ -56,6 +67,19 @@ app.use("/dashboard/technicians",(req, res, next) => {
   res.locals.layout = 'dashboard/layouts/sidebar';
   next();
 }, technicianRouter);
+
+app.use("/dashboard/blogs",(req, res, next) => {
+  res.locals.layout = 'dashboard/layouts/sidebar';
+  next();
+}, blogRouter);
+app.use("/dashboard/posts",(req, res, next) => {
+  res.locals.layout = 'dashboard/layouts/sidebar';
+  next();
+}, postRouter);
+// Serve files from the uploads folder statically
+app.use("/uploads", express.static("uploads"));
+app.use("/uploads/posts", express.static("uploads/posts"));
+
 
 app.use("/", publicHomeRouter); // homepage + job-based filtering
 app.use("/technicians", publicTechnicianRouter); // technician + neighborhood pages

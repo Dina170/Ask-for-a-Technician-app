@@ -1,28 +1,25 @@
-<div class="mx-7">
+<div class="ms-7 me-2">
 <!-- Success message at the top -->
 <% if (message && message.trim() !== '') { %>
   <%- include('../layouts/success', { message, messageType }) %>
 <% } %>
 
 <!-- Header and add button -->
-<div class="flex flex-col md:flex-row justify-between mb-4 gap-2 mt-6">
+<div class="flex flex-col md:flex-row justify-between mb-1 gap-2 mt-3">
   <h1 class="text-xl md:text-2xl font-bold text-center md:text-right">
     الأحياء (<span id="totalCount"><%= neighborhoods.length %></span>)
   </h1>
   <a href="/dashboard/neighborhoods/new" class="bg-slate-700 text-white px-4 py-2 rounded text-center hover:bg-slate-600 transition">+ إضافة حي</a>
 </div>
-
+  <div class="mb-4">
+    <p class="text-gray-600 text-right"><a href="/dashboard/neighborhoods/" class="hover:text-Sky-950 hover:font-medium ">الأحياء</a> </p>
+  </div>
 <!-- Search bar -->
 <div class="flex flex-col md:flex-row items-center gap-3 mb-4">
   <div class="flex items-center gap-3 flex-grow max-w-[1300px]">
-    <input type="text" id="searchInput" placeholder="🔍بحث عن طريق اسم الحي" class="flex-grow p-2 border rounded-md focus:outline-none focus:border-blue-500"/>
-    <button
-      id="clearBtn"
-      class="bg-pink-100 text-red-600 px-4 py-3 rounded-md hover:bg-pink-300 transition"
-      aria-label="مسح البحث"
-      onclick="window.location.reload()"
-    >
-      <i class="fa-solid fa-trash-can"></i>
+    <input type="text" id="searchInput" placeholder="بحث عن طريق اسم الحي" class="flex-grow p-2 border rounded-md focus:outline-none focus:border-blue-500"/>
+    <button onclick="showModal('deleteAllNeighborhoodsModal')" title="حذف الاحياء" class="bg-pink-100 text-red-600 px-4 py-2 rounded hover:bg-pink-300 w-max">
+      <i class="fa-solid fa-trash-can"></i> 
     </button>
   </div>
 </div>
@@ -94,13 +91,13 @@
 </div>
 
 <!-- Pagination controls and items per page selector -->
-<div class="flex justify-between items-center mb-6">
+<div class="flex justify-between items-center mt-6 mb-6">
   <!-- Pagination controls - on the right -->
   <div id="pagination" class="flex items-center gap-1">
     <button id="nextBtn" class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center">
       <i class="fa-solid fa-chevron-right"></i>
     </button>
-    <div id="pageNumbers" class="flex gap-0 mx-3 flex-row-reverse"></div>
+    <div id="pageNumbers" class="flex gap-1 mx-3 flex-row-reverse"></div>
     <button id="prevBtn" class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center" style="display: none;">
       <i class="fa-solid fa-chevron-left"></i>
     </button>
@@ -108,13 +105,13 @@
 
   <!-- Items per page selector - on the left -->
   <div class="flex items-center gap-2">
+    <span class="text-sm whitespace-nowrap">عدد الصفوف فى كل صفحة</span>
     <select id="itemsPerPage" class="border rounded px-2 py-1 text-sm">
       <option value="5">5</option>
       <option value="10" selected>10</option>
       <option value="15">15</option>
       <option value="30">30</option>
     </select>
-    <span class="text-sm whitespace-nowrap">Result per page</span>
   </div>
 </div>
 
@@ -126,6 +123,13 @@
     deleteAction: `/dashboard/neighborhoods/${n._id}?_method=DELETE`
   }) %>
 <% }) %>
+
+<%- include('../layouts/confirmDelete', { 
+      modalId: 'deleteAllNeighborhoodsModal', 
+      message: 'هل أنت متأكد أنك تريد حذف جميع الاحياء؟', 
+      deleteAction: '/dashboard/neighborhoods?_method=DELETE' 
+}) %>
+
 </div>
 <script>
 
@@ -153,16 +157,15 @@ class NeighborhoodsPagination {
   }
 
   initializeElements() {
-    this.searchInput = document.getElementById('searchInput');
-    this.clearBtn = document.getElementById('clearBtn');
-    this.itemsPerPageSelect = document.getElementById('itemsPerPage');
-    this.pagination = document.getElementById('pagination');
-    this.prevBtn = document.getElementById('prevBtn');
-    this.nextBtn = document.getElementById('nextBtn');
-    this.pageNumbers = document.getElementById('pageNumbers');
-    this.noResults = document.getElementById('noResults');
-    this.tableBody = document.getElementById('tableBody');
-  }
+  this.searchInput = document.getElementById('searchInput');
+  this.itemsPerPageSelect = document.getElementById('itemsPerPage');
+  this.prevBtn = document.getElementById('prevBtn');
+  this.nextBtn = document.getElementById('nextBtn');
+  this.pageNumbers = document.getElementById('pageNumbers');
+  this.noResults = document.getElementById('noResults');
+  this.tableBody = document.getElementById('tableBody');
+}
+
 
   bindEvents() {
     // Search functionality
@@ -190,11 +193,6 @@ class NeighborhoodsPagination {
     this.currentPage = 1;
     this.updateCounts();
     this.render();
-  }
-
-  clearSearch() {
-    this.searchInput.value = '';
-    this.handleSearch();
   }
 
   handleItemsPerPageChange() {
@@ -328,7 +326,7 @@ class NeighborhoodsPagination {
   addPageButton(pageNum) {
     const button = document.createElement('button');
     button.textContent = pageNum;
-    button.className = `w-8 h-8 rounded-full transition flex items-center justify-center text-sm font-medium ${
+    button.className = `w-8 h-8 rounded-full hover:bg-slate-700 hover:text-white transition ${
       pageNum === this.currentPage 
         ? 'bg-gray-800 text-white' 
         : 'bg-slate-300 text-gray-600 hover:bg-gray-300'
@@ -341,7 +339,7 @@ class NeighborhoodsPagination {
   createEllipsis() {
     const span = document.createElement('span');
     span.textContent = '...';
-    span.className = 'px-2 py-2 text-gray-500';
+    span.className = 'px-2 py-2 text-gray-500 ';
     return span;
   }
 
@@ -368,29 +366,23 @@ window.addEventListener('load', () => {
 function deleteItem(id) {
   const modal = document.getElementById(`deleteNeighborhoodModal_${id}`);
   if (modal) {
-    modal.classList.remove('hidden', 'hide');
-    modal.classList.add('show');
+    modal.classList.remove('hide');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      modal.classList.add('show');
+    }, 10);
   }
 }
+
 
 function hideModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) {
     modal.classList.remove('show');
     modal.classList.add('hide');
-
     setTimeout(() => {
-      modal.classList.add('hidden');
-      modal.classList.remove('hide');
-    }, 400); 
+      modal.style.display = 'none';
+    }, 400);
   }
 }
-
-// Close modal when clicking outside
-document.addEventListener('click', function(event) {
-  if (event.target.classList.contains('modal-backdrop')) {
-    const modalId = event.target.id;
-    hideModal(modalId);
-  }
-});
 </script>

@@ -1,31 +1,380 @@
-<h1>
-  <%= job ? 'Edit' : 'Add' %> Job
-</h1>
 
-<% if (typeof error !== 'undefined') { %>
-  <div style="color: red; margin-bottom: 1rem;">
-    <%= error %>
+<div class="rounded-tl-3xl shadow-md border p-5 h-[100%] bg-white">
+  <div class="mb-6 px-6">
+    <h1 class="text-xl font-bold my-1 text-right"><%= job ? "تعديل وظيفة" : "إضافة وظيفة" %></h1>
+    <p class="text-gray-600 text-right">
+      <a href="/dashboard/jobs" class="hover:text-Sky-950 hover:font-medium">الوظائف</a> &gt; <%= job ? "تعديل وظيفة" : "إضافة وظيفة" %>
+    </p>
   </div>
-<% } %>
 
-<form action="<%= job ? '/dashboard/jobs/' + job._id + '?_method=PUT' : '/dashboard/jobs' %>" method="POST" enctype="multipart/form-data">
-  <input type="text" name="name" placeholder="Job Name" value="<%= job?.name || '' %>" required>
+  <form id="jobForm" action="<%= job ? '/dashboard/jobs/' + job._id + '?_method=PUT' : '/dashboard/jobs' %>" method="POST" enctype="multipart/form-data">
 
-  <select name="neighborhoodName" required>
-    <% neighborhoods.forEach(n => { %>
-      <option value="<%= n._id %>" <%= job && job.neighborhoodName?.equals(n._id) ? 'selected' : '' %>>
-        <%= n.name %>
-      </option>
-    <% }) %>
-  </select>
+    <div class="bg-white rounded-lg px-6 py-2 space-y-6">
 
-  <input type="file" name="jobPhoto" <%= job ? '' : 'required' %>>
+      <!-- Job Name -->
+      <div>
+        <label class="block text-right mb-2 required font-medium">اسم الوظيفة</label>
+        <input type="text" name="name" id="jobName"
+               class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1"
+               placeholder="ادخل اسم الوظيفة"
+               value="<%= job?.name || '' %>">
+        <p id="jobNameError" class="text-red-500 text-sm mt-1 hidden"></p>
+        <!--error from back-->
+        <% if (typeof error !== 'undefined' && error) { %>
+        <div class="text-red-500 text-sm mt-1 text-right font-medium"" role="alert">
+          <strong class="font-bold">خطأ:</strong>
+          <span class="block sm:inline"><%if (error=="This job already exists in the selected neighborhood."){ %> المهنة التى ادخلتها مسبقًا موجودة فى الحي المختار <%}%></span>
+        </div>
+        <% } %> 
+      </div>
 
-  <textarea name="mainDescription" placeholder="Main Description" required><%= job?.mainDescription || '' %></textarea>
-  <textarea name="subDescription" placeholder="Sub Description"><%= job?.subDescription || '' %></textarea>
+      <!-- Neighborhood Select -->
+      <div>
+        <label class="block text-right mb-2 required font-medium">الحي</label>
+        <select name="neighborhoodName" id="neighborhoodSelect" 
+                class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1">
+          <option value="">اختر حي</option>
+          <% neighborhoods.forEach(n => { %>
+            <option value="<%= n._id %>" <%= job && job.neighborhoodName?.equals(n._id) ? 'selected' : '' %>>
+              <%= n.name %>
+            </option>
+          <% }) %>
+        </select>
+        <p id="neighborhoodError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
 
-  <button type="submit">
-    <%= job ? 'Update' : 'Create' %>
-  </button>
-</form>
+      <!-- Photo Upload -->
+      <div>
+        <label class="block text-right mb-2 <%= job ? '' : 'required' %> font-medium">صورة الوظيفة</label>
+
+        <% if (job && job.jobPhoto) { %>
+          <!-- Edit mode -->
+          <div id="editPreview" class="px-4 w-full h-11 rounded-md flex items-center relative border mb-2">
+            <img src="/uploads/jobs/<%= job.jobPhoto %>" 
+                 class="w-9 h-9 object-cover rounded-md border" id="editImg">
+            <span class="absolute top-0 left-0 bg-white w-10 h-10 text-red-500 rounded-full p-1 text-xs cursor-pointer flex justify-center z-40 items-center"
+                  onclick="removeEditPhoto()">
+              <i class="fa-solid fa-trash"></i>
+            </span>
+          </div>
+          <div id="uploadInputEdit" class="hidden flex border rounded-lg mb-2">
+            <div class="px-4 w-full h-10 flex items-center">
+              <label for="fileInputEdit" class="cursor-pointer w-full flex items-center justify-between">
+                <i class="fa-solid fa-cloud-arrow-up text-gray-500"></i>
+                <span class="text-gray-800 border rounded-md px-1 py-0.5 border-gray-800 text-xs hover:bg-gray-700 hover:text-white">اختر ملف</span>
+              </label>
+              <input type="file" name="jobPhoto" id="fileInputEdit" class="hidden" accept="image/*">
+            </div>
+          </div>
+        <% } else { %>
+          <!-- Add mode -->
+          <div id="addPreview" class="relative hidden w-32 h-32 border border-gray-300 rounded-md bg-gray-100 mb-4 bg-cover bg-center"></div>
+          <div id="uploadInputAdd" class="flex border rounded-lg mb-2">
+            <div class="px-4 w-full h-10 flex items-center">
+              <label for="fileInputAdd" class="cursor-pointer w-full flex items-center justify-between">
+                <i class="fa-solid fa-cloud-arrow-up text-gray-500"></i>
+                <span class="text-gray-800 border rounded-md px-1 py-0.5 border-gray-800 text-xs hover:bg-gray-700 hover:text-white">اختر ملف</span>
+              </label>
+              <input type="file" name="jobPhoto" id="fileInputAdd" class="hidden" accept="image/*">
+            </div>
+          </div>
+        <% } %>
+        <p id="photoError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
+      
+      <!-- Main Description with Quill Editor -->
+      <div>
+        <label class="block text-right mb-2 required font-medium">الوصف الرئيسي</label>
+        <div id="mainDescriptionEditor" dir="rtl" class="quill-container border rounded-md"></div>
+        <input type="hidden" name="mainDescription" id="mainDescriptionInput" />
+        <p id="mainDescriptionError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
+
+      <!-- Sub Description with Quill Editor -->
+      <div>
+        <label class="block text-right mb-2 required font-medium">الوصف الفرعي</label>
+        <div id="subDescriptionEditor" dir="rtl" class="quill-container border rounded-md"></div>
+        <input type="hidden" name="subDescription" id="subDescriptionInput" />
+        <p id="subDescriptionError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex justify-between mt-10">
+        <button type="submit" 
+                class="bg-gray-400 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-md w-[45%] text-center flex items-center justify-center">
+          <i class="fa-regular fa-square-check me-2"></i><%= job ? "تحديث" : "حفظ" %>
+        </button>
+        <a href="/dashboard/jobs" 
+           class="bg-white border border-gray-700 hover:bg-gray-700 hover:text-white text-gray-800 font-bold py-3 px-4 rounded-md flex items-center justify-center w-[45%]">
+          رجوع <i class="fa-solid fa-arrow-left ms-2"></i>
+        </a>
+      </div>
+
+    </div>
+  </form>
+</div>
+
+<!-- Quill CSS & JS -->
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet" />
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<script>
+// =============================================
+// 1. CONSTANTS AND INITIALIZATIONS
+// =============================================
+
+// Initialize Quill editors
+const initQuillEditors = () => {
+  const toolbarOptions = [
+    ['bold', 'italic', 'underline'],
+    [{ 'color': [] }, { 'background': [] }],
+    [{ align: [] }],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ 'direction': 'rtl' }],
+    ['clean']
+  ];
+
+  try {
+    const mainEditor = new Quill('#mainDescriptionEditor', {
+      theme: 'snow',
+      modules: { toolbar: toolbarOptions }
+    });
+    
+    const subEditor = new Quill('#subDescriptionEditor', {
+      theme: 'snow',
+      modules: { toolbar: toolbarOptions }
+    });
+    
+    // Load existing content if editing
+    <% if (job && job.mainDescription) { %>
+      mainEditor.root.innerHTML = <%- JSON.stringify(job.mainDescription) %>;
+    <% } %>
+    
+    <% if (job && job.subDescription) { %>
+      subEditor.root.innerHTML = <%- JSON.stringify(job.subDescription) %>;
+    <% } %>
+    
+    return { mainEditor, subEditor };
+  } catch (error) {
+    console.error('Error initializing Quill:', error);
+    return { mainEditor: null, subEditor: null };
+  }
+};
+
+// Initialize global variables
+const isEdit = <%= job ? 'true' : 'false' %>;
+const { mainEditor, subEditor } = initQuillEditors();
+
+// DOM Elements
+const elements = {
+  jobForm: document.getElementById("jobForm"),
+  fileInput: document.getElementById(isEdit ? 'fileInputEdit' : 'fileInputAdd'),
+  uploadDiv: document.getElementById(isEdit ? 'uploadInputEdit' : 'uploadInputAdd'),
+  previewDiv: document.getElementById(isEdit ? 'editPreview' : 'addPreview')
+};
+
+// =============================================
+// 2. UTILITY FUNCTIONS
+// =============================================
+
+const showError = (elementId, message) => {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.textContent = message;
+    element.classList.remove('hidden');
+  }
+};
+
+const hideError = (elementId) => {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.textContent = '';
+    element.classList.add('hidden');
+  }
+};
+
+const removeEditPhoto = () => {
+  if (!isEdit) return;
+  
+  document.getElementById('editPreview').classList.add('hidden');
+  document.getElementById('uploadInputEdit').classList.remove('hidden');
+  document.getElementById('fileInputEdit').value = '';
+};
+
+// =============================================
+// 3. IMAGE UPLOAD HANDLING
+// =============================================
+
+const setupImageUpload = () => {
+  if (!elements.fileInput || !elements.previewDiv) return;
+
+  elements.fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      if (isEdit) {
+        // Edit mode preview
+        elements.previewDiv.classList.remove('hidden');
+        elements.uploadDiv.classList.add('hidden');
+        const img = document.getElementById('editImg');
+        if (img) img.src = event.target.result;
+      } else {
+        // Add mode preview
+        elements.previewDiv.style.backgroundImage = `url('${event.target.result}')`;
+        elements.previewDiv.classList.remove('hidden');
+        elements.uploadDiv.classList.add('hidden');
+        
+        // Add delete icon
+        const deleteIcon = document.createElement('span');
+        deleteIcon.innerHTML = '&times;';
+        deleteIcon.className = 'absolute top-1.5 right-1 bg-gray-100 font-medium w-5 h-5 text-gray-700 rounded-full flex justify-center items-center cursor-pointer text-lg';
+        deleteIcon.onclick = () => {
+          elements.previewDiv.innerHTML = '';
+          elements.previewDiv.classList.add('hidden');
+          document.getElementById('uploadInputAdd').classList.remove('hidden');
+          document.getElementById('fileInputAdd').value = '';
+        };
+        elements.previewDiv.appendChild(deleteIcon);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
+// =============================================
+// 4. FORM VALIDATION
+// =============================================
+
+const validateForm = () => {
+  // Reset all error messages
+  ['jobNameError', 'neighborhoodError', 'photoError', 'mainDescriptionError', 'subDescriptionError']
+    .forEach(id => hideError(id));
+
+  let isValid = true;
+
+  // Get form elements
+  const jobName = document.querySelector("input[name='name']")?.value?.trim();
+  const neighborhood = document.querySelector("select[name='neighborhoodName']")?.value;
+  const hasOldPhoto = <%= job && job.jobPhoto ? 'true' : 'false' %>;
+  
+  // Get text from Quill editors safely
+  let mainDescriptionText = '';
+  let subDescriptionText = '';
+  
+  try {
+    mainDescriptionText = mainEditor && mainEditor.getText ? mainEditor.getText().trim() : '';
+    subDescriptionText = subEditor && subEditor.getText ? subEditor.getText().trim() : '';
+  } catch (error) {
+    console.error('Error getting editor text:', error);
+  }
+  
+  // Validate job name
+  if (!jobName) {
+    showError('jobNameError', 'اسم الوظيفة مطلوب.');
+    isValid = false;
+  } else if (jobName.length < 3) {
+    showError('jobNameError', 'اسم الوظيفة يجب أن يكون على الأقل 3 حروف.');
+    isValid = false;
+  }
+
+  // Validate neighborhood
+  if (!neighborhood) {
+    showError('neighborhoodError', 'يجب اختيار حي.');
+    isValid = false;
+  }
+
+  // Validate main description
+  if (!mainDescriptionText) {
+    showError('mainDescriptionError', 'الوصف الرئيسي مطلوب.');
+    isValid = false;
+  } else if (mainDescriptionText.length < 10) {
+    showError('mainDescriptionError', 'الوصف الرئيسي يجب أن يكون على الأقل 10 حرفاً.');
+    isValid = false;
+  }
+
+  // Validate sub description
+  if (!subDescriptionText) {
+    showError('subDescriptionError', 'الوصف الفرعي مطلوب');
+    isValid = false;
+  } else if (subDescriptionText.length < 10) {
+    showError('subDescriptionError', 'الوصف الفرعي يجب أن يكون على الأقل 10 أحرف');
+    isValid = false;
+  }
+
+  // Validate photo
+  const editPreviewVisible = isEdit && document.getElementById('editPreview') && 
+                            !document.getElementById('editPreview').classList.contains('hidden');
+  const addPreviewVisible = !isEdit && document.getElementById('addPreview') && 
+                           !document.getElementById('addPreview').classList.contains('hidden');
+  const fileUploaded = elements.fileInput?.files?.length > 0;
+
+  if ((!isEdit && !addPreviewVisible && !fileUploaded) || 
+      (isEdit && !editPreviewVisible && !fileUploaded )) {
+    showError('photoError', 'يجب رفع صورة للوظيفة.');
+    isValid = false;
+  } else if (fileUploaded) {
+    const file = elements.fileInput.files[0];
+    if (!['image/jpeg', 'image/png', 'image/jpg', 'image/webp'].includes(file.type)) {
+      showError('photoError', 'الملف يجب أن يكون صورة بصيغة JPG أو PNG أو WebP.');
+      isValid = false;
+    }
+  }
+
+  return isValid;
+};
+
+// =============================================
+// 5. EVENT LISTENERS AND INITIALIZATION
+// =============================================
+
+const setupEventListeners = () => {
+  // Form submission
+  if (elements.jobForm) {
+    elements.jobForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      
+      // Set descriptions values
+      if (mainEditor) {
+        document.getElementById("mainDescriptionInput").value = mainEditor.root.innerHTML;
+      }
+      if (subEditor) {
+        document.getElementById("subDescriptionInput").value = subEditor.root.innerHTML;
+      }
+      
+      if (validateForm()) {
+        e.target.submit();
+      } else {
+        const firstError = document.querySelector('.text-red-500:not(.hidden)');
+        firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  }
+};
+
+// Initialize the application
+const init = () => {
+  setupEventListeners();
+  setupImageUpload();
+};
+
+// Start the application when DOM is loaded
+document.addEventListener("DOMContentLoaded", init);
+</script>
+
+<style>
+  .quill-container {
+    height: 150px;
+  }
+  .ql-editor {
+    direction: rtl !important;
+    text-align: right !important;
+  }
+  .required::after {
+    content: " *";
+    color: red;
+  }
+</style>
 

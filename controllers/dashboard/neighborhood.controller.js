@@ -83,7 +83,7 @@ const deleteAllNeighborhoods = async (req, res) => {
     await Neighborhood.deleteMany({});
     await Job.updateMany({}, { $unset: { neighborhoodName: "" } });
     await Technician.updateMany({}, { $unset: { neighborhoodNames: "" } });
-    res.redirect("/dashboard/neighborhoods");
+    res.redirect("/dashboard/neighborhoods??message=تم حذف جميع الاحياء بنجاح&messageType=delete");
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods");
@@ -103,7 +103,7 @@ const deleteNeighborhood = async (req, res) => {
       { neighborhoodNames: neighborhoodId },
       { $pull: { neighborhoodNames: neighborhoodId } }
     );
-    res.redirect("/dashboard/neighborhoods?message=تم حذف هذا الحي&messageType=delete");
+    res.redirect("/dashboard/neighborhoods?message=تم حذف الحى بنجاح&messageType=delete");
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods?");
@@ -140,7 +140,7 @@ const updateNeighborhood = async (req, res) => {
     }
 
     await neighborhood.save();
-    res.redirect("/dashboard/neighborhoods");
+    res.redirect("/dashboard/neighborhoods?message=تم تعديل حي بنجاح&messageType=edit");
   } catch (err) {
     console.error(err);
 

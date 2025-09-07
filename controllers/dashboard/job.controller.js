@@ -39,7 +39,7 @@ const createJob = async (req, res) => {
 
     try {
       await newJob.save();
-      res.redirect("/dashboard/jobs");
+      res.redirect("/dashboard/jobs?message=تم إضافة مهنة بنجاح&messageType=add");
     } catch (err) {
       if (err.code === 11000) {
         const neighborhoods = await Neighborhood.find();
@@ -80,8 +80,10 @@ const getAllJobs = async (req, res) => {
     const allNeighborhoodNames = neighborhoods.map(n => n.name);
     const uniqueNeighborhoodNames = [...new Set(allNeighborhoodNames)];
 
+    const message = req.query.message || '';
+    const messageType = req.query.messageType || '';
     res.render("dashboard/jobs/index", { jobs ,neighborhoods,
-      filters: { search, neighborhood } , uniqueJobNames , uniqueNeighborhoodNames});
+      filters: { search, neighborhood } , uniqueJobNames , uniqueNeighborhoodNames,message,messageType});
   } catch (err) {
     console.error(err);
     res.redirect("/");
@@ -136,7 +138,7 @@ const updateJob = async (req, res) => {
 
     try {
       await job.save();
-      res.redirect("/dashboard/jobs");
+      res.redirect("/dashboard/jobs?message=تم تعديل المهنة بنجاح&messageType=edit");
     } catch (err) {
       if (err.code === 11000) {
         const neighborhoods = await Neighborhood.find();
@@ -163,7 +165,7 @@ const deleteJob = async (req, res) => {
       { jobName: req.params.id },
       { $unset: { jobName: "" } }
     );
-    res.redirect("/dashboard/jobs");
+    res.redirect("/dashboard/jobs?message=تم حذف المهنة بنجاح&messageType=delete");
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/jobs");
@@ -175,7 +177,7 @@ const deleteAllJobs = async (req, res) => {
   try {
     await Job.deleteMany({});
     await Technician.updateMany({}, { $unset: { jobName: "" } });
-    res.redirect("/dashboard/jobs");
+    res.redirect("/dashboard/jobs?message=تم حذف جميع المهن بنجاح&messageType=delete");
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/jobs");
