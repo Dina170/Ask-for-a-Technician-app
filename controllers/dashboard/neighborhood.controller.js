@@ -6,13 +6,14 @@ const { buildSearchQuery } = require("../../utils/searchFilters");
 // Get all neighborhoods
 const getAllNeighborhoods = async (req, res) => {
   try {
-    // Build query using only the search term for the 'name' field
-    const search = req.query.search || '';
-    const query = buildSearchQuery({ search: req.query.search || '' }, 'name', false);
-
-    const neighborhoods = await Neighborhood.find(query);
-    const neighborhoodNames = await Neighborhood.distinct("name");
-    res.render("dashboard/neighborhoods/index", { neighborhoods, filters: { search } ,neighborhoodNames});
+    const neighborhoods = await Neighborhood.find();
+    const message = req.query.message || '';
+    const messageType = req.query.messageType || '';
+    res.render("dashboard/neighborhoods/index", {
+      neighborhoods,
+      message,
+      messageType
+    });
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods");
@@ -26,7 +27,9 @@ const getNeighborhoodById = async (req, res) => {
     if (!neighborhood) {
       return res.redirect("/dashboard/neighborhoods");
     }
-    res.render("dashboard/neighborhoods/show", { neighborhood });
+    res.render("dashboard/neighborhoods/show", {
+      neighborhood,
+    });
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods");
@@ -37,7 +40,6 @@ const getNeighborhoodById = async (req, res) => {
 const newNeighborhood = (req, res) => {
   res.render("dashboard/neighborhoods/form", {
     neighborhood: null,
-    error: null,
   });
 };
 
@@ -59,7 +61,7 @@ const createNeighborhood = async (req, res) => {
     });
 
     await neighborhood.save();
-    res.redirect("/dashboard/neighborhoods");
+    res.redirect("/dashboard/neighborhoods?message=تم إضافة حي بنجاح&messageType=add");
   } catch (err) {
     console.error(err);
 
@@ -70,7 +72,7 @@ const createNeighborhood = async (req, res) => {
 
     res.render("dashboard/neighborhoods/form", {
       neighborhood: null,
-      error: errorMessage,
+      error: "Failed to create neighborhood",
     });
   }
 };
@@ -101,10 +103,10 @@ const deleteNeighborhood = async (req, res) => {
       { neighborhoodNames: neighborhoodId },
       { $pull: { neighborhoodNames: neighborhoodId } }
     );
-    res.redirect("/dashboard/neighborhoods");
+    res.redirect("/dashboard/neighborhoods?message=تم حذف هذا الحي&messageType=delete");
   } catch (err) {
     console.error(err);
-    res.redirect("/dashboard/neighborhoods");
+    res.redirect("/dashboard/neighborhoods?");
   }
 };
 
@@ -115,7 +117,9 @@ const editNeighborhood = async (req, res) => {
     if (!neighborhood) {
       return res.redirect("/dashboard/neighborhoods");
     }
-    res.render("dashboard/neighborhoods/form", { neighborhood, error: null });
+    res.render("dashboard/neighborhoods/form", {
+      neighborhood,
+    });
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods");

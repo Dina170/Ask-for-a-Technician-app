@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const methodOverride = require("method-override");
 const session = require("express-session");
 require("dotenv").config();
-
+const expressLayouts = require('express-ejs-layouts');
 const app = express();
 const neighborhoodRouter = require("./routes/dashboard/neighborhood.route");
 const jobRouter = require("./routes/dashboard/job.route");
@@ -35,16 +35,27 @@ app.use(
     saveUninitialized: false,
   })
 );
-
+app.use(expressLayouts);
 // Serve files from the uploads folder statically
-app.use("/uploads", express.static("uploads"));
-app.use("/uploads/posts", express.static("uploads/posts"));
+app.use('/uploads', express.static('uploads'));
+app.use("/static", express.static("public"));
 
-app.use("/dashboard/neighborhoods", neighborhoodRouter);
-app.use("/dashboard/jobs", jobRouter);
-app.use("/dashboard/technicians", technicianRouter);
-app.use("/dashboard/blogs", blogRouter);
-app.use("/dashboard/posts", postRouter);
+// app.set('layout', 'layouts/main'); // default layout for public pages
+
+app.use("/dashboard/neighborhoods", (req, res, next) => {
+  res.locals.layout = 'dashboard/layouts/sidebar';
+  next();
+}, neighborhoodRouter);
+
+app.use("/dashboard/jobs", (req, res, next) => {
+  res.locals.layout = 'dashboard/layouts/sidebar';
+  next();
+}, jobRouter);
+
+app.use("/dashboard/technicians",(req, res, next) => {
+  res.locals.layout = 'dashboard/layouts/sidebar';
+  next();
+}, technicianRouter);
 
 app.use("/", publicHomeRouter); // homepage + job-based filtering
 app.use("/technicians", publicTechnicianRouter); // technician + neighborhood pages
