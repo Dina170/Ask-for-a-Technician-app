@@ -2,19 +2,14 @@ const express = require("express");
 const router = express.Router();
 const techController = require("../../controllers/public/technician.controller");
 
-// New route for "See More" page with search
-router.get(
-  "/:id/seeMoreTechnicianNeighborhoods",
-  techController.getSeeMoreTechnicianNeighborhoods
-);
-// Show technician neighborhoods list
-router.get("/:id/neighborhoods", techController.getTechnicianNeighborhoods);
+router.use((req, res, next) => {
+  console.log(`Technician Route: ${req.method} ${req.originalUrl}`);
+  next();
+});
 
-// Show specific neighborhood details for a technician
-router.get(
-  "/:techId/neighborhoods/:neighId",
-  techController.getNeighborhoodDetails
-);
-router.get("/technician/:id", techController.getTechnicianDetails);
+router.get("/", techController.getAllTechnicians);
+router.get("/:techId/seeMoreTechnicianNeighborhoods", techController.getSeeMoreTechnicianNeighborhoods);
+router.get("/:techId/details", techController.getTechnicianDetails);
+router.get("/:techId", techController.getTechnicianDetails);
 
 module.exports = router;

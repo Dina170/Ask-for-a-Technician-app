@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>اطلب فني</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+
+  <body class="font-sans bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+    <%- include('../layouts/header') %>
+    
+    <main class="flex-1">
+      <!-- Hero Section -->
+      <section class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px]">
+        <!-- Background Image -->
+        <div class="absolute inset-0 z-0">
+          <img
+            src="/images/hero.png"
+            alt="hero"
+            class="w-full h-full object-cover"
+          />
+          <!-- Dark overlay for better text readability -->
+          <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+        </div>
+
+        <!-- Hero Content -->
+        <div class="relative z-20 flex flex-col justify-center h-full px-4 sm:px-6 md:px-10 lg:px-20">
+          <div class="max-w-5xl mx-auto w-full">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 md:mb-5 leading-tight text-white text-center md:text-right">
+              أعثر علي الفني المناسب لك
+            </h1>
+            <p class="text-sm sm:text-base md:text-lg mb-6 sm:mb-7 max-w-full md:max-w-2xl leading-relaxed text-white text-center md:text-right mx-auto md:mx-0">
+              استكشف أفضل العمال المهرة بسهولة وسرعة، سواء كنت تبحث عن نجار،
+              كهربائي، سباك، أو أي خدمة أخرى — كل ما تحتاجه في مكان واحد
+            </p>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center md:justify-start">
+              <a href="https://wa.me/0000000000" target="_blank"
+                class="w-full sm:w-auto min-w-[160px] bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] text-sm py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 shadow-md">
+                <i class="fab fa-whatsapp text-xl"></i>
+                ارسال على واتساب 
+              </a>
+              <a href="tel:0000000000"
+                class="w-full sm:w-auto min-w-[160px] border border-white hover:border-[#2A4759] hover:bg-[#2A4759] hover:text-white text-white text-sm py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-all duration-300">
+                <i class="fa-solid fa-phone text-xl"></i>
+                اتصل بنا
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Search Form Section -->
+      <section class="relative -mt-6 sm:-mt-8 md:-mt-12 lg:-mt-16 z-30 px-4 sm:px-8 md:px-8 lg:px-20">
+        <div class="max-w-5xl mx-auto">
+          <form
+            method="get"
+            action="/"
+            class="bg-white shadow-xl rounded-xl p-4 sm:p-6 md:p-8"
+          >
+            <!-- Form Title (Mobile) -->
+            <h3 class="text-lg font-bold text-[#2A4759] mb-4 text-center block sm:hidden">
+              ابحث عن الفني المناسب
+            </h3>
+
+            <!-- Form Inputs -->
+            <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-4 lg:gap-6">
+              <!-- Technician Search Input -->
+              <div class="relative flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-2 lg:hidden">نوع الفني</label>
+                <div class="relative flex items-center border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 focus-within:bg-white focus-within:border-[#2A4759] transition-all">
+                  <i class="fa-solid fa-user text-gray-500 ml-3"></i>
+                  <input
+                    type="text"
+                    id="technicianSearch"
+                    name="technician"
+                    placeholder="اختر الفني المناسب لك"
+                    class="w-full outline-none text-sm md:text-base bg-transparent"
+                    value="<%= typeof technician !== 'undefined' ? technician : '' %>"
+                    autocomplete="off"
+                  />
+                </div>
+                <ul
+                  id="technicianAutocomplete"
+                  class="absolute top-full left-0 right-0 z-50 bg-white rounded-lg mt-1 max-h-60 overflow-y-auto shadow-xl border border-gray-200 hidden"
+                ></ul>
+              </div>
+
+              <!-- Neighborhood Search Input -->
+              <div class="relative flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-2 lg:hidden">الحي</label>
+                <div class="relative flex items-center border border-gray-300 rounded-lg px-4 py-3 bg-gray-50 focus-within:bg-white focus-within:border-[#2A4759] transition-all">
+                  <i class="fa-solid fa-location-dot text-gray-500 ml-3"></i>
+                  <input
+                    type="text"
+                    id="neighborhoodSearch"
+                    name="neighborhood"
+                    placeholder="الحي"
+                    class="w-full outline-none text-sm md:text-base bg-transparent"
+                    value="<%= typeof neighborhood !== 'undefined' ? neighborhood : '' %>"
+                    autocomplete="off"
+                  />
+                </div>
+                <ul
+                  id="neighborhoodAutocomplete"
+                  class="absolute top-full left-0 right-0 z-50 bg-white rounded-lg mt-1 max-h-60 overflow-y-auto shadow-xl border border-gray-200 hidden"
+                ></ul>
+              </div>
+
+              <!-- Search Button -->
+              <div class="lg:flex-shrink-0">
+                <button
+                  type="submit"
+                  class="w-full lg:w-auto bg-gradient-to-r from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white px-8 py-3 rounded-lg shadow-lg transition-all duration-300 text-sm md:text-base font-medium "
+                >
+                  <i class="fa-solid fa-search ml-2 lg:hidden"></i>
+                  بحث
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Space after search form -->
+      <div class="h-12 sm:h-16 md:h-20"></div>
+
+      <!-- Section Title -->
+      <div class="text-center mb-8 px-4">
+        <h2 class="text-[#2A4759] font-bold text-xl sm:text-2xl mb-3">
+          الفنيون المتاحون الآن في مدينة الرياض
+        </h2>
+        <p class="text-[#2A4759] text-sm sm:text-base max-w-2xl mx-auto">
+          فنيونا متواجدون حاليًا في مناطق متعددة داخل مدينة الرياض، ونسعد دائمًا بخدمتكم
+        </p>
+      </div>
+
+      <!-- Technicians Cards -->
+      <div id="cards-container" class="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <% if (typeof technicians !== 'undefined' && technicians.length === 0) { %>
+            <div class="col-span-full text-center text-gray-600 bg-white py-12 rounded-xl shadow-md">
+              <i class="fa-solid fa-triangle-exclamation text-orange-400 text-4xl mb-4"></i>
+              <p class="text-xl font-semibold mb-2">لا يوجد فنيين حسب بحثك</p>
+              <p class="text-sm text-gray-500">جرب اختيار وظيفة أو حي مختلف</p>
+            </div>
+          <% } else if (typeof technicians !== 'undefined') { %>
+            <% technicians.forEach(technician => { %>
+              <div class="card bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm  duration-300 flex flex-col">
+                <!-- Card Image -->
+                <div class="relative h-48 sm:h-52 md:h-48 overflow-hidden">
+                  <img 
+                    src="/uploads/technicians/<%= technician.jobTechnicianPhoto %>" 
+                    alt="<%= technician.name %>" 
+                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" 
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                </div>
+
+                <!-- Card Body -->
+                <div class="card-body p-4 sm:p-5 flex flex-col flex-1">
+                  <h3 class="text-lg sm:text-xl font-bold text-orange-500 mb-3 line-clamp-1">
+                    <%= technician.mainTitle %>
+                  </h3>
+                  
+                  <!-- Description with line clamp -->
+                  <p class="text-gray-700 text-sm sm:text-base mb-4 line-clamp-3 flex-1">
+                    <%= technician.description %>
+                  </p>
+                  
+                  <!-- Action Button -->
+                  <div class="mt-auto">
+                    <a 
+                      href="/technicians/<%= technician._id %>/details" 
+                      class="block w-full bg-[#2A4759] hover:bg-[#1e3542] text-white text-sm sm:text-base text-center py-3 px-4 rounded-lg transition-colors duration-300 font-medium"
+                    >
+                      عرض المزيد
+                      <i class="fa-solid fa-arrow-left mr-2"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Load More Section -->
+      <% if (typeof type !== 'undefined' && !isFiltered) { %>
+        <div class="text-center mt-8 sm:mt-12 px-4">
+          <% if (type === 'technicians') { %>
+            <a 
+              href="/technicians" 
+              class="inline-block bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border-2 border-[#2A4759] px-6 sm:px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium"
+            >
+              عرض المزيد
+              <i class="fa-solid fa-chevron-left mr-2"></i>
+            </a>
+          <% } else if (type === 'neighborhoods') { %>
+            <a 
+              href="/technicians/<%= technician._id %>/seeMoreTechnicianNeighborhoods" 
+              class="inline-block bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border-2 border-[#2A4759] px-6 sm:px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium"
+            >
+              عرض المزيد
+              <i class="fa-solid fa-chevron-left mr-2"></i>
+            </a>
+          <% } %>
+        </div>
+      <% } %>
+
+      <!-- Bottom Spacing -->
+      <div class="h-8 sm:h-12"></div>
+    </main>
+
+    <%- include('../layouts/footer') %>
+
+    <script>
+      const technicianInput = document.getElementById('technicianSearch');
+      const neighborhoodInput = document.getElementById('neighborhoodSearch');
+      const technicianSuggestionBox = document.getElementById('technicianAutocomplete');
+      const neighborhoodSuggestionBox = document.getElementById('neighborhoodAutocomplete');
+
+      async function fetchSuggestions(type, query) {
+        if (!query || query.length < 2) return [];
+        try {
+          const res = await fetch(`/autocomplete?type=${type}&q=${encodeURIComponent(query)}`);
+          if (!res.ok) throw new Error('Network response was not ok');
+          return await res.json();
+        } catch (error) {
+          console.error('Autocomplete fetch error:', error);
+          return [];
+        }
+      }
+
+      function createSuggestionItem(text, inputElement, suggestionBox) {
+        const li = document.createElement('li');
+        li.textContent = text;
+        li.className = 'px-4 py-3 cursor-pointer hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0';
+        li.addEventListener('click', () => {
+          inputElement.value = text;
+          suggestionBox.innerHTML = '';
+          suggestionBox.classList.add('hidden');
+        });
+        return li;
+      }
+
+      async function handleInput(event, suggestionBox, inputElement, type) {
+        const query = event.target.value.trim();
+        
+        if (query.length === 0) {
+          suggestionBox.innerHTML = '';
+          suggestionBox.classList.add('hidden');
+          return;
+        }
+
+        if (query.length < 2) return;
+
+        const suggestions = await fetchSuggestions(type, query);
+
+        suggestionBox.innerHTML = '';
+        
+        if (suggestions.length === 0) {
+          suggestionBox.innerHTML = '<li class="px-4 py-3 text-gray-500 text-center">لا توجد نتائج</li>';
+        } else {
+          suggestions.forEach(suggestion => {
+            suggestionBox.appendChild(createSuggestionItem(suggestion, inputElement, suggestionBox));
+          });
+        }
+
+        suggestionBox.classList.remove('hidden');
+      }
+
+      // Input event listeners
+      technicianInput.addEventListener('input', (e) => handleInput(e, technicianSuggestionBox, technicianInput, 'technician'));
+      neighborhoodInput.addEventListener('input', (e) => handleInput(e, neighborhoodSuggestionBox, neighborhoodInput, 'neighborhood'));
+
+      // Focus events to show/hide autocomplete
+      technicianInput.addEventListener('focus', () => {
+        if (technicianSuggestionBox.innerHTML.trim()) {
+          technicianSuggestionBox.classList.remove('hidden');
+        }
+      });
+
+      neighborhoodInput.addEventListener('focus', () => {
+        if (neighborhoodSuggestionBox.innerHTML.trim()) {
+          neighborhoodSuggestionBox.classList.remove('hidden');
+        }
+      });
+
+      // Hide suggestion boxes on outside click
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#technicianSearch') && !e.target.closest('#technicianAutocomplete')) {
+          technicianSuggestionBox.classList.add('hidden');
+        }
+        if (!e.target.closest('#neighborhoodSearch') && !e.target.closest('#neighborhoodAutocomplete')) {
+          neighborhoodSuggestionBox.classList.add('hidden');
+        }
+      });
+
+      // Job filter buttons functionality
+      document.querySelectorAll(".job-filter-btn").forEach(button => {
+        button.addEventListener("click", async function () {
+          const technicianId = this.dataset.technicianId;
+
+          try {
+            const response = await fetch(`/technicians/${technicianId}/neighborhoods`);
+            const html = await response.text();
+
+            document.getElementById("cards-container").innerHTML = html;
+
+            const loadMoreContainer = document.querySelector(".text-center.mt-8");
+            if (loadMoreContainer) {
+              loadMoreContainer.innerHTML = `
+                <a href="/technicians/${technicianId}/seeMoreTechnicianNeighborhoods" class="inline-block bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border-2 border-[#2A4759] px-6 sm:px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium">
+                  عرض المزيد
+                  <i class="fa-solid fa-chevron-left mr-2"></i>
+                </a>
+              `;
+            }
+
+          } catch (err) {
+            console.error("Error loading neighborhoods:", err);
+          }
+        });
+      });
+
+      // Smooth scroll for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+    </script>
+
+    <style>
+      /* Custom styles for better responsive design */
+      .line-clamp-1 {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      /* Ensure search suggestions don't interfere with other elements */
+      .relative {
+        position: relative;
+      }
+
+      /* Better focus styles */
+      input:focus {
+        box-shadow: 0 0 0 3px rgba(42, 71, 89, 0.1);
+      }
+
+     
+
+      /* Hide scrollbar in autocomplete but keep functionality */
+      #technicianAutocomplete::-webkit-scrollbar,
+      #neighborhoodAutocomplete::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      #technicianAutocomplete::-webkit-scrollbar-track,
+      #neighborhoodAutocomplete::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+
+      #technicianAutocomplete::-webkit-scrollbar-thumb,
+      #neighborhoodAutocomplete::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 2px;
+      }
+
+      #technicianAutocomplete::-webkit-scrollbar-thumb:hover,
+      #neighborhoodAutocomplete::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+      }
+    </style>
+  </body>
+</html>
