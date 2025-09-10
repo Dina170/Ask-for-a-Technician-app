@@ -49,13 +49,7 @@
       </div>
     </div>
     <!-- ────────────────────────────────────────────────────── -->
- <div class="text-center my-8">
-  <h2 class="text-[#2A4759] font-bold text-2xl mb-2">
-الفنيون المتاحون الآن في مدينة الرياض
-  </h2>
-  <p class="text-[#2A4759] text-base">
-فنيونا متواجدون حاليًا في مناطق متعددة داخل مدينة الرياض، ونسعد دائمًا بخدمتكم  </p>
-</div> 
+
    <!-- all technicians cards -->
 <div class="container mx-auto px-4 py-8 flex-grow">
  <!--search not found -->
@@ -67,38 +61,44 @@
     </div>
   <% } %>
 
-
-     <!-- technician Cards -->
-<div id="cards-container" class="container mx-auto grid md:grid-cols-3 gap-6 px-10">
-  <% if (technicians.length === 0) { %>
-    <div class="col-span-3 text-center text-gray-600 bg-white py-10 rounded-lg shadow">
-      <i class="fa-solid fa-triangle-exclamation text-orange-400 text-4xl mb-4"></i>
-      <p class="text-xl font-semibold mb-2">لا يوجد فنيين حسب بحثك</p>
-      <p class="text-sm text-gray-500">جرب اختيار وظيفة أو حي مختلف</p>
-    </div>
-  <% } else { %>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     <% technicians.forEach(technician => { %>
-      <div class="card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative flex flex-col">
+      <div class="card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative">
         <div class="relative h-48">
           <img src="/uploads/technicians/<%= technician.jobTechnicianPhoto %>" alt="<%= technician.name %>" class="w-full h-full object-cover" />
+
+          <!-- Location Icon -->
+          <button 
+            class="job-filter-btn group absolute top-2 left-2 bg-white rounded-full p-2 pl-3 pr-3 shadow text-orange-500 flex items-center w-10 hover:w-40 transition-all duration-300 overflow-hidden"
+            data-technicianname="<%= technician._id %>"
+          >
+            <i class="fa-solid fa-location-dot text-lg ml-2"></i>
+            <span class="ml-2 whitespace-nowrap text-sm text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              عرض الأحياء
+            </span>
+          </button>
         </div>
 
-        <div class="card-body p-4 flex flex-col flex-1">
-          <h3 class="text-lg font-bold text-orange-500 mb-2"><%= technician.mainTitle %></h3>
-          <p class="text-gray-700 text-sm mb-3 line-clamp-2 overflow-hidden"><%= technician.description %></p>
-          
-          <div class="mt-auto flex gap-2">
-            <a href="/technicians/<%= technician._id %>/details" 
-              class="flex-1 bg-[#2A4759] text-white text-sm text-center h-12 flex items-center justify-center rounded-lg hover:opacity-80 transition-opacity duration-200">
-              عرض المزيد
+        <div class="card-body p-4">
+          <h3 class="text-lg font-bold text-orange-500 mb-1"><%= technician.mainTitle %></h3>
+          <p class="text-gray-700 text-sm mb-1"><%= technician.description %></p>
+
+          <div class="mt-4 flex gap-2">
+            <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank"
+              class="flex-1 bg-[#2A4759] hover:bg-[#406A84] text-white text-sm text-center py-2 rounded-lg">
+              <i class="fab fa-whatsapp text-2xl pl-2"></i>
+              واتساب
+            </a>
+            <a href="tel:<%= technician.phoneNumber %>"
+              class="flex-1 bg-white border border-[#2A4759] hover:bg-[#2A4759] hover:text-white text-[#2A4759] text-sm text-center py-2 rounded-lg">
+              <i class="fa-solid fa-phone text-2xl pl-2"></i>
+              اتصل بنا
             </a>
           </div>
         </div>
       </div>
     <% }) %>
-  <% } %>
-</div>
-
+  </div>
 </div>
 
     <!-- footer -->
@@ -125,7 +125,7 @@
 
       suggestions.forEach(tech => {
         const li = document.createElement('li');
-        li.textContent = tech.name;  
+        li.textContent = tech.name;  // 👈 هنا كانت المشكلة
         li.className = "px-4 py-2 cursor-pointer hover:bg-gray-100";
         li.addEventListener('click', () => {
           searchInput.value = tech.name;

@@ -1,18 +1,280 @@
-<h1>
-    <%= blog.blog %>
-</h1>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= blog.blog %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
 
-<% posts.forEach(post=> { %>
-    <div class="post">
-        <h2><a href="/posts/<%= post.permaLink %>">
-                <%= post.title %>
-            </a></h2>
-        <p><strong>By:</strong>
-            <%= post.name %>
-        </p>
+  <body class="font-sans bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+    <!-- header -->
+    <%- include("../layouts/header") %>
+
+    <!-- ────────────────────────────────────────────────────── -->
+    <!--(Breadcrumb + Search + Home Icon) -->
+    <div class="bg-white border-b border-gray-200 py-4 px-6">
+      <div class="max-w-6xl mx-auto flex items-center justify-between">
         <div>
-            <%- post.content.substring(0, 200) %>
+          <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
+            <i class="fa-solid fa-home text-2xl ml-3"></i>
+          </a>
+          <i class="fa-solid fa-chevron-left ml-3"></i>
+          <span class="font-semibold">المدونة</span>
+           <i class="fa-solid fa-chevron-left ml-3"></i>
+        <span class="font-semibold text-gray-600"><%= blog.blog %></span>
         </div>
-        <a href="/posts/<%= post.permaLink %>">Read More</a>
+            
+        <!-- search form -->
+       <form action="/blogs/<%= blog._id %>" method="GET" class="flex items-center w-1/3">
+  <div class="relative w-full">
+    <input
+      type="text"
+      id="postSearch"
+      name="search"
+      placeholder="ابحث عن مقال"
+      class="w-full border border-gray-300 rounded-full py-2 pr-10 pl-4 focus:outline-none focus:ring-2 focus:ring-[#2A4759]"
+    />
+<ul id="postSuggestions" class="absolute z-50 bg-white w-full mt-1 rounded-lg shadow max-h-60 overflow-y-auto hidden"></ul>
+    <button type="submit" class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 hover:text-[#2A4759]">
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+  </div>
+</form>
+      </div>
+      </div>
+
+           <!-- ────────────────────────────────────────────────────── -->
+    <div class="text-center my-8">
+      <h1 class="text-3xl font-bold text-[#2A4759] mb-2">
+        فني <%= blog.blog %> – دليلك الشامل لكل ما يخص <%= blog.blog %>
+      </h1>
+      <p class="text-[#2A4759] text-base max-w-2xl mx-auto">
+        اكتشف أحدث المقالات والمحتوى المتعلق بمجال <%= blog.blog %>
+      </p>
     </div>
+   <!-- all technicians cards -->
+<div class="container mx-auto px-4 py-8 flex-grow">
+
+<!-- technician Cards -->
+<div id="cards-container" class="container mx-auto grid md:grid-cols-3 gap-6 px-10">
+  <% if (posts.length === 0) { %>
+    <div class="col-span-3 text-center text-gray-600 bg-white py-10 rounded-lg shadow">
+      <i class="fa-solid fa-triangle-exclamation text-orange-400 text-4xl mb-4"></i>
+      <p class="text-xl font-semibold mb-2">لا يوجد مقالات بعد</p>
+      <p class="text-sm text-gray-500">تابع المدونة لاحقًا للمزيد من المحتوى</p>
+    </div>
+  <% } else { %>
+    <% posts.forEach(post => { 
+         const regex = /<img.*?src="(.*?)"/;
+         const match = regex.exec(post.content || "");
+         const descriptionImage = match ? match[1] : '/uploads/posts/default.png';
+    %>
+      <div class="card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative flex flex-col">
+        <div class="relative h-48">
+          <img src="<%= descriptionImage %>"  
+               alt="<%= post.title || post.name %>"  
+               class="w-full h-full object-cover" />
+        </div>
+
+        <div class="card-body p-4 flex flex-col flex-1">
+          <h3 class="text-lg font-bold text-orange-500 mb-2"><%= post.name %></h3>
+
+          <p class="text-gray-700 text-sm mb-3 line-clamp-2 overflow-hidden">
+            <%- post.content.replace(/<img.*?>/g, "").substring(0, 200) %>...
+          </p>
+          
+          <div class="mt-auto flex gap-2">
+            <a href="/posts/<%= post.permaLink %>" 
+              class="flex-1 bg-[#2A4759] text-white text-sm text-center h-12 flex items-center justify-center rounded-lg hover:opacity-80 transition-opacity duration-200 mt-2">
+              عرض المزيد
+            </a>
+          </div>
+        </div>
+      </div>
     <% }) %>
+  <% } %>
+</div>
+
+</div>
+
+    <!-- footer -->
+    <%- include("../layouts/footer") %>
+
+<script>
+  const input = document.getElementById("postSearch");
+  const suggestions = document.getElementById("postSuggestions");
+  const cardsContainer = document.getElementById("cards-container");
+
+  let searchTimeout; 
+
+  input.addEventListener("input", async () => {
+    const query = input.value.trim();
+    
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+    
+    if (!query || query.length < 2) {
+      suggestions.innerHTML = "";
+      suggestions.classList.add("hidden");
+      return;
+    }
+
+    searchTimeout = setTimeout(async () => {
+      try {
+        console.log('Searching for:', query);
+
+        const res = await fetch(`/posts/autocomplete?q=${encodeURIComponent(query)}`);
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        
+        const posts = await res.json();
+        console.log('Search results:', posts); 
+
+        if (posts.length === 0) {
+          suggestions.innerHTML = "<li class='px-3 py-2 text-gray-500 text-center'>لا توجد نتائج</li>";
+          suggestions.classList.remove("hidden");
+          return;
+        }
+
+        suggestions.innerHTML = posts
+          .map((p) => {
+            let displayText = "";
+            if (p.title && p.name) {
+              displayText = `${p.title} - ${p.name}`;
+            } else if (p.title) {
+              displayText = p.title;
+            } else if (p.name) {
+              displayText = p.name;
+            } else {
+              displayText = "بدون عنوان";
+            }
+
+            return `<li class="px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 transition-colors" 
+                         data-id="${p._id}" 
+                         data-title="${p.title || ''}" 
+                         data-name="${p.name || ''}" 
+                         data-link="/posts/${p.permaLink}">
+                       <div class="flex flex-col">
+                         ${p.title ? `<span class="font-semibold text-gray-800">${p.title}</span>` : ''}
+                         ${p.name ? `<span class="text-sm text-gray-600">${p.name}</span>` : ''}
+                       </div>
+                     </li>`;
+          })
+          .join("");
+
+        suggestions.classList.remove("hidden");
+
+        suggestions.querySelectorAll("li[data-link]").forEach((li) => {
+          li.addEventListener("click", async (e) => {
+            e.preventDefault();
+            
+            const postLink = li.dataset.link;
+            const postTitle = li.dataset.title;
+            const postName = li.dataset.name;
+
+            try {
+              let post;
+              try {
+                const res = await fetch(postLink + "?ajax=1");
+                if (res.ok) {
+                  post = await res.json();
+                } else {
+                  post = {
+                    title: postTitle,
+                    name: postName,
+                    permaLink: postLink.replace('/posts/', ''),
+                    content: ""
+                  };
+                }
+              } catch (ajaxError) {
+                post = {
+                  title: postTitle,
+                  name: postName,
+                  permaLink: postLink.replace('/posts/', ''),
+                  content: ""
+                };
+              }
+
+              cardsContainer.innerHTML = "";
+
+              const regex = /<img.*?src="(.*?)"/;
+              const match = regex.exec(post.content || "");
+              const descriptionImage = match ? match[1] : "/uploads/posts/default.png";
+
+            
+              cardsContainer.innerHTML = `
+                <div class="col-span-3 max-w-2xl mx-auto">
+                  <div class="card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative flex flex-col">
+                    <div class="relative h-64">
+                      <img src="${descriptionImage}" 
+                           alt="${post.title || post.name}" 
+                           class="w-full h-full object-cover" 
+                           onerror="this.src='/uploads/posts/default.png'" />
+                    </div>
+                    <div class="card-body p-6 flex flex-col flex-1">
+                      <h3 class="text-2xl font-bold text-orange-500 mb-4">${post.title || post.name}</h3>
+                      ${post.content ? `
+                        <p class="text-gray-700 mb-4">
+                          ${post.content.replace(/<img.*?>/g, "").substring(0, 300)}...
+                        </p>
+                      ` : ''}
+                      <div class="mt-auto flex gap-2 justify-center">
+                        <a href="/posts/${post.permaLink}" 
+                          class="bg-[#2A4759] text-white px-8 py-3 text-center rounded-lg hover:opacity-80 transition-opacity duration-200">
+                          عرض المقال كاملاً
+                        </a>
+                        <button onclick="location.reload()" 
+                          class="bg-gray-500 text-white px-8 py-3 text-center rounded-lg hover:opacity-80 transition-opacity duration-200">
+                          عرض جميع المقالات
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+
+              suggestions.classList.add("hidden");
+              input.value = "";
+
+            } catch (err) {
+              console.error("Error loading post:", err);
+              alert("حدث خطأ في تحميل المقال");
+            }
+          });
+        });
+
+      } catch (err) {
+        console.error("Error fetching posts:", err);
+        suggestions.innerHTML = "<li class='px-3 py-2 text-red-500 text-center'>حدث خطأ في البحث</li>";
+        suggestions.classList.remove("hidden");
+      }
+    }, 200); 
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("#postSearch") && !e.target.closest("#postSuggestions")) {
+      suggestions.classList.add("hidden");
+    }
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !suggestions.classList.contains("hidden")) {
+      e.preventDefault();
+      const firstResult = suggestions.querySelector("li[data-link]");
+      if (firstResult) {
+        firstResult.click();
+      }
+    }
+  });
+</script>
+
+  </body>
+</html>

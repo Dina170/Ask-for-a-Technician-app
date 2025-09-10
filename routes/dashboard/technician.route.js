@@ -22,6 +22,7 @@ router.get("/:id/edit", editTechnician);
 router.get("/:id", getTechnicianById);
 router.put("/:id", upload.single("jobTechnicianPhoto"), updateTechnician);
 router.delete("/:id", deleteTechnician);
+router.get("/public/technicianDetails/:id", getTechnicianById);
 // router.get("/", isAdmin, getAllTechnicians);
 // router.get("/new", isAdmin, newTechnician);
 // router.post(

@@ -15,10 +15,15 @@ const jobRouter = require("./routes/dashboard/job.route");
 const technicianRouter = require("./routes/dashboard/technician.route");
 const blogRouter = require("./routes/dashboard/blog.route");
 const postRouter = require("./routes/dashboard/post.route");
+const Job = require("./models/job");
+const Neighborhood = require("./models/neighborhood");
+const Technician = require("./models/technician");
 
 const publicHomeRouter = require("./routes/public/home.route");
 const publicTechnicianRouter = require("./routes/public/technician.route");
 const authRouter = require("./routes/auth/auth.route");
+
+const loadBlogs = require("./middlewares/loadBlogs");
 
 // Connect to MongoDB
 mongoose
@@ -40,10 +45,11 @@ app.use(
   })
 );
 
-app.use(express.static("public"));
+app.use(express.static('public'));
 app.use("/uploads", express.static("uploads"));
 app.use("/uploads/posts", express.static("uploads/posts"));
 app.use("/static", express.static("public"));
+app.use(loadBlogs);
 
 // ---------------- Dashboard Routes ----------------
 app.use("/dashboard/neighborhoods", expressLayouts, (req, res, next) => {
@@ -72,21 +78,41 @@ app.use("/dashboard/posts", expressLayouts, (req, res, next) => {
 }, postRouter);
 
 // ---------------- Public Routes ----------------
-app.use("/", publicHomeRouter); // homepage + landing page
+app.use("/", publicHomeRouter); //landing page
 app.use("/technicians", publicTechnicianRouter);
 app.use("/auth", authRouter);
 
 // ---------------- Error Handling ----------------
+
 app.use((req, res, next) => {
   next(createError.NotFound());
 });
 
+// تصحيح Error Handler - ليعرض صفحة خطأ بدلاً من JSON
 app.use((err, req, res, next) => {
-  res.status(err.status || 500);
-  res.send({
-    status: err.status || 500,
-    message: err.message,
-  });
+  const status = err.status || 500;
+  const message = err.message || 'Internal Server Error';
+  
+  // طباعة الخطأ في الكونسول للتشخيص
+  console.error(`Error ${status}: ${message}`);
+  console.error(`Route: ${req.method} ${req.originalUrl}`);
+  
+  res.status(status);
+  
+  // إذا كان الطلب API (يتوقع JSON)
+  if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+    res.json({
+      status: status,
+      message: message,
+    });
+  } else {
+    // إذا كان طلب عادي من المتصفح
+    res.render('error', { 
+      status: status, 
+      message: message,
+      error: process.env.NODE_ENV === 'development' ? err : {}
+    });
+  }
 });
 
 // ---------------- Server ----------------
