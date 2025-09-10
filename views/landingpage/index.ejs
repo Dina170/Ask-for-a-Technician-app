@@ -170,9 +170,9 @@
                   </h3>
                   
                   <!-- Description with line clamp -->
-                  <p class="text-gray-700 text-sm sm:text-base mb-4 line-clamp-3 flex-1">
-                    <%= technician.description %>
-                  </p>
+                  <p class="text-gray-700 text-sm mb-3 break-words whitespace-normal overflow-hidden" style="max-height: 3rem;">
+  <%- technician.description.replace(/<img.*?>/g, "").replace(/<[^>]+>/g, "").substring(0, 200) %>...
+</p>
                   
                   <!-- Action Button -->
                   <div class="mt-auto">

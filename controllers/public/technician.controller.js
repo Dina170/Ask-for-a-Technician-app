@@ -3,7 +3,6 @@ const Neighborhood = require("../../models/neighborhood");
 const Job = require("../../models/job");
 const mongoose = require("mongoose");
 
-// جلب الأحياء مع تفاصيل الوظائف للفني
 exports.getTechnicianNeighborhoods = async (req, res) => {
   try {
     const tech = await Technician.findById(req.params.id)
@@ -35,7 +34,6 @@ exports.getTechnicianNeighborhoods = async (req, res) => {
   }
 };
 
-// جلب تفاصيل حي محدد مع الوظيفة للفني
 exports.getNeighborhoodDetails = async (req, res) => {
   try {
     const { techId, neighId } = req.params;
@@ -73,10 +71,8 @@ exports.getNeighborhoodDetails = async (req, res) => {
   }
 };
 
-// جلب تفاصيل الفني - تم تصحيح المعامل
 exports.getTechnicianDetails = async (req, res) => {
   try {
-    // غيرت من req.params.techId إلى req.params.techId للتوافق مع المسار
     const technician = await Technician.findById(req.params.techId)
       .populate("jobName")
       .populate("neighborhoodNames");
@@ -92,7 +88,6 @@ exports.getTechnicianDetails = async (req, res) => {
   }
 };
 
-// جلب كل الفنيين مع البحث
 exports.getAllTechnicians = async (req, res) => {
   try {
     const search = req.query.search || "";
@@ -125,10 +120,8 @@ exports.getAllTechnicians = async (req, res) => {
   }
 };
 
-// جلب المزيد من الأحياء للفني مع التصفية
 exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
   try {
-    // غيرت من req.params.id إلى req.params.techId للتوافق مع المسار
     const technicianId = req.params.techId;
     const searchQuery = req.query.search?.trim().toLowerCase() || "";
 
