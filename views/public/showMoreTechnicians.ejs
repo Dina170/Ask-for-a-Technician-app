@@ -83,17 +83,24 @@
           <img src="/uploads/technicians/<%= technician.jobTechnicianPhoto %>" alt="<%= technician.name %>" class="w-full h-full object-cover" />
         </div>
 
-        <div class="card-body p-4 flex flex-col flex-1">
-          <h3 class="text-lg font-bold text-orange-500 mb-2"><%= technician.mainTitle %></h3>
-          <p class="text-gray-700 text-sm mb-3 line-clamp-2 overflow-hidden"><%= technician.description %></p>
+       <div class="card-body p-4 flex flex-col flex-1">
+  <h3 class="text-lg font-bold text-orange-500 mb-2"><%= technician.mainTitle %></h3>
+<p class="text-gray-700 text-sm mb-3 break-words whitespace-normal overflow-hidden" style="max-height: 3rem;">
+  <%- technician.description.replace(/<img.*?>/g, "").replace(/<[^>]+>/g, "").substring(0, 200) %>...
+</p>
+
+
+
+  <div class="mt-auto flex gap-2">
+    <a href="/technicians/<%= technician._id %>/details" 
+      class="flex-1 bg-[#2A4759] text-white text-sm text-center h-12 flex items-center justify-center rounded-lg hover:opacity-80 transition-opacity duration-200">
+      عرض المزيد
+    </a>
+  </div>
+</div>
+
           
-          <div class="mt-auto flex gap-2">
-            <a href="/technicians/<%= technician._id %>/details" 
-              class="flex-1 bg-[#2A4759] text-white text-sm text-center h-12 flex items-center justify-center rounded-lg hover:opacity-80 transition-opacity duration-200">
-              عرض المزيد
-            </a>
-          </div>
-        </div>
+          
       </div>
     <% }) %>
   <% } %>
