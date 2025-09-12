@@ -67,7 +67,7 @@
                   </td>
                   <td class="p-2">
                     <% if (job.jobPhoto) { %>
-                      <img src="/uploads/jobs/<%= job.jobPhoto %>" alt="<%= job.name %>"
+                      <img src="<%= job.jobPhoto %>" alt="<%= job.name %>"
                         class="w-10 h-10 rounded-full mx-auto object-cover border" />
                       <% } else { %>
                         <div class="w-10 h-10 rounded-full mx-auto bg-gray-200 flex items-center justify-center">

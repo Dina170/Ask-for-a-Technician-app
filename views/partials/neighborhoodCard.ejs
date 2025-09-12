@@ -1,33 +1,37 @@
-<% if (neighborhoodsWithJobs.length === 0) { %>
+<% if (neighborhoodsWithJobs.length===0) { %>
   <p class="text-center text-gray-500">لا يوجد أحياء متاحة حالياً.</p>
-<% } else { %>
-  <% neighborhoodsWithJobs.forEach(({ neighborhood, job }) => { %>
-    <div class="neighborhood-card bg-white border rounded-lg shadow-sm p-4 w-full max-w-xl mx-auto">
-      <div class="flex items-center">
-        <img src="/uploads/neighborhoods/<%= neighborhood.neighborhoodPhoto %>" class="w-16 h-16 rounded-full object-cover mr-4" />
-        <div class="mr-4">
-          <h3 class="text-lg font-bold text-[#2A4759] mb-1"><%= neighborhood.name %></h3>
-          <% if (job) { %>
-            <p class="text-sm text-gray-600"><%= job.mainDescription %></p>
-          <% } else { %>
-            <p class="text-sm text-gray-400">لا يوجد وصف للخدمة في هذا الحي</p>
-          <% } %>
+  <% } else { %>
+    <% neighborhoodsWithJobs.forEach(({ neighborhood, job })=> { %>
+      <div class="neighborhood-card bg-white border rounded-lg shadow-sm p-4 w-full max-w-xl mx-auto">
+        <div class="flex items-center">
+          <img src="<%= neighborhood.neighborhoodPhoto %>" class="w-16 h-16 rounded-full object-cover mr-4" />
+          <div class="mr-4">
+            <h3 class="text-lg font-bold text-[#2A4759] mb-1">
+              <%= neighborhood.name %>
+            </h3>
+            <% if (job) { %>
+              <p class="text-sm text-gray-600">
+                <%= job.mainDescription %>
+              </p>
+              <% } else { %>
+                <p class="text-sm text-gray-400">لا يوجد وصف للخدمة في هذا الحي</p>
+                <% } %>
+          </div>
+        </div>
+
+        <div class="mt-4 flex flex-col sm:flex-row gap-3 w-full">
+          <a href="https://wa.me/رقم_الواتساب" target="_blank"
+            class="flex-1 flex items-center justify-center gap-2 bg-[#2A4759] hover:bg-[#406A84] text-white text-sm px-5 py-2 rounded-lg">
+            <i class="fab fa-whatsapp text-lg"></i>
+            ارسال عبر واتساب
+          </a>
+
+          <a href="tel:رقم_الهاتف"
+            class="flex-1 flex items-center justify-center gap-2 bg-white border border-[#2A4759] hover:bg-[#2A4759] hover:text-white text-[#2A4759] text-sm px-5 py-2 rounded-lg">
+            <i class="fa-solid fa-phone text-lg"></i>
+            اتصل بنا
+          </a>
         </div>
       </div>
-
-      <div class="mt-4 flex flex-col sm:flex-row gap-3 w-full">
-        <a href="https://wa.me/رقم_الواتساب" target="_blank"
-          class="flex-1 flex items-center justify-center gap-2 bg-[#2A4759] hover:bg-[#406A84] text-white text-sm px-5 py-2 rounded-lg">
-          <i class="fab fa-whatsapp text-lg"></i>
-          ارسال عبر واتساب
-        </a>
-
-        <a href="tel:رقم_الهاتف"
-          class="flex-1 flex items-center justify-center gap-2 bg-white border border-[#2A4759] hover:bg-[#2A4759] hover:text-white text-[#2A4759] text-sm px-5 py-2 rounded-lg">
-          <i class="fa-solid fa-phone text-lg"></i>
-          اتصل بنا
-        </a>
-      </div>
-    </div>
-  <% }) %>
-<% } %>
+      <% }) %>
+        <% } %>

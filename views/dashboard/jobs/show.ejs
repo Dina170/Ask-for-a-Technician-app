@@ -20,7 +20,7 @@
             <div class="flex justify-center px-4 w-full rounded-md">
                 <div class="w-40 h-40 rounded-md bg-gray-100 flex items-center justify-center">
                     <% if (job.jobPhoto) { %>
-                        <img class="w-full h-full object-cover rounded-md" src="/uploads/jobs/<%= job.jobPhoto %>"
+                        <img class="w-full h-full object-cover rounded-md" src="<%= job.jobPhoto %>"
                             alt="<%= job.name %>">
                         <% } %>
                 </div>

@@ -24,7 +24,7 @@
                 <%= n.name %>
             </h3>
             <% if (n.neighborhoodPhoto) { %>
-                <img src="/uploads/neighborhoods/<%= n.neighborhoodPhoto %>" alt="Neighborhood Photo" width="150">
+                <img src="<%= n.neighborhoodPhoto %>" alt="Neighborhood Photo" width="150">
                 <% } %>
                     <div>
                         <a href="/neighborhoods/<%= n._id %>">View</a>
