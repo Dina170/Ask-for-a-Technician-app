@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const multer = require("multer");
-const upload = multer({ dest: "uploads/technicians" });
+const { storage } = require("../../config/cloudinary");
+const upload = multer({ storage });
 
 const {
   getTechnicianById,
@@ -22,23 +23,5 @@ router.get("/:id/edit", editTechnician);
 router.get("/:id", getTechnicianById);
 router.put("/:id", upload.single("jobTechnicianPhoto"), updateTechnician);
 router.delete("/:id", deleteTechnician);
-// router.get("/", isAdmin, getAllTechnicians);
-// router.get("/new", isAdmin, newTechnician);
-// router.post(
-//   "/",
-//   isAdmin,
-//   upload.single("jobTechnicianPhoto"),
-//   createTechnician
-// );
-// router.delete("/", isAdmin, deleteAllTechnicians);
-// router.get("/:id/edit", isAdmin, editTechnician);
-// router.get("/:id", isAdmin, getTechnicianById);
-// router.put(
-//   "/:id",
-//   isAdmin,
-//   upload.single("jobTechnicianPhoto"),
-//   updateTechnician
-// );
-// router.delete("/:id", isAdmin, deleteTechnician);
 
 module.exports = router;

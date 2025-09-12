@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const multer = require("multer");
-const upload = multer({ dest: "uploads/neighborhoods" });
+const { storage } = require("../../config/cloudinary");
+const upload = multer({ storage });
 
 const {
   getNeighborhoodById,
