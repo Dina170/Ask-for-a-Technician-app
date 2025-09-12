@@ -1,115 +1,266 @@
-<h1>All Technicians</h1>
-
-<form method="GET" action="/dashboard/technicians" style="position: relative;">
-  <input type="text" id="technicianSearchInput" name="search" placeholder="Search by Main Title"
-    value="<%= filters?.search || '' %>" autocomplete="off" />
-  <button type="submit">Search</button>
-  <% if (filters?.search) { %>
-    <a href="/dashboard/technicians" style="margin-left: 10px;">Clear</a>
-    <% } %>
-</form>
-
-<a href="/dashboard/technicians/new">Add New Technician</a>
-
-<ul>
-  <% technicians.forEach(t=> { %>
-    <li>
-      <h3>
-        <%= t.mainTitle %>
-      </h3>
-
-      <% if (t.jobTechnicianPhoto) { %>
-        <img src="<%= t.jobTechnicianPhoto %>" alt="Technician Photo" width="150">
-        <% } %>
-
-          <p><strong>Job:</strong>
-            <%= t.jobName?.name %>
-          </p>
-
-          <p><strong>Neighborhoods:</strong>
-            <% t.neighborhoodNames.forEach(n=> { %>
-              <%= n.name %>
-                <% if (t.neighborhoodNames.indexOf(n) !==t.neighborhoodNames.length - 1) { %>, <% } %>
-                    <% }) %>
-          </p>
-
-          <p><strong>Description:</strong>
-            <%= t.description %>
-          </p>
-          <p><strong>Phone Number:</strong>
-            <%= t.phoneNumber %>
-          </p>
-
-          <div>
-            <a href="/dashboard/technicians/<%= t._id %>">View</a>
-            <a href="/dashboard/technicians/<%= t._id %>/edit">Edit</a>
-            <form action="/dashboard/technicians/<%= t._id %>?_method=DELETE" method="POST" style="display:inline;">
-              <button type="submit" onclick="return confirm('Delete this technician?')">Delete</button>
-            </form>
+<div class="ms-7 me-2">
+  <!-- Success message at the top -->
+  <% if (message && message.trim() !=='' ) { %>
+    <%- include('../layouts/success', { message, messageType }) %>
+      <% } %>
+        <div class="flex flex-col md:flex-row justify-between mb-1 gap-2 mt-3">
+          <h1 class="text-xl md:text-2xl font-bold text-center md:text-right"> الفنيين (<span id="totalCount">
+              <%= technicians.length %>
+            </span>)</h1>
+          <a href="/dashboard/technicians/new"
+            class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-600 transition whitespace-nowrap">
+            + إضافة فني
+          </a>
+        </div>
+        <div class="mb-4">
+          <p class="text-gray-600 text-right"><a href="/dashboard/technicians/"
+              class="hover:text-Sky-950 hover:font-medium ">الفنيين</a> </p>
+        </div>
+        <div class="flex flex-col md:flex-row items-center gap-3 mb-4 max-w-[1300px]">
+          <div class="flex items-center gap-3 flex-grow">
+            <input type="text" id="searchInput" name="search" placeholder=" ابحث حسب عنوان الفنى" autocomplete="off"
+              value="<%= filters?.search || '' %>"
+              class="flex-grow p-2 border rounded-md focus:outline-none focus:border-blue-500" />
+            <button onclick="showModal('deleteAllTechModal')" title="حذف الفنيين"
+              class="bg-pink-100 text-red-600 px-4 py-2 rounded hover:bg-pink-300 w-max">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
           </div>
-    </li>
-    <% }) %>
-</ul>
+        </div>
+
+        <table class="w-full bg-white text-center border-2 border-black text-sm md:text-base">
+          <thead class="bg-slate-700 text-white">
+            <tr>
+              <th class="p-2">الرقم</th>
+              <th class="p-2">مهن حي</th>
+              <th class="p-2">اسم حى</th>
+              <!-- <th class="p-2">العنوان الرئيسي</th> -->
+              <th class="p-2">رقم الفون</th>
+              <th class="p-2">التحكم</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <% technicians.forEach((t, index)=> { %>
+              <tr class="technician-row border-b hover:bg-gray-50" data-title="<%= t.mainTitle.toLowerCase() %>">
+                <td class="p-2 row-number">
+                  <%= index + 1 %>
+                </td>
+                <td class="p-2">
+                  <%= t.jobName?.name || '-' %>
+                </td>
+                <td class="p-2">
+                  <% t.neighborhoodNames.forEach((n, i)=> { %>
+                    <%= n.name %>
+                      <%= i < t.neighborhoodNames.length - 1 ? ', ' : '' %>
+                        <% }) %>
+                </td>
+                <!-- <td class="p-2 font-medium"><%= t.mainTitle %></td> -->
+                <td class="p-2">
+                  <%= t.phoneNumber %>
+                </td>
+                <td class="p-2">
+                  <div class="flex gap-2 justify-center">
+                    <a onclick="deleteItem('<%= t._id %>')"
+                      class="bg-pink-100 text-red-600 w-10 h-10 flex items-center justify-center rounded-md hover:bg-pink-300 transition duration-200"
+                      title="حذف">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </a>
+                    <a href="/dashboard/technicians/<%= t._id %>"
+                      class="bg-green-500 w-10 h-10 flex items-center justify-center rounded-md hover:bg-green-600 text-white transition duration-200"
+                      title="عرض">
+                      <i class="fa-solid fa-eye"></i>
+                    </a>
+                    <a href="/dashboard/technicians/<%= t._id %>/edit"
+                      class="bg-slate-800 w-10 h-10 flex items-center justify-center rounded-md hover:bg-slate-700 text-white transition duration-200"
+                      title="تعديل">
+                      <i class="fa-solid fa-pen"></i>
+                    </a>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              <% }) %>
+          </tbody>
+        </table>
+
+        <!-- رسالة عدم وجود نتائج -->
+        <div id="noResults" class="text-center py-8 text-gray-500 hidden">
+          <i class="fa-solid fa-search text-4xl mb-4 text-gray-300"></i>
+          <p class="text-lg">لا توجد نتائج تطابق البحث.</p>
+        </div>
+
+        <!-- تحكمات التصفح وعدد النتائج -->
+        <div class="flex justify-between items-center mt-6 mb-6">
+          <div id="pagination" class="flex items-center gap-1">
+            <button id="prevBtn"
+              class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center"
+              disabled>
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+            <div id="pageNumbers" class="flex gap-1 mx-3"></div>
+            <button id="nextBtn"
+              class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="text-sm whitespace-nowrap">عدد النتائج في الصفحة</span>
+            <select id="itemsPerPage" class="border rounded px-2 py-1 text-sm">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="15">15</option>
+              <option value="30">30</option>
+            </select>
+          </div>
+        </div>
+        <!-- Delete confirmation modals -->
+        <% technicians.forEach(n=> { %>
+          <%- include('../layouts/confirmDelete', { modalId: `deleteTechModal_${n._id}`,
+            message: 'هل أنت متأكد من أنك تريد حذف هذا الفني؟' , deleteAction:
+            `/dashboard/technicians/${n._id}?_method=DELETE` }) %>
+            <% }) %>
+
+              <%- include('../layouts/confirmDelete', { modalId: 'deleteAllTechModal' ,
+                message: 'هل أنت متأكد أنك تريد حذف جميع الفنيين؟' ,
+                deleteAction: '/dashboard/technicians?_method=DELETE' }) %>
+
+</div>
+</div>
 
 <script>
-  // Pass an array of technician main titles for autocomplete
-  const technicianTitles = <% - JSON.stringify(technicians.map(t => t.mainTitle)) %>;
+  class TechniciansPagination {
+    constructor() {
+      this.currentPage = 1;
+      this.itemsPerPage = parseInt(document.getElementById('itemsPerPage').value);
+      this.allRows = Array.from(document.querySelectorAll('.technician-row'));
+      this.filteredRows = [...this.allRows];
 
-  const input = document.getElementById('technicianSearchInput');
+      this.searchInput = document.getElementById('searchInput');
+      this.itemsPerPageSelect = document.getElementById('itemsPerPage');
+      this.prevBtn = document.getElementById('prevBtn');
+      this.nextBtn = document.getElementById('nextBtn');
+      this.pageNumbers = document.getElementById('pageNumbers');
+      this.noResults = document.getElementById('noResults');
+      this.totalCountSpan = document.getElementById('totalCount');
 
-  // Create suggestions container
-  const suggestions = document.createElement('div');
-  suggestions.style.position = 'absolute';
-  suggestions.style.border = '1px solid #ccc';
-  suggestions.style.backgroundColor = '#fff';
-  suggestions.style.maxHeight = '150px';
-  suggestions.style.overflowY = 'auto';
-  suggestions.style.width = input.offsetWidth + 'px';
-  suggestions.style.zIndex = 1000;
-  suggestions.style.display = 'none';
-  suggestions.style.cursor = 'pointer';
-
-  input.parentElement.style.position = 'relative';
-  input.parentNode.insertBefore(suggestions, input.nextSibling);
-
-  input.addEventListener('input', () => {
-    const val = input.value.trim().toLowerCase();
-    suggestions.innerHTML = '';
-
-    if (!val) {
-      suggestions.style.display = 'none';
-      return;
+      this.bindEvents();
+      this.render();
     }
 
-    const filtered = technicianTitles.filter(title => title.toLowerCase().includes(val));
-
-    if (filtered.length === 0) {
-      suggestions.style.display = 'none';
-      return;
+    bindEvents() {
+      this.searchInput.addEventListener('input', () => this.handleSearch());
+      this.itemsPerPageSelect.addEventListener('change', () => this.handleItemsPerPageChange());
+      this.prevBtn.addEventListener('click', () => this.goToPreviousPage());
+      this.nextBtn.addEventListener('click', () => this.goToNextPage());
     }
 
-    filtered.forEach(title => {
-      const option = document.createElement('div');
-      option.textContent = title;
-      option.style.padding = '5px';
+    handleSearch() {
+      const term = this.searchInput.value.toLowerCase().trim();
+      if (!term) {
+        this.filteredRows = [...this.allRows];
+      } else {
+        this.filteredRows = this.allRows.filter(row => row.dataset.title.includes(term));
+      }
+      this.currentPage = 1;
+      this.render();
+    }
 
-      option.addEventListener('mouseenter', () => option.style.backgroundColor = '#eee');
-      option.addEventListener('mouseleave', () => option.style.backgroundColor = '#fff');
+    handleItemsPerPageChange() {
+      this.itemsPerPage = parseInt(this.itemsPerPageSelect.value);
+      this.currentPage = 1;
+      this.render();
+    }
 
-      option.addEventListener('click', () => {
-        input.value = title;
-        suggestions.style.display = 'none';
-      });
+    goToPreviousPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        this.render();
+      }
+    }
 
-      suggestions.appendChild(option);
-    });
+    goToNextPage() {
+      if (this.currentPage < this.getTotalPages()) {
+        this.currentPage++;
+        this.render();
+      }
+    }
+    goToPage(page) {
+      this.currentPage = page;
+      this.render();
+    }
+    getTotalPages() {
+      return Math.ceil(this.filteredRows.length / this.itemsPerPage) || 1;
+    }
 
-    suggestions.style.display = 'block';
+    render() {
+      this.allRows.forEach(row => (row.style.display = 'none'));
+
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      const pageRows = this.filteredRows.slice(start, end);
+
+      if (pageRows.length === 0) {
+        document.getElementById('tableBody').style.display = 'none';
+        this.noResults.style.display = 'block';
+      } else {
+        document.getElementById('tableBody').style.display = '';
+        this.noResults.style.display = 'none';
+
+        pageRows.forEach(row => (row.style.display = 'table-row'));
+      }
+
+      this.prevBtn.disabled = this.currentPage === 1;
+      this.nextBtn.disabled = this.currentPage === this.getTotalPages();
+
+      this.pageNumbers.innerHTML = '';
+      for (let i = 1; i <= this.getTotalPages(); i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.textContent = i;
+        pageBtn.className = 'w-8 h-8 rounded-full hover:bg-slate-700 hover:text-white transition'
+        if (i === this.currentPage) {
+          pageBtn.classList.add('bg-slate-700', 'text-white');
+        } else {
+          pageBtn.classList.add('bg-slate-300', 'text-gray-600', 'hover:bg-gray-300');
+        }
+        pageBtn.addEventListener('click', () => {
+          this.currentPage = i;
+          this.render();
+        });
+        this.pageNumbers.appendChild(pageBtn);
+      }
+
+      this.totalCountSpan.textContent = this.filteredRows.length;
+
+
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    new TechniciansPagination();
   });
-
-  document.addEventListener('click', e => {
-    if (!suggestions.contains(e.target) && e.target !== input) {
-      suggestions.style.display = 'none';
+  // Modal functions
+  function deleteItem(id) {
+    const modal = document.getElementById(`deleteTechModal_${id}`);
+    if (modal) {
+      modal.classList.remove('hide');
+      modal.style.display = 'flex';
+      setTimeout(() => {
+        modal.classList.add('show');
+      }, 10);
     }
-  });
+  }
+
+
+  function hideModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.remove('show');
+      modal.classList.add('hide');
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 400);
+    }
+  }
+
 </script>

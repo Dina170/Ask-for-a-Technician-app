@@ -1,92 +1,391 @@
-<h1>All Neighborhoods</h1>
+<div class="ms-7 me-2">
+  <!-- Success message at the top -->
+  <% if (message && message.trim() !=='' ) { %>
+    <%- include('../layouts/success', { message, messageType }) %>
+      <% } %>
 
-<form method="GET" action="/dashboard/neighborhoods" style="position: relative;">
-  <input type="text" id="neighborhoodSearchInput" name="search" placeholder="Search by name"
-    value="<%= filters.search %>" autocomplete="off" />
-  <button type="submit">Search</button>
-  <% if (filters.search) { %>
-    <a href="/dashboard/neighborhoods">Clear</a>
-    <% } %>
-</form>
-
-<a href="/dashboard/neighborhoods/new">Add New Neighborhood</a>
-<ul>
-  <% neighborhoods.forEach(n=> { %>
-    <li>
-      <h3>
-        <%= n.name %>
-      </h3>
-      <% if (n.neighborhoodPhoto) { %>
-        <img src="<%= n.neighborhoodPhoto %>" alt="Neighborhood Photo" width="150">
-        <% } %>
-          <div>
-            <a href="/dashboard/neighborhoods/<%= n._id %>">View</a>
-            <a href="/dashboard/neighborhoods/<%= n._id %>/edit">Edit</a>
-            <form action="/dashboard/neighborhoods/<%= n._id %>?_method=DELETE" method="POST" style="display:inline;">
-              <button type="submit" onclick="return confirm('Delete this neighborhood?')">Delete</button>
-            </form>
+        <!-- Header and add button -->
+        <div class="flex flex-col md:flex-row justify-between mb-1 gap-2 mt-3">
+          <h1 class="text-xl md:text-2xl font-bold text-center md:text-right">
+            الأحياء (<span id="totalCount">
+              <%= neighborhoods.length %>
+            </span>)
+          </h1>
+          <a href="/dashboard/neighborhoods/new"
+            class="bg-slate-700 text-white px-4 py-2 rounded text-center hover:bg-slate-600 transition">+ إضافة حي</a>
+        </div>
+        <div class="mb-4">
+          <p class="text-gray-600 text-right"><a href="/dashboard/neighborhoods/"
+              class="hover:text-Sky-950 hover:font-medium ">الأحياء</a> </p>
+        </div>
+        <!-- Search bar -->
+        <div class="flex flex-col md:flex-row items-center gap-3 mb-4">
+          <div class="flex items-center gap-3 flex-grow max-w-[1300px]">
+            <input type="text" id="searchInput" placeholder="بحث عن طريق اسم الحي"
+              class="flex-grow p-2 border rounded-md focus:outline-none focus:border-blue-500" />
+            <button onclick="showModal('deleteAllNeighborhoodsModal')" title="حذف الاحياء"
+              class="bg-pink-100 text-red-600 px-4 py-2 rounded hover:bg-pink-300 w-max">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
           </div>
-    </li>
-    <% }) %>
-</ul>
+        </div>
 
+        <!-- Table -->
+        <table class="w-full bg-white text-center border-2 border-black text-sm md:text-base">
+          <thead class="bg-slate-700 text-white">
+            <tr>
+              <th class="p-2">الرقم</th>
+              <th class="p-2">اسم حي</th>
+              <th class="p-2">صورة حي</th>
+              <th class="p-2">التحكم</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <% neighborhoods.forEach((n, index)=> { %>
+              <tr class="neighborhood-row border-b hover:bg-gray-50" data-name="<%= n.name.toLowerCase() %>">
+                <td class="p-2 row-number">
+                  <%= index + 1 %>
+                </td>
+                <td class="p-2 font-medium">
+                  <%= n.name %>
+                </td>
+                <td class="p-2">
+                  <% if (n.neighborhoodPhoto) { %>
+                    <img src="/uploads/neighborhoods/<%= n.neighborhoodPhoto %>" alt="صورة <%= n.name %>"
+                      class="w-10 h-10 rounded-full mx-auto object-cover border" />
+                    <% } else { %>
+                      <div class="w-10 h-10 rounded-full mx-auto bg-gray-200 flex items-center justify-center">
+                        <i class="fa-solid fa-image text-gray-400"></i>
+                      </div>
+                      <% } %>
+                </td>
+                <td class="p-2">
+                  <div class="flex gap-2 justify-center">
+                    <button onclick="deleteItem('<%= n._id %>')"
+                      class="bg-pink-100 text-red-600 w-10 h-10 flex items-center justify-center rounded-md hover:bg-pink-300 transition duration-200"
+                      title="حذف الحي">
+                      <i class="fa-solid fa-trash-can text-lg"></i>
+                    </button>
+                    <a href="/dashboard/neighborhoods/<%= n._id %>"
+                      class="bg-green-500 w-10 h-10 flex items-center justify-center rounded-md hover:bg-green-600 text-white transition duration-200"
+                      title="عرض الحي">
+                      <i class="fa-solid fa-eye text-lg"></i>
+                    </a>
+                    <a href="/dashboard/neighborhoods/<%= n._id %>/edit"
+                      class="bg-slate-800 w-10 h-10 flex items-center justify-center rounded-md hover:bg-slate-700 text-white transition duration-200"
+                      title="تعديل الحي">
+                      <i class="fa-solid fa-pen text-lg"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              <% }) %>
+          </tbody>
+        </table>
+
+        <!-- No results message -->
+        <div id="noResults" class="text-center py-8 text-gray-500 hidden">
+          <i class="fa-solid fa-search text-4xl mb-4 text-gray-300"></i>
+          <p class="text-lg">لا توجد نتائج مطابقة للبحث</p>
+        </div>
+
+        <!-- Pagination info -->
+        <div class="flex justify-center mb-4">
+          <div class="text-sm text-gray-800 ">
+          </div>
+        </div>
+
+        <!-- Pagination controls and items per page selector -->
+        <div class="flex justify-between items-center mt-6 mb-6">
+          <!-- Pagination controls - on the right -->
+          <div id="pagination" class="flex items-center gap-1">
+            <button id="nextBtn"
+              class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+            <div id="pageNumbers" class="flex gap-1 mx-3 flex-row-reverse"></div>
+            <button id="prevBtn"
+              class="w-8 h-8 rounded-full bg-slate-300 text-gray-600 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center"
+              style="display: none;">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+          </div>
+
+          <!-- Items per page selector - on the left -->
+          <div class="flex items-center gap-2">
+            <span class="text-sm whitespace-nowrap">عدد الصفوف فى كل صفحة</span>
+            <select id="itemsPerPage" class="border rounded px-2 py-1 text-sm">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="15">15</option>
+              <option value="30">30</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Delete confirmation modals -->
+        <% neighborhoods.forEach(n=> { %>
+          <%- include('../layouts/confirmDelete', { modalId: `deleteNeighborhoodModal_${n._id}`,
+            message: 'هل أنت متأكد من أنك تريد حذف هذا الحي؟' , deleteAction:
+            `/dashboard/neighborhoods/${n._id}?_method=DELETE` }) %>
+            <% }) %>
+
+              <%- include('../layouts/confirmDelete', { modalId: 'deleteAllNeighborhoodsModal' ,
+                message: 'هل أنت متأكد أنك تريد حذف جميع الاحياء؟' ,
+                deleteAction: '/dashboard/neighborhoods?_method=DELETE' }) %>
+
+</div>
 <script>
-  const neighborhoods = <% - JSON.stringify(neighborhoodNames) %>;
-  const input = document.getElementById('neighborhoodSearchInput');
 
-  // Create suggestions container
-  const suggestions = document.createElement('div');
-  suggestions.style.position = 'absolute';
-  suggestions.style.border = '1px solid #ccc';
-  suggestions.style.backgroundColor = '#fff';
-  suggestions.style.maxHeight = '150px';
-  suggestions.style.overflowY = 'auto';
-  suggestions.style.width = input.offsetWidth + 'px';
-  suggestions.style.zIndex = 1000;
-  suggestions.style.display = 'none';
-  suggestions.style.cursor = 'pointer';
-
-  input.parentElement.style.position = 'relative';
-  input.parentNode.insertBefore(suggestions, input.nextSibling);
-
-  input.addEventListener('input', () => {
-    const val = input.value.trim().toLowerCase();
-    suggestions.innerHTML = '';
-
-    if (!val) {
-      suggestions.style.display = 'none';
-      return;
-    }
-
-    const filtered = neighborhoods.filter(name => name.toLowerCase().includes(val));
-
-    if (filtered.length === 0) {
-      suggestions.style.display = 'none';
-      return;
-    }
-
-    filtered.forEach(name => {
-      const option = document.createElement('div');
-      option.textContent = name;
-      option.style.padding = '5px';
-
-      option.addEventListener('mouseenter', () => option.style.backgroundColor = '#eee');
-      option.addEventListener('mouseleave', () => option.style.backgroundColor = '#fff');
-
-      option.addEventListener('click', () => {
-        input.value = name;
-        suggestions.style.display = 'none';
-      });
-
-      suggestions.appendChild(option);
+  // search action
+  const searchInput = document.getElementById('searchInput');
+  searchInput.addEventListener('input', function () {
+    const term = this.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+      const name = row.children[1].textContent.toLowerCase();
+      row.style.display = name.includes(term) ? '' : 'none';
     });
-
-    suggestions.style.display = 'block';
   });
 
-  document.addEventListener('click', e => {
-    if (!suggestions.contains(e.target) && e.target !== input) {
-      suggestions.style.display = 'none';
+  class NeighborhoodsPagination {
+    constructor() {
+      this.currentPage = 1;
+      this.itemsPerPage = 10;
+      this.allRows = Array.from(document.querySelectorAll('.neighborhood-row'));
+      this.filteredRows = [...this.allRows];
+
+      this.initializeElements();
+      this.bindEvents();
+      this.render();
     }
+
+    initializeElements() {
+      this.searchInput = document.getElementById('searchInput');
+      this.itemsPerPageSelect = document.getElementById('itemsPerPage');
+      this.prevBtn = document.getElementById('prevBtn');
+      this.nextBtn = document.getElementById('nextBtn');
+      this.pageNumbers = document.getElementById('pageNumbers');
+      this.noResults = document.getElementById('noResults');
+      this.tableBody = document.getElementById('tableBody');
+    }
+
+
+    bindEvents() {
+      // Search functionality
+      this.searchInput.addEventListener('input', () => this.handleSearch());
+
+      // Items per page change
+      this.itemsPerPageSelect.addEventListener('change', () => this.handleItemsPerPageChange());
+
+      // Navigation buttons
+      this.prevBtn.addEventListener('click', () => this.goToPreviousPage());
+      this.nextBtn.addEventListener('click', () => this.goToNextPage());
+    }
+
+    handleSearch() {
+      const term = this.searchInput.value.toLowerCase().trim();
+
+      if (term === '') {
+        this.filteredRows = [...this.allRows];
+      } else {
+        this.filteredRows = this.allRows.filter(row =>
+          row.dataset.name.includes(term)
+        );
+      }
+
+      this.currentPage = 1;
+      this.updateCounts();
+      this.render();
+    }
+
+    handleItemsPerPageChange() {
+      this.itemsPerPage = parseInt(this.itemsPerPageSelect.value);
+      this.currentPage = 1;
+      this.render();
+    }
+
+    goToPreviousPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        this.render();
+      }
+    }
+
+    goToNextPage() {
+      const totalPages = Math.ceil(this.filteredRows.length / this.itemsPerPage);
+      if (this.currentPage < totalPages) {
+        this.currentPage++;
+        this.render();
+      }
+    }
+
+    goToPage(page) {
+      this.currentPage = page;
+      this.render();
+    }
+
+    render() {
+      this.hideAllRows();
+      this.showCurrentPageRows();
+      this.updatePaginationControls();
+      this.updateInfo();
+      this.updateRowNumbers();
+    }
+
+    hideAllRows() {
+      this.allRows.forEach(row => row.style.display = 'none');
+    }
+
+    showCurrentPageRows() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      const endIndex = startIndex + this.itemsPerPage;
+      const rowsToShow = this.filteredRows.slice(startIndex, endIndex);
+
+      rowsToShow.forEach(row => row.style.display = '');
+
+      // Show/hide no results message
+      if (this.filteredRows.length === 0) {
+        this.noResults.classList.remove('hidden');
+        this.tableBody.style.display = 'none';
+      } else {
+        this.noResults.classList.add('hidden');
+        this.tableBody.style.display = '';
+      }
+    }
+
+    updateRowNumbers() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      const visibleRows = this.filteredRows.slice(startIndex, startIndex + this.itemsPerPage);
+
+      visibleRows.forEach((row, index) => {
+        const numberCell = row.querySelector('.row-number');
+        if (numberCell) {
+          numberCell.textContent = startIndex + index + 1;
+        }
+      });
+    }
+
+    updatePaginationControls() {
+      const totalPages = Math.ceil(this.filteredRows.length / this.itemsPerPage);
+
+      // Update prev/next buttons
+      this.prevBtn.disabled = this.currentPage === 1;
+      this.nextBtn.disabled = this.currentPage === totalPages || totalPages === 0;
+
+      // Show/hide prev button based on current page
+      if (this.currentPage <= 1) {
+        this.prevBtn.style.display = 'none';
+      } else {
+        this.prevBtn.style.display = 'flex';
+      }
+
+      // Update page numbers
+      this.renderPageNumbers(totalPages);
+
+      // Hide pagination if only one page or no results
+      const paginationContainer = document.querySelector('.flex.justify-between.items-center.mb-6');
+      if (totalPages <= 1) {
+        this.pagination.style.display = 'none';
+      } else {
+        this.pagination.style.display = 'flex';
+      }
+    }
+
+    renderPageNumbers(totalPages) {
+      this.pageNumbers.innerHTML = '';
+
+      if (totalPages <= 1) return;
+
+      // Show max 5 page numbers
+      let startPage = Math.max(1, this.currentPage - 2);
+      let endPage = Math.min(totalPages, startPage + 4);
+
+      if (endPage - startPage < 4) {
+        startPage = Math.max(1, endPage - 4);
+      }
+
+      // Add first page if not visible
+      if (startPage > 1) {
+        this.addPageButton(1);
+        if (startPage > 2) {
+          this.pageNumbers.appendChild(this.createEllipsis());
+        }
+      }
+
+      // Add page numbers
+      for (let i = startPage; i <= endPage; i++) {
+        this.addPageButton(i);
+      }
+
+      // Add last page if not visible
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          this.pageNumbers.appendChild(this.createEllipsis());
+        }
+        this.addPageButton(totalPages);
+      }
+    }
+
+    addPageButton(pageNum) {
+      const button = document.createElement('button');
+      button.textContent = pageNum;
+      button.className = `w-8 h-8 rounded-full hover:bg-slate-700 hover:text-white transition ${pageNum === this.currentPage
+          ? 'bg-gray-800 text-white'
+          : 'bg-slate-300 text-gray-600 hover:bg-gray-300'
+        }`;
+      button.onclick = () => this.goToPage(pageNum);
+
+      this.pageNumbers.appendChild(button);
+    }
+
+    createEllipsis() {
+      const span = document.createElement('span');
+      span.textContent = '...';
+      span.className = 'px-2 py-2 text-gray-500 ';
+      return span;
+    }
+
+    updateInfo() {
+      const startItem = this.filteredRows.length === 0 ? 0 : ((this.currentPage - 1) * this.itemsPerPage) + 1;
+      const endItem = Math.min(this.currentPage * this.itemsPerPage, this.filteredRows.length);
+
+      document.getElementById('startItem').textContent = startItem;
+      document.getElementById('endItem').textContent = endItem;
+    }
+
+    updateCounts() {
+      document.getElementById('filteredCount').textContent = this.filteredRows.length;
+    }
+  }
+
+  // Initialize pagination when page loads
+  let paginationInstance;
+  window.addEventListener('load', () => {
+    paginationInstance = new NeighborhoodsPagination();
   });
+
+  // Modal functions
+  function deleteItem(id) {
+    const modal = document.getElementById(`deleteNeighborhoodModal_${id}`);
+    if (modal) {
+      modal.classList.remove('hide');
+      modal.style.display = 'flex';
+      setTimeout(() => {
+        modal.classList.add('show');
+      }, 10);
+    }
+  }
+
+
+  function hideModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.remove('show');
+      modal.classList.add('hide');
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 400);
+    }
+  }
 </script>

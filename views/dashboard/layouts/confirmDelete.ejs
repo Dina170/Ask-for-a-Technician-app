@@ -1,0 +1,32 @@
+<!-- Confirm Modal -->
+ <style>
+  .modal {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+     display: none;
+  }
+  .modal.show {
+    opacity: 1;
+    display: flex !important; 
+  }
+  .modal.hide {
+    opacity: 0;
+    pointer-events: none; 
+  }
+</style>
+
+<div id="<%= modalId %>" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center  ">
+  <div class="bg-white rounded-xl shadow-lg max-w-xl md:py-[50px] p-7 text-center" >
+    <div class="text-red-600 text-4xl mb-4">
+      <i class="fas fa-exclamation-triangle text-9xl"></i>
+    </div>
+    <h2 class="md:text-2xl font-bold mb-4 sm:text-sm"><%= message %></h2>
+    
+    <div class="flex justify-center gap-4 mt-9 pt-9 w-full">
+      <form class="w-[45%]"  action="<%=deleteAction%>" method="POST">
+        <button type="submit" class="px-4 py-1 bg-red-600 text-white rounded hover:bg-red-700 w-full ">حذف</button>
+      </form>
+      <button onclick="hideModal('<%= modalId %>')" class="px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 w-[45%]">إلغاء</button>
+    </div>
+  </div>
+</div>

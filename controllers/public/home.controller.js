@@ -1,6 +1,7 @@
 const Job = require("../../models/job");
 const Technician = require("../../models/technician");
 const Blog = require("../../models/blog");
+const Post = require("../../models/post");
 
 exports.getHomePage = async (req, res) => {
   try {
@@ -14,7 +15,7 @@ exports.getHomePage = async (req, res) => {
       },
     ]);
 
-    const jobId = req.query.jobId;
+    const jobId = req.query.jobId || "";
     const technician = req.query.technician || "";
     const neighborhood = req.query.neighborhood || "";
 
@@ -28,12 +29,10 @@ exports.getHomePage = async (req, res) => {
       query.mainTitle = { $regex: technician.trim(), $options: "i" };
     }
 
-    // Step 1: Find all matching technicians (we'll filter neighborhoods in JS)
     const techniciansRaw = await Technician.find(query)
       .populate("jobName")
-      .populate("neighborhoodNames");
+      .populate("neighborhoodNames"); 
 
-    // Step 2: If neighborhood filter is present, filter after population
     const technicians = neighborhood.trim()
       ? techniciansRaw.filter((t) =>
           t.neighborhoodNames.some((n) =>
@@ -42,7 +41,7 @@ exports.getHomePage = async (req, res) => {
         )
       : techniciansRaw;
 
-    res.render("public/home", {
+    res.render("landingpage/index", {
       jobs: uniqueJobs,
       technicians,
       technician,
@@ -168,7 +167,6 @@ exports.autocompleteTechnicians = async (req, res) => {
       const neighborhoodNames = neighborhoodResults.map((n) => n._id);
       return res.json(neighborhoodNames);
     } else {
-      // Invalid type parameter
       return res.status(400).json({ error: "Invalid type parameter" });
     }
   } catch (err) {
@@ -176,6 +174,51 @@ exports.autocompleteTechnicians = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
+
+// to use it in search aboat post
+exports.autocompletePosts = async (req, res) => {
+  try {
+    const search = req.query.q?.trim() || "";
+    
+    if (!search) {
+      return res.json([]);
+    }
+    const searchRegex = new RegExp(search.split(' ').join('|'), 'i');
+    
+    const posts = await Post.find({
+      $or: [
+        { title: { $regex: searchRegex } },
+        { name: { $regex: searchRegex } },
+        // { content: { $regex: searchRegex } }
+      ]
+    })
+    .select("title name permaLink content") 
+    .limit(10);
+
+    if (!posts || posts.length === 0) {
+      return res.json([]);
+    }
+
+    const formattedPosts = posts.map(post => ({
+      _id: post._id,
+      title: post.title || "",
+      name: post.name || "",
+      permaLink: post.permaLink,
+      content: post.content || "",
+      displayText: post.title && post.name 
+        ? `${post.title} - ${post.name}`
+        : post.title || post.name || "بدون عنوان"
+    }));
+
+    return res.json(formattedPosts);
+    
+  } catch (err) {
+    console.error("Autocomplete error:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 
 exports.getAllBlogs = async (req, res) => {
   try {
@@ -217,3 +260,6 @@ exports.getPostDetails = async (req, res) => {
 exports.getPrivacyPolicy = (req, res) => {
   res.render("public/privacyPolicy");
 };
+
+
+

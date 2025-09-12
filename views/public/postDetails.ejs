@@ -1,5 +1,140 @@
-<p>
-    <% post.name %>
-</p>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= post.title %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
 
-<%- post.content %>
+  <body class="font-sans bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+    <!-- header -->
+    <%- include("../layouts/header") %>
+
+    <!-- Breadcrumb -->
+    <div class="bg-white border-b border-gray-200 py-4 px-6">
+      <div class="max-w-6xl mx-auto flex items-center">
+        <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
+          <i class="fa-solid fa-home text-2xl ml-3"></i>
+        </a>
+        <i class="fa-solid fa-chevron-left ml-3"></i>
+        <a href="#" class="font-semibold text-[#2A4759]">المدونة</a>
+         <i class="fa-solid fa-chevron-left mx-2"></i>
+<a href="/blogs/<%= post.blog._id %>" class="font-semibold text-gray-600 hover:text-[#2A4759]">
+  <%= post.blog.blog %>
+</a>
+        <i class="fa-solid fa-chevron-left mx-2"></i>
+        <span class="font-semibold text-gray-600"><%= post.name %></span>
+      </div>
+    </div>
+
+    <!-- عنوان المقال -->
+    <div class="text-center my-8 px-4">
+      <h1 class="text-3xl font-bold text-[#2A4759] mb-4 leading-relaxed">
+        <%= post.name %>
+      </h1>
+      
+    <!-- محتوى المقال -->
+    <div class="container mx-auto px-4 py-8 flex-grow">
+      <div class="max-w-8xl mx-auto">
+        
+        <!-- صورة المقال -->
+        <% if (post.image) { %>
+        <div class="mb-8">
+          <img 
+            src="/uploads/posts/<%= post.image %>" 
+            alt="<%= post.title %>" 
+            class="w-full h-96 object-cover rounded-lg shadow-lg"
+          />
+        </div>
+        <% } %>
+
+        <!-- محتوى المقال -->
+        <div class="bg-white rounded-lg shadow-sm p-8">
+          <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+            <%- post.content %>
+          </div>
+        </div>
+
+       
+
+     
+      </div>
+    </div>
+    </div>
+
+   <!-- footer -->
+    <%- include("../layouts/footer") %>
+
+    <style>
+      .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+        color: #2A4759;
+        font-weight: bold;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+      }
+      .prose h1 { font-size: 2rem; }
+      .prose h2 { font-size: 1.75rem; }
+      .prose h3 { font-size: 1.5rem; }
+      .prose p {
+        margin-bottom: 1.5rem;
+        line-height: 1.8;
+        text-align: justify;
+      }
+      .prose ul, .prose ol {
+        margin-bottom: 1.5rem;
+        padding-right: 2rem;
+      }
+      .prose li {
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+      }
+      .prose strong {
+        color: #2A4759;
+        font-weight: 600;
+      }
+      .prose a {
+        color: #f97316;
+        text-decoration: underline;
+      }
+      .prose a:hover {
+        color: #ea580c;
+      }
+      .prose blockquote {
+        border-right: 4px solid #f97316;
+        background-color: #fef3c7;
+        padding: 1rem 2rem;
+        margin: 2rem 0;
+        font-style: italic;
+      }
+      .prose img {
+        border-radius: 0.5rem;
+        margin: 2rem auto;
+        max-width: 100%;
+        height: auto;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+      .prose code {
+        background-color: #f3f4f6;
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.25rem;
+        font-size: 0.9em;
+        color: #dc2626;
+      }
+      .prose pre {
+        background-color: #1f2937;
+        color: #f9fafb;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        overflow-x: auto;
+        margin: 1.5rem 0;
+      }
+    </style>
+
+     
+  </body>
+</html>
