@@ -1,7 +1,9 @@
-<h1><%= neighborhood.name %></h1>
+<h1>
+  <%= neighborhood.name %>
+</h1>
 
 <% if (neighborhood.neighborhoodPhoto) { %>
-  <img src="/uploads/neighborhoods/<%= neighborhood.neighborhoodPhoto %>" width="200">
-<% } %>
+  <img src="<%= neighborhood.neighborhoodPhoto %>" width="200">
+  <% } %>
 
-<p><a href="/dashboard/neighborhoods">Back to All Neighborhoods</a></p>
+    <p><a href="/dashboard/neighborhoods">Back to All Neighborhoods</a></p>

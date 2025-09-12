@@ -1,41 +1,37 @@
 <h1>All Neighborhoods</h1>
 
 <form method="GET" action="/dashboard/neighborhoods" style="position: relative;">
-  <input
-    type="text"
-    id="neighborhoodSearchInput"
-    name="search"
-    placeholder="Search by name"
-    value="<%= filters.search %>"
-    autocomplete="off"
-  />
+  <input type="text" id="neighborhoodSearchInput" name="search" placeholder="Search by name"
+    value="<%= filters.search %>" autocomplete="off" />
   <button type="submit">Search</button>
   <% if (filters.search) { %>
     <a href="/dashboard/neighborhoods">Clear</a>
-  <% } %>
+    <% } %>
 </form>
 
 <a href="/dashboard/neighborhoods/new">Add New Neighborhood</a>
 <ul>
-  <% neighborhoods.forEach(n => { %>
+  <% neighborhoods.forEach(n=> { %>
     <li>
-      <h3><%= n.name %></h3>
+      <h3>
+        <%= n.name %>
+      </h3>
       <% if (n.neighborhoodPhoto) { %>
-        <img src="/uploads/neighborhoods/<%= n.neighborhoodPhoto %>" alt="Neighborhood Photo" width="150">
-      <% } %>
-      <div>
-        <a href="/dashboard/neighborhoods/<%= n._id %>">View</a>
-        <a href="/dashboard/neighborhoods/<%= n._id %>/edit">Edit</a>
-        <form action="/dashboard/neighborhoods/<%= n._id %>?_method=DELETE" method="POST" style="display:inline;">
-          <button type="submit" onclick="return confirm('Delete this neighborhood?')">Delete</button>
-        </form>
-      </div>
+        <img src="<%= n.neighborhoodPhoto %>" alt="Neighborhood Photo" width="150">
+        <% } %>
+          <div>
+            <a href="/dashboard/neighborhoods/<%= n._id %>">View</a>
+            <a href="/dashboard/neighborhoods/<%= n._id %>/edit">Edit</a>
+            <form action="/dashboard/neighborhoods/<%= n._id %>?_method=DELETE" method="POST" style="display:inline;">
+              <button type="submit" onclick="return confirm('Delete this neighborhood?')">Delete</button>
+            </form>
+          </div>
     </li>
-  <% }) %>
+    <% }) %>
 </ul>
 
 <script>
-  const neighborhoods = <%- JSON.stringify(neighborhoodNames) %>;
+  const neighborhoods = <% - JSON.stringify(neighborhoodNames) %>;
   const input = document.getElementById('neighborhoodSearchInput');
 
   // Create suggestions container
@@ -94,4 +90,3 @@
     }
   });
 </script>
-
