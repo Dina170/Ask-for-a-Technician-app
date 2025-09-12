@@ -8,7 +8,7 @@ const Blog = require("../../models/blog");
 const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find().populate("blog");
-    const { message, messageType } = req.query; 
+    const { message, messageType } = req.query;
     res.render("dashboard/posts/index", { posts, message, messageType });
   } catch (err) {
     console.error(err);
@@ -68,14 +68,19 @@ const createPost = async (req, res) => {
       content,
     });
     await newPost.save();
-    res.redirect("/dashboard/posts?message=تم إضافة مدونة بنجاح&messageType=add");
+    res.redirect(
+      "/dashboard/posts?message=تم إضافة مدونة بنجاح&messageType=add"
+    );
   } catch (err) {
     console.error(err);
+    if (err.code === 11000) {
+      err.message = "الرابط الدائم يجب أن يكون فريدًا";
+    }
     const blogs = await Blog.find();
     res.render("dashboard/posts/form", {
       post: null,
       blogs,
-      error: err.message || "Failed to create post",
+      error: err.message || "حصل خطأ أثناء إنشاء المدونة",
     });
   }
 };
@@ -125,12 +130,19 @@ const updatePost = async (req, res) => {
     post.title = title;
     post.content = content;
     await post.save();
-    res.redirect("/dashboard/posts?message=تم تعديل المدونة بنجاح&messageType=edit");
+    res.redirect(
+      "/dashboard/posts?message=تم تعديل المدونة بنجاح&messageType=edit"
+    );
   } catch (err) {
     console.error(err);
+    if (err.code === 11000) {
+      err.message = "الرابط الدائم يجب أن يكون فريدًا";
+    }
     const blogs = await Blog.find();
+    const post = await Post.findById(req.params.id).populate("blog");
+    if (!post) return res.redirect("/dashboard/posts");
     res.render("dashboard/posts/form", {
-      post: { _id: req.params.id, blog, name, permaLink, title, content },
+      post,
       blogs,
       error: err.message || "Failed to create post",
     });
@@ -146,7 +158,9 @@ const deletePost = async (req, res) => {
     deleteImg(post);
 
     await Post.findByIdAndDelete(req.params.id);
-    res.redirect("/dashboard/posts?message=تم حذف مدونة بنجاح&messageType=delete");
+    res.redirect(
+      "/dashboard/posts?message=تم حذف مدونة بنجاح&messageType=delete"
+    );
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/posts");
@@ -163,7 +177,9 @@ const deleteAllPosts = async (req, res) => {
     });
 
     await Post.deleteMany({});
-    res.redirect("/dashboard/posts?message=تم حذف جميع المدونات بنجاح&messageType=delete");
+    res.redirect(
+      "/dashboard/posts?message=تم حذف جميع المدونات بنجاح&messageType=delete"
+    );
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/posts");
