@@ -243,6 +243,12 @@ const updateTechnician = async (req, res) => {
 // Delete all technicians
 const deleteAllTechnicians = async (req, res) => {
   try {
+    const technicians = await Technician.find();
+    for (const technician of technicians) {
+      if (technician.jobTechnicianPhoto) {
+        deleteImg(technician.jobTechnicianPhoto);
+      }
+    }
     await Technician.deleteMany({});
     res.redirect(
       "/dashboard/technicians?message=تم حذف جميع الفنيين بنجاح&messageType=delete"
@@ -256,6 +262,10 @@ const deleteAllTechnicians = async (req, res) => {
 // Delete single technician
 const deleteTechnician = async (req, res) => {
   try {
+    const technician = await Technician.findById(req.params.id);
+    if (technician && technician.jobTechnicianPhoto) {
+      deleteImg(technician.jobTechnicianPhoto);
+    }
     await Technician.findByIdAndDelete(req.params.id);
     res.redirect(
       "/dashboard/technicians?message=تم حذف فنى بنجاح&messageType=delete"

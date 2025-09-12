@@ -2,6 +2,7 @@ const Job = require("../../models/job");
 const Neighborhood = require("../../models/neighborhood");
 const Technician = require("../../models/technician");
 const { buildSearchQuery } = require("../../utils/searchFilters");
+const deleteImg = require("../../utils/deleteImg");
 
 // Render form for creating new job
 const renderNewJobForm = async (req, res) => {
@@ -142,8 +143,6 @@ const updateJob = async (req, res) => {
 
     if (req.file) {
       job.jobPhoto = req.file.path;
-      console.log("the path", req.file.path);
-      // Use Cloudinary URL
     }
 
     try {
@@ -172,6 +171,10 @@ const updateJob = async (req, res) => {
 // DELETE single job
 const deleteJob = async (req, res) => {
   try {
+    const job = await Job.findById(req.params.id);
+    if (job && job.jobPhoto) {
+      deleteImg(job.jobPhoto);
+    }
     await Job.findByIdAndDelete(req.params.id);
     await Technician.updateMany(
       { jobName: req.params.id },
@@ -189,6 +192,12 @@ const deleteJob = async (req, res) => {
 // DELETE all jobs
 const deleteAllJobs = async (req, res) => {
   try {
+    const jobs = await Job.find();
+    jobs.forEach((job) => {
+      if (job.jobPhoto) {
+        deleteImg(job.jobPhoto);
+      }
+    });
     await Job.deleteMany({});
     await Technician.updateMany({}, { $unset: { jobName: "" } });
     res.redirect(

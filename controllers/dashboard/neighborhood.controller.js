@@ -2,6 +2,7 @@ const Neighborhood = require("../../models/neighborhood");
 const Job = require("../../models/job");
 const Technician = require("../../models/technician");
 const { buildSearchQuery } = require("../../utils/searchFilters");
+const deleteImg = require("../../utils/deleteImg");
 
 // Get all neighborhoods
 const getAllNeighborhoods = async (req, res) => {
@@ -82,6 +83,12 @@ const createNeighborhood = async (req, res) => {
 // Delete all neighborhoods
 const deleteAllNeighborhoods = async (req, res) => {
   try {
+    const neighborhoods = await Neighborhood.find();
+    for (const neighborhood of neighborhoods) {
+      if (neighborhood.neighborhoodPhoto) {
+        deleteImg(neighborhood.neighborhoodPhoto);
+      }
+    }
     await Neighborhood.deleteMany({});
     await Job.updateMany({}, { $unset: { neighborhoodName: "" } });
     await Technician.updateMany({}, { $unset: { neighborhoodNames: "" } });
@@ -98,6 +105,10 @@ const deleteAllNeighborhoods = async (req, res) => {
 const deleteNeighborhood = async (req, res) => {
   try {
     const neighborhoodId = req.params.id;
+    const neighborhood = await Neighborhood.findById(neighborhoodId);
+    if (neighborhood && neighborhood.neighborhoodPhoto) {
+      deleteImg(neighborhood.neighborhoodPhoto);
+    }
     await Neighborhood.findByIdAndDelete(neighborhoodId);
     await Job.updateMany(
       { neighborhoodName: neighborhoodId },
