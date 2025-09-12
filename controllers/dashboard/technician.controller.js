@@ -9,13 +9,20 @@ const getAllTechnicians = async (req, res) => {
   try {
     const { search } = req.query;
 
-    const query = buildSearchQuery({ search, neighborhood: null }, "mainTitle", false);
+    const query = buildSearchQuery(
+      { search, neighborhood: null },
+      "mainTitle",
+      false
+    );
 
     const technicians = await Technician.find(query)
       .populate("jobName")
       .populate("neighborhoodNames");
 
-    res.render("dashboard/technicians/index", { technicians, filters: { search } });
+    res.render("dashboard/technicians/index", {
+      technicians,
+      filters: { search },
+    });
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/technicians");
@@ -42,10 +49,10 @@ const getTechnicianById = async (req, res) => {
 
 // Helper function to get job neighborhood map
 const getJobNeighborhoodMap = async () => {
-  const jobsWithNeighborhoods = await Job.find().populate('neighborhoodName');
+  const jobsWithNeighborhoods = await Job.find().populate("neighborhoodName");
   const jobNeighborhoodMap = {};
 
-  jobsWithNeighborhoods.forEach(job => {
+  jobsWithNeighborhoods.forEach((job) => {
     if (!jobNeighborhoodMap[job.name]) {
       jobNeighborhoodMap[job.name] = [];
     }
@@ -60,7 +67,7 @@ const getJobNeighborhoodMap = async () => {
 // Render new technician form
 const newTechnician = async (req, res) => {
   try {
-    const jobNames = await Job.distinct('name');
+    const jobNames = await Job.distinct("name");
     const jobNeighborhoodMap = await getJobNeighborhoodMap();
 
     res.render("dashboard/technicians/form", {
@@ -82,7 +89,7 @@ const createTechnician = async (req, res) => {
     const errors = await validateTechnicianInput(req.body, req.file);
 
     if (errors.length > 0) {
-      const jobNames = await Job.distinct('name');
+      const jobNames = await Job.distinct("name");
       const jobNeighborhoodMap = await getJobNeighborhoodMap();
 
       return res.render("dashboard/technicians/form", {
@@ -90,13 +97,13 @@ const createTechnician = async (req, res) => {
         jobNames,
         neighborhoods: [], // could pass empty or related neighborhoods
         jobNeighborhoodMap: JSON.stringify(jobNeighborhoodMap),
-        errors,  // pass as array
+        errors, // pass as array
       });
     }
 
     const job = await Job.findOne({ name: req.body.jobName });
     if (!job) {
-      throw new Error('Job not found');
+      throw new Error("Job not found");
     }
 
     const technician = new Technician({
@@ -107,14 +114,14 @@ const createTechnician = async (req, res) => {
       mainTitle: req.body.mainTitle,
       description: req.body.description,
       phoneNumber: req.body.phoneNumber,
-      jobTechnicianPhoto: req.file.filename
+      jobTechnicianPhoto: req.file.path,
     });
 
     await technician.save();
     res.redirect("/dashboard/technicians");
   } catch (err) {
     console.error(err);
-    const jobNames = await Job.distinct('name');
+    const jobNames = await Job.distinct("name");
     const jobNeighborhoodMap = await getJobNeighborhoodMap();
 
     res.render("dashboard/technicians/form", {
@@ -131,14 +138,14 @@ const createTechnician = async (req, res) => {
 const editTechnician = async (req, res) => {
   try {
     const technician = await Technician.findById(req.params.id)
-      .populate('jobName')
-      .populate('neighborhoodNames');
+      .populate("jobName")
+      .populate("neighborhoodNames");
 
     if (!technician) {
       return res.redirect("/dashboard/technicians");
     }
 
-    const jobNames = await Job.distinct('name');
+    const jobNames = await Job.distinct("name");
     const jobNeighborhoodMap = await getJobNeighborhoodMap();
     const allNeighborhoods = await Neighborhood.find();
 
@@ -165,7 +172,7 @@ const updateTechnician = async (req, res) => {
     const errors = await validateTechnicianInput(req.body, req.file, true);
 
     if (errors.length > 0) {
-      const jobNames = await Job.distinct('name');
+      const jobNames = await Job.distinct("name");
       const jobNeighborhoodMap = await getJobNeighborhoodMap();
       const allNeighborhoods = await Neighborhood.find();
 
@@ -188,7 +195,7 @@ const updateTechnician = async (req, res) => {
     }
 
     const job = await Job.findOne({ name: req.body.jobName });
-    if (!job) throw new Error('Job not found');
+    if (!job) throw new Error("Job not found");
 
     technician.jobName = job._id;
     technician.neighborhoodNames = Array.isArray(req.body.neighborhoodNames)
@@ -199,7 +206,7 @@ const updateTechnician = async (req, res) => {
     technician.phoneNumber = req.body.phoneNumber;
 
     if (req.file) {
-      technician.jobTechnicianPhoto = req.file.filename;
+      technician.jobTechnicianPhoto = req.file.path;
     }
 
     await technician.save();
@@ -207,7 +214,7 @@ const updateTechnician = async (req, res) => {
   } catch (err) {
     console.error(err);
 
-    const jobNames = await Job.distinct('name');
+    const jobNames = await Job.distinct("name");
     const jobNeighborhoodMap = await getJobNeighborhoodMap();
     const allNeighborhoods = await Neighborhood.find();
 

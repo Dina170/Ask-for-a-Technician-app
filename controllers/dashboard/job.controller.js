@@ -34,7 +34,7 @@ const createJob = async (req, res) => {
       neighborhoodName,
       mainDescription,
       subDescription,
-      jobPhoto: req.file.filename,
+      jobPhoto: req.file.path, // Use Cloudinary URL
     });
 
     try {
@@ -65,7 +65,6 @@ const createJob = async (req, res) => {
 // GET all jobs
 const getAllJobs = async (req, res) => {
   try {
-
     const { search, neighborhood } = req.query;
 
     const query = buildSearchQuery({ search, neighborhood });
@@ -73,15 +72,20 @@ const getAllJobs = async (req, res) => {
     const jobs = await Job.find(query).populate("neighborhoodName");
     const neighborhoods = await Neighborhood.find();
 
-    const allJobNames = jobs.map(job => job.name);
+    const allJobNames = jobs.map((job) => job.name);
     const uniqueJobNames = [...new Set(allJobNames)]; // unique names array
 
-     // ✅ Extract unique neighborhood names
-    const allNeighborhoodNames = neighborhoods.map(n => n.name);
+    // ✅ Extract unique neighborhood names
+    const allNeighborhoodNames = neighborhoods.map((n) => n.name);
     const uniqueNeighborhoodNames = [...new Set(allNeighborhoodNames)];
 
-    res.render("dashboard/jobs/index", { jobs ,neighborhoods,
-      filters: { search, neighborhood } , uniqueJobNames , uniqueNeighborhoodNames});
+    res.render("dashboard/jobs/index", {
+      jobs,
+      neighborhoods,
+      filters: { search, neighborhood },
+      uniqueJobNames,
+      uniqueNeighborhoodNames,
+    });
   } catch (err) {
     console.error(err);
     res.redirect("/");
@@ -131,7 +135,9 @@ const updateJob = async (req, res) => {
     job.subDescription = req.body.subDescription;
 
     if (req.file) {
-      job.jobPhoto = req.file.filename;
+      job.jobPhoto = req.file.path;
+      console.log("the path", req.file.path);
+      // Use Cloudinary URL
     }
 
     try {

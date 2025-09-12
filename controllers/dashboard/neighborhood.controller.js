@@ -7,12 +7,20 @@ const { buildSearchQuery } = require("../../utils/searchFilters");
 const getAllNeighborhoods = async (req, res) => {
   try {
     // Build query using only the search term for the 'name' field
-    const search = req.query.search || '';
-    const query = buildSearchQuery({ search: req.query.search || '' }, 'name', false);
+    const search = req.query.search || "";
+    const query = buildSearchQuery(
+      { search: req.query.search || "" },
+      "name",
+      false
+    );
 
     const neighborhoods = await Neighborhood.find(query);
     const neighborhoodNames = await Neighborhood.distinct("name");
-    res.render("dashboard/neighborhoods/index", { neighborhoods, filters: { search } ,neighborhoodNames});
+    res.render("dashboard/neighborhoods/index", {
+      neighborhoods,
+      filters: { search },
+      neighborhoodNames,
+    });
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods");
@@ -55,7 +63,7 @@ const createNeighborhood = async (req, res) => {
 
     const neighborhood = new Neighborhood({
       name,
-      neighborhoodPhoto: req.file.filename,
+      neighborhoodPhoto: req.file.path,
     });
 
     await neighborhood.save();
@@ -132,7 +140,7 @@ const updateNeighborhood = async (req, res) => {
 
     neighborhood.name = req.body.name;
     if (req.file) {
-      neighborhood.neighborhoodPhoto = req.file.filename;
+      neighborhood.neighborhoodPhoto = req.file.path;
     }
 
     await neighborhood.save();

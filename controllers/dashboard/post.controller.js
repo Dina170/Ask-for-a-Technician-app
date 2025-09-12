@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { cloudinary } = require("../../config/cloudinary");
 
 const Post = require("../../models/post");
 const Blog = require("../../models/blog");
@@ -10,7 +11,7 @@ const getAllPosts = async (req, res) => {
     res.render("dashboard/posts/index", { posts });
   } catch (err) {
     console.error(err);
-    res.redirect("/dashboard");
+    res.redirect("/dashboard/posts");
   }
 };
 
@@ -38,7 +39,18 @@ const renderNewPostForm = async (req, res) => {
 const createPost = async (req, res) => {
   try {
     const { blog, name, permaLink, title, content } = req.body;
-    if (!blog || !name || !permaLink || !title || !content) {
+
+    // Validate permaLink
+    if (!permaLink || !permaLink.trim()) {
+      const blogs = await Blog.find();
+      return res.render("dashboard/posts/form", {
+        post: null,
+        blogs,
+        error: "Permanent Link is required",
+      });
+    }
+
+    if (!blog || !name || !title || !content) {
       const blogs = await Blog.find();
       return res.render("dashboard/posts/form", {
         post: null,
@@ -46,7 +58,14 @@ const createPost = async (req, res) => {
         error: "All fields are required",
       });
     }
-    const newPost = new Post({ blog, name, permaLink, title, content });
+
+    const newPost = new Post({
+      blog,
+      name,
+      permaLink: permaLink.trim(),
+      title,
+      content,
+    });
     await newPost.save();
     res.redirect("/dashboard/posts");
   } catch (err) {
@@ -77,7 +96,17 @@ const editPost = async (req, res) => {
 const updatePost = async (req, res) => {
   const { blog, name, permaLink, title, content } = req.body;
   try {
-    if (!blog || !name || !permaLink || !title || !content) {
+    // Validate permaLink
+    if (!permaLink || !permaLink.trim()) {
+      const blogs = await Blog.find();
+      return res.render("dashboard/posts/form", {
+        post: { _id: req.params.id, blog, name, permaLink, title, content },
+        blogs,
+        error: "Permanent Link is required",
+      });
+    }
+
+    if (!blog || !name || !title || !content) {
       const blogs = await Blog.find();
       return res.render("dashboard/posts/form", {
         post: { _id: req.params.id, blog, name, permaLink, title, content },
@@ -85,11 +114,13 @@ const updatePost = async (req, res) => {
         error: "All fields are required",
       });
     }
+
     const post = await Post.findById(req.params.id);
     if (!post) return res.redirect("/dashboard/posts");
+
     post.blog = blog;
     post.name = name;
-    post.permaLink = permaLink;
+    post.permaLink = permaLink.trim();
     post.title = title;
     post.content = content;
     await post.save();
@@ -141,12 +172,11 @@ const deleteAllPosts = async (req, res) => {
 function deleteImg(post) {
   const imageUrls = post.content.match(/<img src="([^"]+)"/g) || [];
   imageUrls.forEach((imgTag) => {
-    const imagePath = imgTag.match(/src="([^"]+)"/)[1];
-    const fullPath = path.join(__dirname, "../..", imagePath);
-
-    if (fs.existsSync(fullPath)) {
-      fs.unlinkSync(fullPath);
-    }
+    const imageUrl = imgTag.match(/src="([^"]+)"/)[1];
+    const publicId = imageUrl.split("/").slice(-2).join("/").split(".")[0]; // Extract public ID
+    cloudinary.uploader.destroy(publicId, (err, result) => {
+      if (err) console.error("Failed to delete image from Cloudinary:", err);
+    });
   });
 }
 
