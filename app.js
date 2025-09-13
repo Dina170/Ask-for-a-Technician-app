@@ -6,6 +6,7 @@ const methodOverride = require("method-override");
 const session = require("express-session");
 require("dotenv").config();
 const expressLayouts = require("express-ejs-layouts");
+const seedAdmin = require("./utils/seedAdmin");
 
 const app = express();
 
@@ -28,7 +29,10 @@ const loadBlogs = require("./middlewares/loadBlogs");
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGODB_URI)
-  .then(() => console.log("✅ Connected to MongoDB"))
+  .then(async () => {
+    console.log("✅ Connected to MongoDB");
+    await seedAdmin();
+  })
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 app.use(express.json({ limit: "10mb" }));
