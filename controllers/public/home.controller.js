@@ -31,7 +31,7 @@ exports.getHomePage = async (req, res) => {
 
     const techniciansRaw = await Technician.find(query)
       .populate("jobName")
-      .populate("neighborhoodNames"); 
+      .populate("neighborhoodNames");
 
     const technicians = neighborhood.trim()
       ? techniciansRaw.filter((t) =>
@@ -175,50 +175,48 @@ exports.autocompleteTechnicians = async (req, res) => {
   }
 };
 
-
 // to use it in search aboat post
 exports.autocompletePosts = async (req, res) => {
   try {
     const search = req.query.q?.trim() || "";
-    
+
     if (!search) {
       return res.json([]);
     }
-    const searchRegex = new RegExp(search.split(' ').join('|'), 'i');
-    
+    const searchRegex = new RegExp(search.split(" ").join("|"), "i");
+
     const posts = await Post.find({
       $or: [
         { title: { $regex: searchRegex } },
         { name: { $regex: searchRegex } },
         // { content: { $regex: searchRegex } }
-      ]
+      ],
     })
-    .select("title name permaLink content") 
-    .limit(10);
+      .select("title name permaLink content")
+      .limit(10);
 
     if (!posts || posts.length === 0) {
       return res.json([]);
     }
 
-    const formattedPosts = posts.map(post => ({
+    const formattedPosts = posts.map((post) => ({
       _id: post._id,
       title: post.title || "",
       name: post.name || "",
       permaLink: post.permaLink,
       content: post.content || "",
-      displayText: post.title && post.name 
-        ? `${post.title} - ${post.name}`
-        : post.title || post.name || "بدون عنوان"
+      displayText:
+        post.title && post.name
+          ? `${post.title} - ${post.name}`
+          : post.title || post.name || "بدون عنوان",
     }));
 
     return res.json(formattedPosts);
-    
   } catch (err) {
     console.error("Autocomplete error:", err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 exports.getAllBlogs = async (req, res) => {
   try {
@@ -232,10 +230,10 @@ exports.getAllBlogs = async (req, res) => {
 
 exports.getBlogPosts = async (req, res) => {
   try {
-    const blogId = req.params.id;
-    const blog = await Blog.findById(blogId);
+    const blogCategory = req.params.blog;
+    const blog = await Blog.findOne({ blog: blogCategory });
     if (!blog) return res.status(404).send("Blog not found");
-    const posts = await require("../../models/post").find({ blog: blogId });
+    const posts = await require("../../models/post").find({ blog: blog._id });
     res.render("public/blogPosts", { blog, posts });
   } catch (err) {
     console.error(err);
@@ -260,6 +258,3 @@ exports.getPostDetails = async (req, res) => {
 exports.getPrivacyPolicy = (req, res) => {
   res.render("public/privacyPolicy");
 };
-
-
-
