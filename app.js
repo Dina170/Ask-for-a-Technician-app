@@ -7,6 +7,7 @@ const session = require("express-session");
 require("dotenv").config();
 const expressLayouts = require("express-ejs-layouts");
 const seedAdmin = require("./utils/seedAdmin");
+const MongoStore = require("connect-mongo");
 
 const app = express();
 
@@ -41,13 +42,31 @@ app.use(morgan("dev"));
 app.use(methodOverride("_method"));
 app.set("view engine", "ejs");
 
+app.set("trust proxy", 1);
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "secret",
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+    }),
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24,
+      // secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+    },
   })
 );
+
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET || "secret",
+//     resave: false,
+//     saveUninitialized: false,
+//   })
+// );
 
 app.use(express.static("public"));
 app.use("/uploads", express.static("uploads"));
