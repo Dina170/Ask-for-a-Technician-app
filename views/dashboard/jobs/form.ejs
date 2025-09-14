@@ -55,7 +55,7 @@
         <% if (job && job.jobPhoto) { %>
           <!-- Edit mode -->
           <div id="editPreview" class="px-4 w-full h-11 rounded-md flex items-center relative border mb-2">
-            <img src="/uploads/jobs/<%= job.jobPhoto %>" class="w-9 h-9 object-cover rounded-md border" id="editImg">
+            <img src="<%= job.jobPhoto %>" class="w-9 h-9 object-cover rounded-md border" id="editImg">
             <span
               class="absolute top-0 left-0 bg-white w-10 h-10 text-red-500 rounded-full p-1 text-xs cursor-pointer flex justify-center z-40 items-center"
               onclick="removeEditPhoto()">
@@ -96,7 +96,8 @@
       <!-- Main Description with Quill Editor -->
       <div>
         <label class="block text-right mb-2 required font-medium">الوصف الرئيسي</label>
-        <div id="mainDescriptionEditor" dir="rtl" class="quill-container border rounded-md"></div>
+        <div id="mainDescriptionEditor" dir="rtl" class="quill-container border rounded-md"><%- job?.mainDescription
+            || '' %></div>
         <input type="hidden" name="mainDescription" id="mainDescriptionInput" />
         <p id="mainDescriptionError" class="text-red-500 text-sm mt-1 hidden"></p>
       </div>
@@ -104,7 +105,8 @@
       <!-- Sub Description with Quill Editor -->
       <div>
         <label class="block text-right mb-2 required font-medium">الوصف الفرعي</label>
-        <div id="subDescriptionEditor" dir="rtl" class="quill-container border rounded-md"></div>
+        <div id="subDescriptionEditor" dir="rtl" class="quill-container border rounded-md"><%- job.subDescription %>
+        </div>
         <input type="hidden" name="subDescription" id="subDescriptionInput" />
         <p id="subDescriptionError" class="text-red-500 text-sm mt-1 hidden"></p>
       </div>
@@ -160,12 +162,12 @@
 
     // Load existing content if editing
     <% if (job && job.mainDescription) { %>
-        mainEditor.root.innerHTML = <% - JSON.stringify(job.mainDescription) %>;
-    <% } %>
-    
-    <% if (job && job.subDescription) { %>
-        subEditor.root.innerHTML = <% - JSON.stringify(job.subDescription) %>;
-    <% } %>
+        mainEditor.clipboard.dangerouslyPasteHTML(`<%- job.mainDescription %>`);
+  <% } %>
+  
+  <% if (job && job.subDescription) { %>
+        subEditor.clipboard.dangerouslyPasteHTML(`<%- job.subDescription %>`);
+  <% } %>
     
     return { mainEditor, subEditor };
     } catch (error) {

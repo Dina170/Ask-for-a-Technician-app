@@ -96,8 +96,8 @@
             <% if (technician && technician.jobTechnicianPhoto) { %>
               <!-- Edit mode -->
               <div id="editPreview" class="px-4 w-full h-11 rounded-md flex items-center relative border mb-2">
-                <img src="/uploads/technicians/<%= technician.jobTechnicianPhoto %>"
-                  class="w-9 h-9 object-cover rounded-md border" id="editImg">
+                <img src="<%= technician.jobTechnicianPhoto %>" class="w-9 h-9 object-cover rounded-md border"
+                  id="editImg">
                 <span
                   class="absolute top-0 left-0 bg-white w-10 h-10 text-red-500 rounded-full p-1 text-xs cursor-pointer flex justify-center z-40 items-center"
                   onclick="removeEditPhoto()">
@@ -138,7 +138,8 @@
           <!-- Description with Quill Editor -->
           <div>
             <label class="block text-right mb-2 required font-medium">الوصف</label>
-            <div id="descriptionEditor" dir="rtl" class="quill-container border rounded-md"></div>
+            <div id="descriptionEditor" dir="rtl" class="quill-container border rounded-md"><%- technician.description
+                %></div>
             <input type="hidden" name="description" id="descriptionInput" />
             <p id="descriptionError" class="text-red-500 text-sm mt-1 hidden"></p>
           </div>
@@ -186,7 +187,7 @@
           });
     
     <% if (technician && technician.description) { %>
-            editor.root.innerHTML = <% - JSON.stringify(technician.description) %>;
+            editor.clipboard.dangerouslyPasteHTML(`<%- technician.description %>`);
     <% } %>
     
     return editor;
@@ -205,13 +206,13 @@
       let selectedNeighborhoods = [];
 
       try {
-  <% if (typeof jobNeighborhoodMap !== 'undefined') { %>
-          jobNeighborhoodMap = <% - jobNeighborhoodMap %>;
-  <% } %>
+        <% if (typeof jobNeighborhoodMap !== 'undefined') { %>
+          jobNeighborhoodMap = JSON.parse('<%- jobNeighborhoodMap %>');
+        <% } %>
   
-  <% if (typeof selectedNeighborhoodIds !== 'undefined') { %>
-          selectedNeighborhoods = <% - JSON.stringify(selectedNeighborhoodIds) %>;
-  <% } %>
+        <% if (typeof selectedNeighborhoodIds !== 'undefined') { %>
+          selectedNeighborhoods = JSON.parse('<%- selectedNeighborhoodIds || "[]" %>') %>;
+        <% } %>
 } catch (error) {
         console.error('Error loading initial data:', error);
       }

@@ -48,8 +48,8 @@
             <% if (neighborhood && neighborhood.neighborhoodPhoto) { %>
               <!-- EDIT MODE -->
               <div id="editPreview" class="px-4 w-full h-10 rounded-md flex items-center relative border">
-                <img src="/uploads/neighborhoods/<%= neighborhood.neighborhoodPhoto %>"
-                  class="w-8 h-8 object-cover rounded-md border" id="editImg">
+                <img src="<%= neighborhood.neighborhoodPhoto %>" class="w-8 h-8 object-cover rounded-md border"
+                  id="editImg">
                 <span
                   class="absolute top-0 left-0 bg-white w-10 h-9 text-red-500 rounded-full p-1 text-xs cursor-pointer flex justify-center z-40 items-center"
                   onclick="
