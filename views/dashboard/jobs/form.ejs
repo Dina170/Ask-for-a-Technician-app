@@ -105,7 +105,8 @@
       <!-- Sub Description with Quill Editor -->
       <div>
         <label class="block text-right mb-2 required font-medium">الوصف الفرعي</label>
-        <div id="subDescriptionEditor" dir="rtl" class="quill-container border rounded-md"><%- job.subDescription %>
+        <div id="subDescriptionEditor" dir="rtl" class="quill-container border rounded-md"><%- job?.subDescription || ''
+            %>
         </div>
         <input type="hidden" name="subDescription" id="subDescriptionInput" />
         <p id="subDescriptionError" class="text-red-500 text-sm mt-1 hidden"></p>
