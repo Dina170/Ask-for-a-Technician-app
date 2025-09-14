@@ -142,6 +142,7 @@ const updateJob = async (req, res) => {
     job.subDescription = req.body.subDescription;
 
     if (req.file) {
+      if (job.jobPhoto) deleteImg(job.jobPhoto);
       job.jobPhoto = req.file.path;
     }
 

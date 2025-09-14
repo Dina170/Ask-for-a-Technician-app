@@ -153,6 +153,8 @@ const updateNeighborhood = async (req, res) => {
 
     neighborhood.name = req.body.name;
     if (req.file) {
+      if (neighborhood.neighborhoodPhoto)
+        deleteImg(neighborhood.neighborhoodPhoto);
       neighborhood.neighborhoodPhoto = req.file.path;
     }
 

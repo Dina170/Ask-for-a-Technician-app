@@ -3,6 +3,7 @@ const Job = require("../../models/job");
 const Technician = require("../../models/technician");
 const { buildSearchQuery } = require("../../utils/searchFilters");
 const validateTechnicianInput = require("../../utils/validateTechnicianInput");
+const deleteImg = require("../../utils/deleteImg");
 
 // Get all technicians
 const getAllTechnicians = async (req, res) => {
@@ -216,6 +217,9 @@ const updateTechnician = async (req, res) => {
     technician.phoneNumber = req.body.phoneNumber;
 
     if (req.file) {
+      if (technician.jobTechnicianPhoto) {
+        deleteImg(technician.jobTechnicianPhoto);
+      }
       technician.jobTechnicianPhoto = req.file.path;
     }
 
