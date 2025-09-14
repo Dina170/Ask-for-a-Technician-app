@@ -154,7 +154,7 @@
 
                     <!-- Action Button -->
                     <div class="mt-auto">
-                      <a href="/technicians/<%= technician._id %>/details"
+                      <a href="/technicians/<%= technician.mainTitle %>/details"
                         class="block w-full bg-[#2A4759] hover:bg-[#1e3542] text-white text-sm sm:text-base text-center py-3 px-4 rounded-lg transition-colors duration-300 font-medium">
                         عرض المزيد
                         <i class="fa-solid fa-arrow-left mr-2"></i>
@@ -177,7 +177,7 @@
               <i class="fa-solid fa-chevron-left mr-2"></i>
             </a>
             <% } else if (type==='neighborhoods' ) { %>
-              <a href="/technicians/<%= technician._id %>/seeMoreTechnicianNeighborhoods"
+              <a href="/technicians/<%= technician.mainTitle %>/seeMoreTechnicianNeighborhoods"
                 class="inline-block bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border-2 border-[#2A4759] px-6 sm:px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium">
                 عرض المزيد
                 <i class="fa-solid fa-chevron-left mr-2"></i>
