@@ -9,6 +9,9 @@ const {
   deleteAllBlogs,
   editBlog,
 } = require("../../controllers/dashboard/blog.controller");
+const isAdmin = require("../../middlewares/isAdmin");
+
+router.use(isAdmin);
 
 router.get("/new", renderNewBlogForm);
 router.get("/", getAllBlogs);

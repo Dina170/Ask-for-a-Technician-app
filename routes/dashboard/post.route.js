@@ -12,6 +12,8 @@ const {
   deletePost,
   deleteAllPosts,
 } = require("../../controllers/dashboard/post.controller");
+const isAdmin = require("../../middlewares/isAdmin");
+router.use(isAdmin);
 
 // Image upload endpoint
 router.post("/upload-image", upload.single("image"), (req, res) => {
