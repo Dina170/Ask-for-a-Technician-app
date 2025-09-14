@@ -128,6 +128,9 @@ const createTechnician = async (req, res) => {
     );
   } catch (err) {
     console.error(err);
+    if (err.code === 11000) {
+      err.message = "العنوان يجب أن يكون فريدًا";
+    }
     const jobNames = await Job.distinct("name");
     const jobNeighborhoodMap = await getJobNeighborhoodMap();
 
@@ -229,7 +232,9 @@ const updateTechnician = async (req, res) => {
     );
   } catch (err) {
     console.error(err);
-
+    if (err.code === 11000) {
+      err.message = "العنوان يجب أن يكون فريدًا";
+    }
     const jobNames = await Job.distinct("name");
     const jobNeighborhoodMap = await getJobNeighborhoodMap();
     const allNeighborhoods = await Neighborhood.find();
