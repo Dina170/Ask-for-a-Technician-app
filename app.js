@@ -158,7 +158,7 @@ app.use((err, req, res, next) => {
     res.render("error", {
       status: status,
       message: message,
-      error: process.env.NODE_ENV === "development" ? err : {},
+      error: err,
     });
   }
 });
