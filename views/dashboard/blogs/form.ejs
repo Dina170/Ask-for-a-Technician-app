@@ -44,7 +44,8 @@
             <!-- Description (Quill) -->
             <div>
                 <label class="block text-right mb-2 required font-medium">الوصف</label>
-                <div id="descriptionEditor" dir="rtl" class="quill-container border rounded-md"></div>
+                <div id="descriptionEditor" dir="rtl" class="quill-container border rounded-md"><%- blog?.description
+                        || '' %></div>
                 <input type="hidden" name="description" id="descriptionInput" />
                 <p id="descriptionError" class="text-red-500 text-sm mt-1 hidden"></p>
             </div>
@@ -87,9 +88,7 @@
         });
 
         // تحميل البيانات القديمة لو تعديل
-        `<% if (blog && blog.description) { %>`
-        editor.root.innerHTML = <% - JSON.stringify(blog.description) %>;
-        `<% } %>`
+
 
         // دوال إظهار/إخفاء الأخطاء
         const showError = (id, msg) => {
