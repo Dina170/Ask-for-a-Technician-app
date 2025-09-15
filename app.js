@@ -138,29 +138,13 @@ app.use((req, res, next) => {
 
 // تصحيح Error Handler - ليعرض صفحة خطأ بدلاً من JSON
 app.use((err, req, res, next) => {
-  const status = err.status || 500;
-  const message = err.message || "Internal Server Error";
+  console.error("❌ Internal Error:", err.stack || err);
 
-  // طباعة الخطأ في الكونسول للتشخيص
-  console.error(`Error ${status}: ${message}`);
-  console.error(`Route: ${req.method} ${req.originalUrl}`);
-
-  res.status(status);
-
-  // إذا كان الطلب API (يتوقع JSON)
-  if (req.xhr || req.headers.accept.indexOf("json") > -1) {
-    res.json({
-      status: status,
-      message: message,
-    });
-  } else {
-    // إذا كان طلب عادي من المتصفح
-    res.render("error", {
-      status: status,
-      message: message,
-      error: err,
-    });
-  }
+  // Show full error details in browser (⚠️ remove in production!)
+  res.status(500).send(`
+    <h1>Internal Server Error</h1>
+    <pre>${err.stack || err}</pre>
+  `);
 });
 
 // ---------------- Server ----------------
