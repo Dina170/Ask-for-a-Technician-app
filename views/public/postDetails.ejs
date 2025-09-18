@@ -11,7 +11,7 @@
     />
   </head>
 
-  <body class="font-sans bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+  <body class="font-sans text-gray-800 flex flex-col min-h-screen">
     <!-- header -->
     <%- include("../layouts/header") %>
 
@@ -28,42 +28,38 @@
   <%= post.blog.blog %>
 </a>
         <i class="fa-solid fa-chevron-left mx-2"></i>
-        <span class="font-semibold text-gray-600"><%= post.name %></span>
+        <span class="font-semibold text-[#B3AFAF]"><%= post.name %></span>
       </div>
     </div>
 
-    <!-- عنوان المقال -->
-    <div class="text-center my-8 px-4">
-      <h1 class="text-3xl font-bold text-[#2A4759] mb-4 leading-relaxed">
-        <%= post.name %>
-      </h1>
+   
       
     <!-- محتوى المقال -->
-    <div class="container mx-auto px-4 py-8 flex-grow">
-      <div class="max-w-8xl mx-auto">
-        
-        <!-- صورة المقال -->
-        <% if (post.image) { %>
-        <div class="mb-8">
-          <img 
-            src="/uploads/posts/<%= post.image %>" 
-            alt="<%= post.title %>" 
-            class="w-full h-96 object-cover rounded-lg shadow-lg"
-          />
-        </div>
-        <% } %>
+<div class="max-w-6xl mx-auto py-8 flex-grow">
+  <!-- عنوان المقال -->
+  <p class="text-3xl font-bold text-[#222222] font-[700] text-[32px] mb-6 leading-relaxed">
+    <%= post.name %>
+  </p>
 
-        <!-- محتوى المقال -->
-        <div class="bg-white rounded-lg shadow-sm p-8">
-          <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
-            <%- post.content %>
-          </div>
-        </div>
+  <!-- صورة المقال -->
+  <% if (post.image) { %>
+  <div class="mb-8">
+    <img 
+      src="/uploads/posts/<%= post.image %>" 
+      alt="<%= post.title %>" 
+      class="w-full h-96 object-cover rounded-lg shadow-lg"
+    />
+  </div>
+  <% } %>
+
+  <!-- محتوى المقال -->
+  <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+    <%- post.content %>
+  </div>
+</div>
+
 
        
-
-     
-      </div>
     </div>
     </div>
 
