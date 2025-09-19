@@ -1,0 +1,37 @@
+<div class="rounded-tl-3xl shadow-md border p-5 h-[100%]">
+  <div class="mb-6 px-6">
+    <h1 class="text-xl font-bold my-1 text-right">عرض المدونة</h1>
+    <p class="text-gray-600 text-right">
+      <a href="/dashboard/blogs" class="hover:text-sky-950 hover:font-medium">المدونة</a> &gt; عرض المدونة
+    </p>
+  </div>
+
+  <div class="bg-white rounded-lg px-6 py-4">
+    <!-- Blog Name -->
+    <div class="mb-6">
+      <label class="block text-right mb-2 required font-medium"> المدونة</label>
+      <input type="text" class="w-full p-2 border rounded-md text-right" disabled readonly value="<%= blog.blog %>">
+    </div>
+    <!-- Blog Description -->
+    <div class="mb-6">
+      <label class="block text-right mb-2 font-medium"> عنوان</label>
+      <input type="text" class="w-full p-2 border rounded-md text-right" disabled readonly value="<%= blog.title %>">
+    </div>
+
+    <!-- description  -->
+    <div class="mb-6">
+      <label class="block text-right mb-2 font-medium">وصف</label>
+      <div class="border rounded-md p-3 text-right bg-gray-50">
+        <%- blog.description %>
+      </div>
+    </div>
+
+
+    <!-- Actions -->
+    <div class="flex justify-between mt-10 gap-4">
+      <a href="/dashboard/blogs" class="bg-white border border-gray-900 hover:bg-gray-700 hover:text-white text-gray-800 font-bold py-3 px-4 rounded-md w-full text-center">
+        <i class="fa-solid fa-arrow-left ms-2"></i> رجوع
+      </a>
+    </div>
+  </div>
+</div>

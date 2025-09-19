@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="font-[Cairo]">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>جميع الفنيين</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body, p, h1, h2, h3, h4, h5, h6, a, button, input, textarea, label, div {
+      font-family: 'Cairo', sans-serif !important;
+    }
+  </style>
+</head>
+<body class="text-gray-800 flex flex-col min-h-screen">
+  <!-- header -->
+  <%- include("../layouts/header") %>
+
+  <!-- Breadcrumb -->
+  <div class="bg-white border-b border-gray-200 py-4">
+    <div class="max-w-8xl px-4 md:px-32 mx-auto flex items-center justify-between">
+      <div class="flex items-center">
+        <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
+          <i class="fa-solid fa-home text-2xl ml-3"></i>
+        </a>
+        <i class="fa-solid fa-chevron-left ml-3"></i>
+        <span class="font-semibold text-[#B7BDC2]">عرض الفنيين</span>
+      </div>
+
+      <!-- Mobile search -->
+      
+    </div>
+  </div>
+
+  <!-- Title + Desktop Search -->
+  <div class="bg-white py-4">
+    <div class="max-w-8xl mx-auto px-4 md:px-32 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+      <div class="text-right lg:text-right">
+        <p class="text-[#2A4759] font-bold text-[20px] md:text-[24px] mb-2">
+          الفنيون المتاحون الآن في مدينة الرياض
+        </p>
+        <p class="text-[#2A4759] text-[14px] md:text-[16px]">
+          فنيونا متواجدون حاليًا في مناطق متعددة داخل مدينة الرياض، ونسعد دائمًا بخدمتكم
+        </p>
+      </div>
+
+      <!-- Desktop Search -->
+      <form action="/technicians" method="GET" class="hidden lg:flex items-center w-full lg:w-1/3">
+        <div class="relative w-full">
+          <input
+            type="text"
+            id="search-desktop"
+            name="search"
+            value="<%= search || '' %>"
+            placeholder="ابحث عن فني"
+            class="w-full border border-gray-300 rounded-[12px] py-2 pr-8 pl-4 focus:outline-none focus:ring-2 focus:ring-[#2A4759]"
+          />
+          <ul id="autocomplete-list-desktop" class="absolute z-50 bg-[#FAFAFA] w-full mt-1 rounded-lg"></ul>
+          <button type="submit" class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 hover:text-[#2A4759]">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Cards -->
+<div class="container mx-auto px-4 sm:px-4 lg:px-12 py-8 flex-grow">
+    <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% technicians.forEach(tech => { %>
+        <div class="technician-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative flex flex-col">
+          <div class="relative h-48">
+            <img src="/uploads/technicians/<%= tech.jobTechnicianPhoto %>" alt="<%= tech.name %>" class="w-full h-full object-cover" />
+          </div>
+          <div class="card-body p-4 flex flex-col flex-1">
+            <h3 class="tech-name text-lg font-bold text-[#222222] mb-2"><%= tech.mainTitle %></h3>
+<p class="text-[#5C5C5C] text-sm mb-5 break-words whitespace-normal overflow-hidden line-clamp-3">
+              <%- tech.description.replace(/<img.*?>/g, "").replace(/<[^>]+>/g, "").substring(0, 200) %>...
+            </p>
+            <div class="mt-auto flex gap-2">
+              <a href="/technicians/<%= tech._id %>/details" class="flex-1 bg-[#2A4759] text-white text-sm text-center h-12 flex items-center justify-center rounded-lg hover:opacity-80 transition-opacity duration-200">
+                عرض المزيد
+              </a>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <!-- No results -->
+    <div id="no-results" class="hidden text-center py-10 text-gray-500">
+      <i class="fa-solid fa-circle-exclamation text-3xl mb-3 text-[#2A4759]"></i>
+      <p class="text-lg font-semibold">لا يوجد فنيين حسب بحثك</p>
+    </div>
+  </div>
+
+  <!-- footer -->
+  <%- include("../layouts/footer") %>
+
+  <script>
+    // Autocomplete function
+    function setupAutocomplete(inputId, listId) {
+      const searchInput = document.getElementById(inputId);
+      const suggestionBox = document.getElementById(listId);
+
+      if (searchInput) {
+        searchInput.addEventListener('input', async () => {
+          const query = searchInput.value.trim();
+          suggestionBox.innerHTML = '';
+          if (query.length === 0) return;
+
+          try {
+            const res = await fetch(`/technicians?search=${encodeURIComponent(query)}`, {
+              headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const suggestions = await res.json();
+
+            suggestions.forEach(tech => {
+              const li = document.createElement('li');
+              li.textContent = tech.name;
+              li.className = "px-4 py-2 cursor-pointer hover:bg-gray-100";
+              li.addEventListener('click', () => {
+                searchInput.value = tech.name;
+                suggestionBox.innerHTML = '';
+              });
+              suggestionBox.appendChild(li);
+            });
+          } catch (err) {
+            console.error("Autocomplete fetch error:", err);
+          }
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+            suggestionBox.innerHTML = '';
+          }
+        });
+      }
+    }
+
+    // Desktop search
+    setupAutocomplete('search-desktop', 'autocomplete-list-desktop');
+
+    // Mobile search toggle + autocomplete
+    const mobileSearchBtn = document.getElementById('mobile-search-btn');
+    const mobileSearchWrapper = document.getElementById('mobile-search-wrapper');
+    if (mobileSearchBtn && mobileSearchWrapper) {
+      mobileSearchBtn.addEventListener('click', () => {
+        mobileSearchWrapper.classList.toggle('hidden');
+      });
+    }
+    setupAutocomplete('search-mobile', 'autocomplete-list-mobile');
+
+    // فلترة الكروت + no results
+    function handleSearch(inputId) {
+      const searchInput = document.getElementById(inputId);
+      const noResults = document.getElementById("no-results");
+      if (!searchInput) return;
+
+      searchInput.addEventListener("input", function () {
+        const query = this.value.toLowerCase();
+        let anyVisible = false;
+
+        document.querySelectorAll(".technician-card").forEach(card => {
+          const name = card.querySelector(".tech-name").textContent.toLowerCase();
+          if (name.includes(query)) {
+            card.style.display = "block";
+            anyVisible = true;
+          } else {
+            card.style.display = "none";
+          }
+        });
+
+        if (!anyVisible) {
+          noResults.classList.remove("hidden");
+        } else {
+          noResults.classList.add("hidden");
+        }
+      });
+    }
+
+    // فعل السيرش
+    handleSearch("search-desktop"); // الديسكتوب
+    handleSearch("search-mobile");  // الموبايل
+  </script>
+</body>
+</html>
