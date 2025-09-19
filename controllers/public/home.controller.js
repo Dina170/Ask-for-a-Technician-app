@@ -1,5 +1,6 @@
 const Job = require("../../models/job");
 const Technician = require("../../models/technician");
+const Neighborhood = require("../../models/neighborhood"); // إضافة نموذج الحي
 const Blog = require("../../models/blog");
 const Post = require("../../models/post");
 
@@ -15,6 +16,22 @@ exports.getHomePage = async (req, res) => {
       },
     ]);
 
+    // الحصول على قائمة فريدة من أسماء الفنيين
+    const uniqueTechnicians = await Technician.aggregate([
+      {
+        $group: {
+          _id: "$mainTitle",
+          technicianId: { $first: "$_id" }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    // الحصول على قائمة فريدة من الأحياء
+    const uniqueNeighborhoods = await Neighborhood.find({})
+      .select('name')
+      .sort({ name: 1 });
+
     const jobId = req.query.jobId || "";
     const technician = req.query.technician || "";
     const neighborhood = req.query.neighborhood || "";
@@ -26,17 +43,17 @@ exports.getHomePage = async (req, res) => {
     }
 
     if (technician.trim()) {
-      query.mainTitle = { $regex: technician.trim(), $options: "i" };
+      query.mainTitle = technician.trim();
     }
 
     const techniciansRaw = await Technician.find(query)
       .populate("jobName")
-      .populate("neighborhoodNames");
+      .populate("neighborhoodNames"); 
 
     const technicians = neighborhood.trim()
       ? techniciansRaw.filter((t) =>
           t.neighborhoodNames.some((n) =>
-            n.name.toLowerCase().includes(neighborhood.trim().toLowerCase())
+            n.name === neighborhood.trim()
           )
         )
       : techniciansRaw;
@@ -44,6 +61,8 @@ exports.getHomePage = async (req, res) => {
     res.render("landingpage/index", {
       jobs: uniqueJobs,
       technicians,
+      uniqueTechnicians, // إرسال قائمة الفنيين الفريدة
+      uniqueNeighborhoods, // إرسال قائمة الأحياء الفريدة
       technician,
       neighborhood,
       selectedJobId: jobId || "",
@@ -54,82 +73,14 @@ exports.getHomePage = async (req, res) => {
   }
 };
 
-// exports.autocompleteTechnicians = async (req, res) => {
-//   try {
-//     const search = req.query.q || '';
-
-//     const technicians = await Technician.find({
-//       mainTitle: { $regex: search, $options: 'i' }
-//     }).select('mainTitle').limit(10);
-
-//     const names = technicians.map(tech => tech.mainTitle);
-
-//     res.json(names);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send("Internal Server Error");
-//   }
-// };
-
-// exports.autocompleteTechnicians = async (req, res) => {
-//   try {
-//     const search = req.query.q?.trim() || '';
-
-//     if (!search) return res.json([]);
-
-//     // Find matching technicians by name
-//     const technicianResults = await Technician.find({
-//       mainTitle: { $regex: search, $options: 'i' }
-//     }).select('mainTitle').limit(10);
-
-//     const technicianNames = technicianResults.map(t => t.mainTitle);
-
-//     // Find matching neighborhoods by name (via $lookup)
-//     const neighborhoodResults = await Technician.aggregate([
-//       { $unwind: "$neighborhoodNames" },
-//       {
-//         $lookup: {
-//           from: "neighborhoods", // collection name (lowercase and plural)
-//           localField: "neighborhoodNames",
-//           foreignField: "_id",
-//           as: "neighborhoodInfo"
-//         }
-//       },
-//       { $unwind: "$neighborhoodInfo" },
-//       {
-//         $match: {
-//           "neighborhoodInfo.name": { $regex: search, $options: 'i' }
-//         }
-//       },
-//       {
-//         $group: {
-//           _id: "$neighborhoodInfo.name"
-//         }
-//       },
-//       { $limit: 10 }
-//     ]);
-
-//     const neighborhoodNames = neighborhoodResults.map(n => n._id);
-
-//     // Combine and deduplicate results
-//     const combined = [...new Set([...technicianNames, ...neighborhoodNames])];
-
-//     res.json(combined);
-//   } catch (err) {
-//     console.error("Autocomplete error:", err);
-//     res.status(500).send("Internal Server Error");
-//   }
-// };
-
 exports.autocompleteTechnicians = async (req, res) => {
   try {
     const search = req.query.q?.trim() || "";
-    const type = req.query.type || "technician"; // default to technician if not provided
+    const type = req.query.type || "technician";
 
     if (!search) return res.json([]);
 
     if (type === "technician") {
-      // Find matching technicians by mainTitle
       const technicianResults = await Technician.find({
         mainTitle: { $regex: search, $options: "i" },
       })
@@ -139,12 +90,11 @@ exports.autocompleteTechnicians = async (req, res) => {
       const technicianNames = technicianResults.map((t) => t.mainTitle);
       return res.json(technicianNames);
     } else if (type === "neighborhood") {
-      // Find matching neighborhoods by name using aggregation and lookup
       const neighborhoodResults = await Technician.aggregate([
         { $unwind: "$neighborhoodNames" },
         {
           $lookup: {
-            from: "neighborhoods", // MongoDB collection name
+            from: "neighborhoods",
             localField: "neighborhoodNames",
             foreignField: "_id",
             as: "neighborhoodInfo",
@@ -175,43 +125,41 @@ exports.autocompleteTechnicians = async (req, res) => {
   }
 };
 
-// to use it in search aboat post
 exports.autocompletePosts = async (req, res) => {
   try {
     const search = req.query.q?.trim() || "";
-
+    
     if (!search) {
       return res.json([]);
     }
-    const searchRegex = new RegExp(search.split(" ").join("|"), "i");
-
+    const searchRegex = new RegExp(search.split(' ').join('|'), 'i');
+    
     const posts = await Post.find({
       $or: [
         { title: { $regex: searchRegex } },
         { name: { $regex: searchRegex } },
-        // { content: { $regex: searchRegex } }
-      ],
+      ]
     })
-      .select("title name permaLink content")
-      .limit(10);
+    .select("title name permaLink content") 
+    .limit(10);
 
     if (!posts || posts.length === 0) {
       return res.json([]);
     }
 
-    const formattedPosts = posts.map((post) => ({
+    const formattedPosts = posts.map(post => ({
       _id: post._id,
       title: post.title || "",
       name: post.name || "",
       permaLink: post.permaLink,
       content: post.content || "",
-      displayText:
-        post.title && post.name
-          ? `${post.title} - ${post.name}`
-          : post.title || post.name || "بدون عنوان",
+      displayText: post.title && post.name 
+        ? `${post.title} - ${post.name}`
+        : post.title || post.name || "بدون عنوان"
     }));
 
     return res.json(formattedPosts);
+    
   } catch (err) {
     console.error("Autocomplete error:", err);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -230,10 +178,10 @@ exports.getAllBlogs = async (req, res) => {
 
 exports.getBlogPosts = async (req, res) => {
   try {
-    const blogCategory = req.params.blog;
-    const blog = await Blog.findOne({ blog: blogCategory });
+    const blogId = req.params.id;
+    const blog = await Blog.findById(blogId);
     if (!blog) return res.status(404).send("Blog not found");
-    const posts = await require("../../models/post").find({ blog: blog._id });
+    const posts = await require("../../models/post").find({ blog: blogId });
     res.render("public/blogPosts", { blog, posts });
   } catch (err) {
     console.error(err);
