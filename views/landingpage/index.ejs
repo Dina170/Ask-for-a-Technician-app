@@ -9,9 +9,22 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      body, p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea, label, div {
+        font-family: 'Cairo', sans-serif !important;
+      }
+      .line-clamp-3 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3; 
+  overflow: hidden;
+}
+
+    </style>
   </head>
 
-  <body class="font-sans text-gray-800 flex flex-col min-h-screen">
+<body class="font-sans text-gray-800 flex flex-col min-h-screen" style="font-family: 'Cairo', sans-serif;">
     <%- include('../layouts/header') %>
     
     <main class="flex-1">
@@ -162,8 +175,8 @@
                   </h3>
                   
                   <!-- Description with line clamp -->
-                  <p class="text-[#5C5C5C] text-sm mb-3 break-words whitespace-normal overflow-hidden" style="max-height: 3rem;">
-                    <%- technician.description.replace(/<img.*?>/g, "").replace(/<[^>]+>/g, "").substring(0, 200) %>...
+<p class="text-[#5C5C5C] text-sm mb-5 break-words whitespace-normal overflow-hidden line-clamp-3">
+                      <%- technician.description.replace(/<img.*?>/g, "").replace(/<[^>]+>/g, "").substring(0, 200) %>...
                   </p>
                   
                   <!-- Action Button -->

@@ -1,114 +1,154 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>كل الأحياء</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
-  </head>
-
-  <body class="font-sans text-gray-800 flex flex-col min-h-screen">
-    <!-- header -->
-    <%- include("../layouts/header") %>
-
-    <!-- ────────────────────────────────────────────────────── -->
-
-    <!-- Breadcrumb -->
-<div class="bg-white border-b border-gray-200 py-4">
-  <div class="max-w-6xl mx-auto px-6 flex items-center justify-between">
-    <div> 
-      <a href="/" class="text-[#2A4759] hover:text-[#406A84] ">
-        <i class="fa-solid fa-home text-2xl ml-3"></i>
-      </a>
-      <i class="fa-solid fa-chevron-left ml-3"></i>
-      <span class="font-semibold"><%= technician.mainTitle %></span>
-      <i class="fa-solid fa-chevron-left ml-3 mr-2"></i>
-      <span class="font-semibold text-[#B3AFAF]"> عرض الاحياء</span>
-    </div>
-  </div>
-</div>
-
-<!-- Title + Search -->
-<div class="bg-white py-4">
-  <div class="max-w-6xl mx-auto px-6 flex items-center justify-between">
-    <div>
-      <p class="text-[#2A4759] font-bold text-[24px] mb-2 text-right">
-        المناطق التي تتواجد بها خدماتنا
-      </p>
-      <p class="text-[#2A4759] text-[16px]">
-        خدماتنا حاليًا متاحة في مناطق متعددة داخل مدينة الرياض، ونسعد بخدمتكم دائمًا
-      </p>
-    </div>
-
-   <form action="/technicians/<%= technician._id %>/seeMoreTechnicianNeighborhoods" method="GET" class="flex items-center w-1/3">
-          <div class="relative w-full">
-            <input
-              type="text"
-              id="search"
-              name="search"
-              value="<%= searchQuery || '' %>"
-              placeholder="ابحث عن حي"
-class="w-full border-[0.5px] border-gray-300 rounded-[12px] py-2 pr-8 pl-4 focus:outline-none focus:ring-2 focus:ring-[#2A4759]"
-            />
-            <ul id="autocomplete-list" class="absolute z-50 bg-[#FAFAFA] w-full mt-1 rounded-lg "></ul>
-            <button type="submit" class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 hover:text-[#2A4759]">
-              <i class="fa-solid fa-magnifying-glass"></i>
-            </button>
-          </div>
-        </form>
-  </div>
-</div>
-
-<!-- Cards -->
-<div class="max-w-6xl mx-auto px-6 my-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ">
-  <% neighborhoodsWithJobs.forEach(({ neighborhood, job }) => { %>
-    <%- include('../partials/neighborhoodcard', { neighborhood, job }) %>
-  <% }) %>
-</div>
-
-
-    <!-- footer -->
-    <%- include("../layouts/footer") %>
-
-    <script>
-  const searchInput = document.getElementById('search');
-  const autocompleteList = document.getElementById('autocomplete-list');
-const names = JSON.parse('<%- JSON.stringify(neighborhoodsWithJobs.map(n => n.neighborhood.name)) %>');
-
-  searchInput.addEventListener('input', function () {
-    const val = this.value.toLowerCase();
-    autocompleteList.innerHTML = '';
-
-    if (!val) return;
-
-    const matches = names.filter(name => name.toLowerCase().includes(val));
-
-    matches.forEach(name => {
-      const div = document.createElement('div');
-      div.textContent = name;
-      div.className = "px-4 py-2 cursor-pointer hover:bg-gray-100 border border-gray-100";
-      div.addEventListener('click', () => {
-        searchInput.value = name;
-        autocompleteList.innerHTML = '';
-      });
-      autocompleteList.appendChild(div);
-    });
-  });
-
-  document.addEventListener('click', function (e) {
-    if (e.target !== searchInput) {
-      autocompleteList.innerHTML = '';
+<html lang="ar" dir="rtl" class="font-[Cairo]">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>كل الأحياء</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body, p, h1, h2, h3, h4, h5, h6, a, button, input, textarea, label, div {
+      font-family: 'Cairo', sans-serif !important;
     }
-  });
+  </style>
+</head>
+<body class="text-gray-800 flex flex-col min-h-screen">
+  <!-- header -->
+  <%- include("../layouts/header") %>
 
-  searchInput.closest('form').addEventListener('submit', () => {
-    autocompleteList.innerHTML = '';
-  });
-</script>
+  <!-- Breadcrumb -->
+  <div class="bg-white border-b border-gray-200 py-4">
+    <div class="max-w-8xl px-4 md:px-32 mx-auto flex items-center justify-between">
+      <div class="flex items-center">
+        <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
+          <i class="fa-solid fa-home text-2xl ml-3"></i>
+        </a>
+        <i class="fa-solid fa-chevron-left ml-3"></i>
+        <span class="font-semibold text-[#B7BDC2]">عرض الأحياء</span>
+      </div>
+    </div>
+  </div>
 
-  </body>
+  <!-- Title + Desktop Search -->
+  <div class="bg-white py-4">
+    <div class="max-w-8xl mx-auto px-4 md:px-32 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+      <div class="text-right lg:text-right">
+        <p class="text-[#2A4759] font-bold text-[20px] md:text-[24px] mb-2">
+          المناطق التي تتواجد بها خدماتنا
+        </p>
+        <p class="text-[#2A4759] text-[14px] md:text-[16px]">
+          خدماتنا حاليًا متاحة في مناطق متعددة داخل مدينة الرياض، ونسعد بخدمتكم دائمًا
+        </p>
+      </div>
+
+      <!-- Desktop Search -->
+      <form action="/technicians/<%= technician._id %>/seeMoreTechnicianNeighborhoods" method="GET" class="hidden lg:flex items-center w-full lg:w-1/3">
+        <div class="relative w-full">
+          <input
+            type="text"
+            id="search-desktop"
+            name="search"
+            value="<%= searchQuery || '' %>"
+            placeholder="ابحث عن حي"
+            class="w-full border border-gray-300 rounded-[12px] py-2 pr-8 pl-4 focus:outline-none focus:ring-2 focus:ring-[#2A4759]"
+          />
+          <ul id="autocomplete-list-desktop" class="absolute z-50 bg-[#FAFAFA] w-full mt-1 rounded-lg"></ul>
+          <button type="submit" class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 hover:text-[#2A4759]">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="container mx-auto px-4 sm:px-4 lg:px-12 py-8 flex-grow">
+    <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% neighborhoodsWithJobs.forEach(({ neighborhood, job }) => { %>
+        <%- include('../partials/neighborhoodcard', { neighborhood, job }) %>
+      <% }) %>
+    </div>
+
+    <!-- No results -->
+    <div id="no-results" class="hidden text-center py-10 text-gray-500">
+      <i class="fa-solid fa-circle-exclamation text-3xl mb-3 text-[#2A4759]"></i>
+      <p class="text-lg font-semibold">لا يوجد أحياء حسب بحثك</p>
+    </div>
+  </div>
+
+  <!-- footer -->
+  <%- include("../layouts/footer") %>
+
+  <script>
+    // Autocomplete function
+    function setupAutocomplete(inputId, listId, data) {
+      const searchInput = document.getElementById(inputId);
+      const suggestionBox = document.getElementById(listId);
+
+      if (searchInput) {
+        searchInput.addEventListener('input', () => {
+          const val = searchInput.value.toLowerCase();
+          suggestionBox.innerHTML = '';
+          if (!val) return;
+
+          const matches = data.filter(name => name.toLowerCase().includes(val));
+
+          matches.forEach(name => {
+            const li = document.createElement('li');
+            li.textContent = name;
+            li.className = "px-4 py-2 cursor-pointer hover:bg-gray-100";
+            li.addEventListener('click', () => {
+              searchInput.value = name;
+              suggestionBox.innerHTML = '';
+            });
+            suggestionBox.appendChild(li);
+          });
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+            suggestionBox.innerHTML = '';
+          }
+        });
+      }
+    }
+
+    const neighborhoods = JSON.parse('<%- JSON.stringify(neighborhoodsWithJobs.map(n => n.neighborhood.name)) %>');
+
+    // Desktop search
+    setupAutocomplete('search-desktop', 'autocomplete-list-desktop', neighborhoods);
+
+    // فلترة الكروت + no results
+    function handleSearch(inputId) {
+      const searchInput = document.getElementById(inputId);
+      const noResults = document.getElementById("no-results");
+      if (!searchInput) return;
+
+      searchInput.addEventListener("input", function () {
+        const query = this.value.toLowerCase();
+        let anyVisible = false;
+
+        document.querySelectorAll("#cards-container > div").forEach(card => {
+          const name = card.querySelector(".neighborhood-card-title")?.textContent.toLowerCase() || "";
+          if (name.includes(query)) {
+            card.style.display = "block";
+            anyVisible = true;
+          } else {
+            card.style.display = "none";
+          }
+        });
+
+        if (!anyVisible) {
+          noResults.classList.remove("hidden");
+        } else {
+          noResults.classList.add("hidden");
+        }
+      });
+    }
+
+    // فعل السيرش
+    handleSearch("search-desktop");
+  </script>
+</body>
 </html>
