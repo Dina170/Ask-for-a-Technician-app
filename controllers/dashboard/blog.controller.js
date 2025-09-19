@@ -5,7 +5,7 @@ const Post = require("../../models/post");
 const getAllBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find();
-    const { message, messageType } = req.query; 
+    const { message, messageType } = req.query;
 
     res.render("dashboard/blogs/index", { blogs, message, messageType });
   } catch (err) {
@@ -50,12 +50,17 @@ const createBlog = async (req, res) => {
       description,
     });
     await newBlog.save();
-    res.redirect("/dashboard/blogs?message=تم إضافة مدونة بنجاح&messageType=add");
+    res.redirect(
+      "/dashboard/blogs?message=تم إضافة مدونة بنجاح&messageType=add"
+    );
   } catch (err) {
     console.error(err);
+    if (err.code === 11000) {
+      err.message = "المدونة يجب أن يكون فريدًا";
+    }
     res.render("dashboard/blogs/form", {
       blog: null,
-      error: "Failed to create blog",
+      error: err.message || "حصل خطأ أثناء إنشاء المدونة",
     });
   }
 };
@@ -86,12 +91,17 @@ const updateBlog = async (req, res) => {
     existingBlog.blog = blog;
     existingBlog.description = description;
     await existingBlog.save();
-    res.redirect("/dashboard/blogs?message=تم تعديل المدونة بنجاح&messageType=edit");
+    res.redirect(
+      "/dashboard/blogs?message=تم تعديل المدونة بنجاح&messageType=edit"
+    );
   } catch (err) {
     console.error(err);
+    if (err.code === 11000) {
+      err.message = "المدونة يجب أن يكون فريدًا";
+    }
     res.render("dashboard/blogs/form", {
       blog: { _id: req.params.id, title, blog, description },
-      error: "Failed to update blog",
+      error: err.message || "حصل خطأ أثناء إنشاء المدونة",
     });
   }
 };
@@ -104,7 +114,9 @@ const deleteBlog = async (req, res) => {
     await Post.deleteMany({ blog: blog._id });
 
     await Blog.findByIdAndDelete(req.params.id);
-    res.redirect("/dashboard/blogs?message=تم حذف مدونة بنجاح&messageType=delete");
+    res.redirect(
+      "/dashboard/blogs?message=تم حذف مدونة بنجاح&messageType=delete"
+    );
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/blogs");
@@ -116,7 +128,9 @@ const deleteAllBlogs = async (req, res) => {
     await Post.deleteMany({});
 
     await Blog.deleteMany({});
-    res.redirect("/dashboard/blogs?message=تم حذف جميع المدونات بنجاح&messageType=delete");
+    res.redirect(
+      "/dashboard/blogs?message=تم حذف جميع المدونات بنجاح&messageType=delete"
+    );
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/blogs");

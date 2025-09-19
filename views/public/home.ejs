@@ -42,10 +42,14 @@
             value="<%= typeof technician !== 'undefined' ? technician : '' %>"
             style="padding: 8px; width: 48%; margin-right: 4%;" />
 
-            <ul id="technicianAutocomplete" class="autocomplete-list" style="border:1px solid #ccc; max-width:48%; position:relative; background:#fff; list-style:none; padding-left:0; margin-top:0;"></ul>
+        <ul id="technicianAutocomplete" class="autocomplete-list"
+            style="border:1px solid #ccc; max-width:48%; position:relative; background:#fff; list-style:none; padding-left:0; margin-top:0;">
+        </ul>
         <input type="text" id="neighborhoodSearch" name="neighborhood" placeholder="Search neighborhood..."
             value="<%= typeof neighborhood !== 'undefined' ? neighborhood : '' %>" style="padding: 8px; width: 48%;" />
-<ul id="neighborhoodAutocomplete" class="autocomplete-list" style="border:1px solid #ccc; max-width:48%; position:relative; background:#fff; list-style:none; padding-left:0; margin-top:0;"></ul>
+        <ul id="neighborhoodAutocomplete" class="autocomplete-list"
+            style="border:1px solid #ccc; max-width:48%; position:relative; background:#fff; list-style:none; padding-left:0; margin-top:0;">
+        </ul>
         <button type="submit" style="margin-top: 10px;">Search</button>
     </form>
 
@@ -72,14 +76,14 @@
             <% } else { %>
                 <% technicians.forEach(tech=> { %>
                     <div class="technician-card">
-                        <img src="/uploads/technicians/<%= tech.jobTechnicianPhoto %>" alt="Tech Photo" />
+                        <img src="<%= tech.jobTechnicianPhoto %>" alt="Tech Photo" />
                         <h3>
                             <%= tech.mainTitle %>
                         </h3>
                         <p>
                             <%= tech.description %>
                         </p>
-                        <a href="/technicians/<%= tech._id %>/neighborhoods">View Neighborhoods</a>
+                        <a href="/technicians/<%= tech.mainTitle %>/neighborhoods">View Neighborhoods</a>
                     </div>
                     <% }) %>
                         <% } %>
@@ -88,56 +92,56 @@
     </div>
 
     <script>
-  const technicianInput = document.getElementById('technicianSearch');
-  const neighborhoodInput = document.getElementById('neighborhoodSearch');
-  const technicianSuggestionBox = document.getElementById('technicianAutocomplete');
-  const neighborhoodSuggestionBox = document.getElementById('neighborhoodAutocomplete');
+        const technicianInput = document.getElementById('technicianSearch');
+        const neighborhoodInput = document.getElementById('neighborhoodSearch');
+        const technicianSuggestionBox = document.getElementById('technicianAutocomplete');
+        const neighborhoodSuggestionBox = document.getElementById('neighborhoodAutocomplete');
 
-  async function fetchSuggestions(type, query) {
-    if (!query) return [];
-    try {
-      const res = await fetch(`/autocomplete?type=${type}&q=${encodeURIComponent(query)}`);
-      if (!res.ok) throw new Error('Network response was not ok');
-      return await res.json();
-    } catch (error) {
-      console.error('Autocomplete fetch error:', error);
-      return [];
-    }
-  }
+        async function fetchSuggestions(type, query) {
+            if (!query) return [];
+            try {
+                const res = await fetch(`/autocomplete?type=${type}&q=${encodeURIComponent(query)}`);
+                if (!res.ok) throw new Error('Network response was not ok');
+                return await res.json();
+            } catch (error) {
+                console.error('Autocomplete fetch error:', error);
+                return [];
+            }
+        }
 
-  function createSuggestionItem(text, inputElement, suggestionBox) {
-    const li = document.createElement('li');
-    li.textContent = text;
-    li.style.padding = '5px';
-    li.style.cursor = 'pointer';
-    li.addEventListener('click', () => {
-      inputElement.value = text;
-      suggestionBox.innerHTML = '';
-    });
-    return li;
-  }
+        function createSuggestionItem(text, inputElement, suggestionBox) {
+            const li = document.createElement('li');
+            li.textContent = text;
+            li.style.padding = '5px';
+            li.style.cursor = 'pointer';
+            li.addEventListener('click', () => {
+                inputElement.value = text;
+                suggestionBox.innerHTML = '';
+            });
+            return li;
+        }
 
-  async function handleInput(event, suggestionBox, inputElement, type) {
-    const query = event.target.value.trim();
-    suggestionBox.innerHTML = '';
-    if (query.length === 0) return;
+        async function handleInput(event, suggestionBox, inputElement, type) {
+            const query = event.target.value.trim();
+            suggestionBox.innerHTML = '';
+            if (query.length === 0) return;
 
-    const suggestions = await fetchSuggestions(type, query);
+            const suggestions = await fetchSuggestions(type, query);
 
-    suggestions.forEach(suggestion => {
-      suggestionBox.appendChild(createSuggestionItem(suggestion, inputElement, suggestionBox));
-    });
-  }
+            suggestions.forEach(suggestion => {
+                suggestionBox.appendChild(createSuggestionItem(suggestion, inputElement, suggestionBox));
+            });
+        }
 
-  technicianInput.addEventListener('input', (e) => handleInput(e, technicianSuggestionBox, technicianInput, 'technician'));
-  neighborhoodInput.addEventListener('input', (e) => handleInput(e, neighborhoodSuggestionBox, neighborhoodInput, 'neighborhood'));
+        technicianInput.addEventListener('input', (e) => handleInput(e, technicianSuggestionBox, technicianInput, 'technician'));
+        neighborhoodInput.addEventListener('input', (e) => handleInput(e, neighborhoodSuggestionBox, neighborhoodInput, 'neighborhood'));
 
-  // Hide suggestion boxes on outside click
-  document.addEventListener('click', (e) => {
-    if (e.target !== technicianInput) technicianSuggestionBox.innerHTML = '';
-    if (e.target !== neighborhoodInput) neighborhoodSuggestionBox.innerHTML = '';
-  });
-</script>
+        // Hide suggestion boxes on outside click
+        document.addEventListener('click', (e) => {
+            if (e.target !== technicianInput) technicianSuggestionBox.innerHTML = '';
+            if (e.target !== neighborhoodInput) neighborhoodSuggestionBox.innerHTML = '';
+        });
+    </script>
 
 
 

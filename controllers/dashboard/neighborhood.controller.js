@@ -2,17 +2,18 @@ const Neighborhood = require("../../models/neighborhood");
 const Job = require("../../models/job");
 const Technician = require("../../models/technician");
 const { buildSearchQuery } = require("../../utils/searchFilters");
+const deleteImg = require("../../utils/deleteImg");
 
 // Get all neighborhoods
 const getAllNeighborhoods = async (req, res) => {
   try {
     const neighborhoods = await Neighborhood.find();
-    const message = req.query.message || '';
-    const messageType = req.query.messageType || '';
+    const message = req.query.message || "";
+    const messageType = req.query.messageType || "";
     res.render("dashboard/neighborhoods/index", {
       neighborhoods,
       message,
-      messageType
+      messageType,
     });
   } catch (err) {
     console.error(err);
@@ -57,11 +58,13 @@ const createNeighborhood = async (req, res) => {
 
     const neighborhood = new Neighborhood({
       name,
-      neighborhoodPhoto: req.file.filename,
+      neighborhoodPhoto: req.file.path,
     });
 
     await neighborhood.save();
-    res.redirect("/dashboard/neighborhoods?message=تم إضافة حي بنجاح&messageType=add");
+    res.redirect(
+      "/dashboard/neighborhoods?message=تم إضافة حي بنجاح&messageType=add"
+    );
   } catch (err) {
     console.error(err);
 
@@ -80,10 +83,18 @@ const createNeighborhood = async (req, res) => {
 // Delete all neighborhoods
 const deleteAllNeighborhoods = async (req, res) => {
   try {
+    const neighborhoods = await Neighborhood.find();
+    for (const neighborhood of neighborhoods) {
+      if (neighborhood.neighborhoodPhoto) {
+        deleteImg(neighborhood.neighborhoodPhoto);
+      }
+    }
     await Neighborhood.deleteMany({});
     await Job.updateMany({}, { $unset: { neighborhoodName: "" } });
     await Technician.updateMany({}, { $unset: { neighborhoodNames: "" } });
-    res.redirect("/dashboard/neighborhoods??message=تم حذف جميع الاحياء بنجاح&messageType=delete");
+    res.redirect(
+      "/dashboard/neighborhoods??message=تم حذف جميع الاحياء بنجاح&messageType=delete"
+    );
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods");
@@ -94,6 +105,10 @@ const deleteAllNeighborhoods = async (req, res) => {
 const deleteNeighborhood = async (req, res) => {
   try {
     const neighborhoodId = req.params.id;
+    const neighborhood = await Neighborhood.findById(neighborhoodId);
+    if (neighborhood && neighborhood.neighborhoodPhoto) {
+      deleteImg(neighborhood.neighborhoodPhoto);
+    }
     await Neighborhood.findByIdAndDelete(neighborhoodId);
     await Job.updateMany(
       { neighborhoodName: neighborhoodId },
@@ -103,7 +118,9 @@ const deleteNeighborhood = async (req, res) => {
       { neighborhoodNames: neighborhoodId },
       { $pull: { neighborhoodNames: neighborhoodId } }
     );
-    res.redirect("/dashboard/neighborhoods?message=تم حذف الحى بنجاح&messageType=delete");
+    res.redirect(
+      "/dashboard/neighborhoods?message=تم حذف الحى بنجاح&messageType=delete"
+    );
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/neighborhoods?");
@@ -136,11 +153,15 @@ const updateNeighborhood = async (req, res) => {
 
     neighborhood.name = req.body.name;
     if (req.file) {
-      neighborhood.neighborhoodPhoto = req.file.filename;
+      if (neighborhood.neighborhoodPhoto)
+        deleteImg(neighborhood.neighborhoodPhoto);
+      neighborhood.neighborhoodPhoto = req.file.path;
     }
 
     await neighborhood.save();
-    res.redirect("/dashboard/neighborhoods?message=تم تعديل حي بنجاح&messageType=edit");
+    res.redirect(
+      "/dashboard/neighborhoods?message=تم تعديل حي بنجاح&messageType=edit"
+    );
   } catch (err) {
     console.error(err);
 

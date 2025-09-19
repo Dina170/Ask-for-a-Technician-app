@@ -73,7 +73,7 @@ exports.getNeighborhoodDetails = async (req, res) => {
 
 exports.getTechnicianDetails = async (req, res) => {
   try {
-    const technician = await Technician.findById(req.params.techId)
+    const technician = await Technician.findOne({ mainTitle: req.params.title })
       .populate("jobName")
       .populate("neighborhoodNames");
 
@@ -122,10 +122,9 @@ exports.getAllTechnicians = async (req, res) => {
 
 exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
   try {
-    const technicianId = req.params.techId;
     const searchQuery = req.query.search?.trim().toLowerCase() || "";
 
-    const tech = await Technician.findById(technicianId)
+    const tech = await Technician.findOne({ mainTitle: req.params.title })
       .populate("jobName")
       .populate("neighborhoodNames");
 
@@ -134,8 +133,7 @@ exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
     let filteredNeighborhoods = tech.neighborhoodNames;
     if (searchQuery) {
       filteredNeighborhoods = filteredNeighborhoods.filter(
-        (neigh) =>
-          neigh.name && neigh.name.toLowerCase().includes(searchQuery)
+        (neigh) => neigh.name && neigh.name.toLowerCase().includes(searchQuery)
       );
     }
 

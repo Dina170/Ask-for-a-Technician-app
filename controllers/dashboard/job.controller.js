@@ -2,6 +2,7 @@ const Job = require("../../models/job");
 const Neighborhood = require("../../models/neighborhood");
 const Technician = require("../../models/technician");
 const { buildSearchQuery } = require("../../utils/searchFilters");
+const deleteImg = require("../../utils/deleteImg");
 
 // Render form for creating new job
 const renderNewJobForm = async (req, res) => {
@@ -34,12 +35,14 @@ const createJob = async (req, res) => {
       neighborhoodName,
       mainDescription,
       subDescription,
-      jobPhoto: req.file.filename,
+      jobPhoto: req.file.path, // Use Cloudinary URL
     });
 
     try {
       await newJob.save();
-      res.redirect("/dashboard/jobs?message=تم إضافة مهنة بنجاح&messageType=add");
+      res.redirect(
+        "/dashboard/jobs?message=تم إضافة مهنة بنجاح&messageType=add"
+      );
     } catch (err) {
       if (err.code === 11000) {
         const neighborhoods = await Neighborhood.find();
@@ -65,7 +68,6 @@ const createJob = async (req, res) => {
 // GET all jobs
 const getAllJobs = async (req, res) => {
   try {
-
     const { search, neighborhood } = req.query;
 
     const query = buildSearchQuery({ search, neighborhood });
@@ -73,17 +75,24 @@ const getAllJobs = async (req, res) => {
     const jobs = await Job.find(query).populate("neighborhoodName");
     const neighborhoods = await Neighborhood.find();
 
-    const allJobNames = jobs.map(job => job.name);
+    const allJobNames = jobs.map((job) => job.name);
     const uniqueJobNames = [...new Set(allJobNames)]; // unique names array
 
-     // ✅ Extract unique neighborhood names
-    const allNeighborhoodNames = neighborhoods.map(n => n.name);
+    // ✅ Extract unique neighborhood names
+    const allNeighborhoodNames = neighborhoods.map((n) => n.name);
     const uniqueNeighborhoodNames = [...new Set(allNeighborhoodNames)];
 
-    const message = req.query.message || '';
-    const messageType = req.query.messageType || '';
-    res.render("dashboard/jobs/index", { jobs ,neighborhoods,
-      filters: { search, neighborhood } , uniqueJobNames , uniqueNeighborhoodNames,message,messageType});
+    const message = req.query.message || "";
+    const messageType = req.query.messageType || "";
+    res.render("dashboard/jobs/index", {
+      jobs,
+      neighborhoods,
+      filters: { search, neighborhood },
+      uniqueJobNames,
+      uniqueNeighborhoodNames,
+      message,
+      messageType,
+    });
   } catch (err) {
     console.error(err);
     res.redirect("/");
@@ -133,12 +142,15 @@ const updateJob = async (req, res) => {
     job.subDescription = req.body.subDescription;
 
     if (req.file) {
-      job.jobPhoto = req.file.filename;
+      if (job.jobPhoto) deleteImg(job.jobPhoto);
+      job.jobPhoto = req.file.path;
     }
 
     try {
       await job.save();
-      res.redirect("/dashboard/jobs?message=تم تعديل المهنة بنجاح&messageType=edit");
+      res.redirect(
+        "/dashboard/jobs?message=تم تعديل المهنة بنجاح&messageType=edit"
+      );
     } catch (err) {
       if (err.code === 11000) {
         const neighborhoods = await Neighborhood.find();
@@ -160,12 +172,18 @@ const updateJob = async (req, res) => {
 // DELETE single job
 const deleteJob = async (req, res) => {
   try {
+    const job = await Job.findById(req.params.id);
+    if (job && job.jobPhoto) {
+      deleteImg(job.jobPhoto);
+    }
     await Job.findByIdAndDelete(req.params.id);
     await Technician.updateMany(
       { jobName: req.params.id },
       { $unset: { jobName: "" } }
     );
-    res.redirect("/dashboard/jobs?message=تم حذف المهنة بنجاح&messageType=delete");
+    res.redirect(
+      "/dashboard/jobs?message=تم حذف المهنة بنجاح&messageType=delete"
+    );
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/jobs");
@@ -175,9 +193,17 @@ const deleteJob = async (req, res) => {
 // DELETE all jobs
 const deleteAllJobs = async (req, res) => {
   try {
+    const jobs = await Job.find();
+    jobs.forEach((job) => {
+      if (job.jobPhoto) {
+        deleteImg(job.jobPhoto);
+      }
+    });
     await Job.deleteMany({});
     await Technician.updateMany({}, { $unset: { jobName: "" } });
-    res.redirect("/dashboard/jobs?message=تم حذف جميع المهن بنجاح&messageType=delete");
+    res.redirect(
+      "/dashboard/jobs?message=تم حذف جميع المهن بنجاح&messageType=delete"
+    );
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/jobs");

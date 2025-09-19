@@ -9,7 +9,7 @@ const TechnicianSchema = new mongoose.Schema({
     }, // only neighborhoods that contain this job
   ],
   jobTechnicianPhoto: { type: String, required: true },
-  mainTitle: { type: String, required: true },
+  mainTitle: { type: String, required: true, unique: true },
   description: { type: String, required: true },
   phoneNumber: {
     type: String,
