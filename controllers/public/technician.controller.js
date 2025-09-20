@@ -1,7 +1,17 @@
 const Technician = require("../../models/technician");
 const Neighborhood = require("../../models/neighborhood");
 const Job = require("../../models/job");
+const Blog = require("../../models/blog"); // استدعاء موديل البلوج
 const mongoose = require("mongoose");
+const getSlug = require("speakingurl"); // مكتبة السلاج
+
+// --------------------- Helper ---------------------
+async function getCommonData() {
+  const blogs = await Blog.find().lean();
+  return { blogs, getSlug };
+}
+
+// --------------------- Controllers ---------------------
 
 exports.getTechnicianNeighborhoods = async (req, res) => {
   try {
@@ -24,9 +34,11 @@ exports.getTechnicianNeighborhoods = async (req, res) => {
       })
     );
 
+    const common = await getCommonData();
     res.render("public/technicianNeighborhoods", {
       technician: tech,
       neighborhoodsWithJobs,
+      ...common,
     });
   } catch (error) {
     console.error(error);
@@ -59,11 +71,13 @@ exports.getNeighborhoodDetails = async (req, res) => {
     if (!job)
       return res.status(404).send("Job not found for this neighborhood");
 
+    const common = await getCommonData();
     res.render("public/neighborhoodDetails", {
       technician,
       neighborhood,
       job,
       type: "technicians",
+      ...common,
     });
   } catch (error) {
     console.error(error);
@@ -81,7 +95,8 @@ exports.getTechnicianDetails = async (req, res) => {
 
     const job = technician.jobName || null;
 
-    res.render("public/technicianDetails", { technician, job });
+    const common = await getCommonData();
+    res.render("public/technicianDetails", { technician, job, ...common });
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
@@ -109,10 +124,12 @@ exports.getAllTechnicians = async (req, res) => {
       return res.json(suggestions);
     }
 
+    const common = await getCommonData();
     res.render("public/showMoreTechnicians", {
       technicians,
       search,
       type: "technicians",
+      ...common,
     });
   } catch (err) {
     console.error(err);
@@ -150,11 +167,13 @@ exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
       })
     );
 
+    const common = await getCommonData();
     res.render("public/seeMoreTechnicianNeighborhoods", {
       technician: tech,
       neighborhoodsWithJobs,
       searchQuery,
       type: "neighborhoods",
+      ...common,
     });
   } catch (error) {
     console.error(error);

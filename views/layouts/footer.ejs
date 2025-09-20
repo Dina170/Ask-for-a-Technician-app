@@ -1,37 +1,94 @@
-<footer class="w-full bg-[#2A4759] text-white py-5 mt-12">
-  <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-    <div>
-      <img src="/images/logo.png" alt="logo" class="h-12 w-auto rounded-md mb-4" />
-      <p>
-        منصة أفضل الفنيين والحرفيين<br />
-        في جميع التخصصات<br />
-        عملية البحث مباشرة
-      </p>
+<footer class="w-full bg-[#2A4759] text-white py-6 mt-12">
+  <div class="max-w-7xl mx-auto px-6">
+    
+    <!-- Mobile Layout (matches the image) -->
+    <div class="block md:hidden">
+      <!-- Logo + Description centered -->
+      <div class=" mb-8">
+        <div class="flex justify-start mb-4">
+          <img src="/images/logo.png" alt="logo" class="h-12 w-auto rounded-md" />
+        </div>
+        <p class="text-sm leading-relaxed text-gray-300">
+          منصة أفضل الفنيين والحرفيين<br />
+          في جميع التخصصات التخصصات<br />
+          عملية البحث مباشرة
+        </p>
+      </div>
+
+      <!-- Two columns side by side -->
+      <div class="grid grid-cols-2 gap-6 text-right">
+        <!-- Quick Links Column -->
+        <div>
+          <h3 class="font-bold text-lg mb-4">روابط سريعة</h3>
+          <ul class="space-y-3 text-sm">
+            <li><a href="/" class="hover:underline text-gray-300">الرئيسية</a></li>
+            <li><a href="/technicians" class="hover:underline text-gray-300">الفنيين</a></li>
+            <li><a href="https://wa.me/05075813050" class="hover:underline text-gray-300">تواصل معنا</a></li>
+            <li><a href="/privacy-policy" class="hover:underline text-gray-300">سياسة الخصوصية</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact Column -->
+        <div>
+          <h3 class="font-bold text-lg mb-4">تواصل معنا</h3>
+          <ul class="space-y-3 text-sm">
+            <li><a href="tel:01012345675" class="hover:underline text-gray-300">01012345675</a></li>
+            <li class="text-gray-300">info@etlbfany.com</li>
+            <li class="flex justify-start gap-3 mt-4">
+              <a href="https://wa.me/05075813050" class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center hover:bg-gray-600 transition-colors">
+                <i class="fab fa-whatsapp text-sm"></i>
+              </a>
+              <a href="#" class="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center hover:bg-gray-600 transition-colors">
+                <i class="fab fa-facebook-f text-sm"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
 
-    <div>
-      <h3 class="font-bold text-xl mb-4 mt-3">روابط سريعة</h3>
-      <ul class="space-y-2">
-        <li><a href="/" class="hover:underline">الرئيسية</a></li>
-        <li><a href="/technicians" class="hover:underline">الفنيين</a></li>
-        <li><a href="https://wa.me/05075813050" class="hover:underline">تواصل معنا</a></li>
-        <li><a href="/privacy-policy" class="hover:underline">سياسة الخصوصية</a></li>
-      </ul>
-    </div>
+    <!-- Desktop Layout (equal spacing between columns) -->
+<div class="hidden md:grid md:grid-cols-3 gap-8 items-start">
+        <div class="text-right">
+        <img src="/images/logo.png" alt="logo" class="h-12 w-auto rounded-md mb-4" />
+        <p class="leading-relaxed">
+          منصة أفضل الفنيين والحرفيين<br />
+          في جميع التخصصات<br />
+          عملية البحث مباشرة
+        </p>
+      </div>
 
-    <div>
-      <h3 class="font-bold text-xl mb-4 mt-3">تواصل معنا</h3>
-      <ul class="space-y-2">
-        <li><a href="tel:05075813050" class="hover:underline">05075813050</a></li>
-        <li>info@etlbfany.com</li>
-        <li class="flex gap-4 mt-2">
-          <a href="#"><i class="fab fa-facebook-f text-2xl"></i></a>
-          <a href="https://wa.me/05075813050"><i class="fab fa-whatsapp text-2xl"></i></a>
-        </li>
-      </ul>
+      <!-- Quick Links Column -->
+      <div class="text-right">
+        <h3 class="font-bold text-xl mb-4 mt-3">روابط سريعة</h3>
+        <ul class="space-y-2">
+          <li><a href="/" class="hover:underline">الرئيسية</a></li>
+          <li><a href="/technicians" class="hover:underline">الفنيين</a></li>
+          <li><a href="https://wa.me/05075813050" class="hover:underline">تواصل معنا</a></li>
+          <li><a href="/privacy-policy" class="hover:underline">سياسة الخصوصية</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact Column -->
+      <div class="text-right">
+        <h3 class="font-bold text-xl mb-4 mt-3">تواصل معنا</h3>
+        <ul class="space-y-2">
+          <li><a href="tel:05075813050" class="hover:underline">05075813050</a></li>
+          <li>info@etlbfany.com</li>
+          <li class="flex justify-start gap-4 mt-2">
+            <a href="#"><i class="fab fa-facebook-f text-2xl"></i></a>
+            <a href="https://wa.me/05075813050"><i class="fab fa-whatsapp text-2xl"></i></a>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 
-  <hr class="border-t border-gray-600 mt-5 mb-2" />
-  <p class="text-center">اطلب فني. جميع الحقوق محفوظة 2025</p>
+  <hr class="border-t border-gray-600 mt-8 mb-4" />
+  <!-- Copyright centered on desktop, right-aligned on mobile -->
+  <p class="text-right md:text-center mr-6 md:mr-0 text-sm text-gray-300">اطلب فني. جميع الحقوق محفوظة <span id="year"></span></p>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 </footer>
