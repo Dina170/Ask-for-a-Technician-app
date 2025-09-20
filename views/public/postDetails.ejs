@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" class="font-[Cairo]">
-<html lang="ar" dir="rtl" class="font-[Cairo]">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,14 +19,13 @@
     <%- include("../layouts/header") %>
 
     <!-- Breadcrumb -->
-    <div class=" mt-5 sm:mb-5 lg:mb-10 px-4 sm:px-8 lg:px-32 shadow-sm ">
+    <div class="mt-5 sm:mb-5 lg:mb-10 px-4 sm:px-8 lg:px-32 shadow-sm">
       <div class="max-w-8xl mx-auto flex items-center flex-wrap text-sm sm:text-base py-3">
         <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
           <i class="fa-solid fa-home text-lg sm:text-2xl ml-2 sm:ml-3"></i>
-          <i class="fa-solid fa-home text-lg sm:text-2xl ml-2 sm:ml-3"></i>
         </a>
         <i class="fa-solid fa-chevron-left mx-2 text-gray-400"></i>
-        <a href="/blogs/<%= getSlug(post.blog.blog, { lang: false, uric: true }) %>"
+        <a href="/blogs/<%= post.blog.slug || post.blog._id %>"
            class="font-semibold text-gray-600 hover:text-[#2A4759]">
           <%= post.blog.blog %>
         </a>
@@ -63,7 +61,6 @@
     </main>
 
     <!-- footer -->
-    <!-- footer -->
     <%- include("../layouts/footer") %>
 
     <!-- Extra Styles -->
@@ -71,24 +68,18 @@
       .prose h1,
       .prose h2,
       .prose h3 {
-      .prose h1,
-      .prose h2,
-      .prose h3 {
         color: #2A4759;
         font-weight: bold;
-        margin-top: 1.5rem;
         margin-top: 1.5rem;
         margin-bottom: 1rem;
       }
       .prose p {
-        margin-bottom: 1rem;
         margin-bottom: 1rem;
         line-height: 1.8;
         text-align: justify;
       }
       .prose img {
         border-radius: 0.5rem;
-        margin: 1.5rem auto;
         margin: 1.5rem auto;
         max-width: 100%;
         height: auto;
@@ -100,15 +91,7 @@
         hyphens: auto;
         max-width: 100% !important;
         overflow: hidden;
-      .description-text {
-        word-wrap: break-word !important;
-        word-break: break-word !important;
-        overflow-wrap: break-word !important;
-        hyphens: auto;
-        max-width: 100% !important;
-        overflow: hidden;
       }
     </style>
   </body>
 </html>
-

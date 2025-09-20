@@ -7,6 +7,7 @@ const getSlug = require("speakingurl");
 
 exports.getHomePage = async (req, res) => {
   try {
+    // الحصول على الوظائف
     const uniqueJobs = await Job.aggregate([
       {
         $group: {
@@ -17,21 +18,27 @@ exports.getHomePage = async (req, res) => {
       },
     ]);
 
-    // الحصول على قائمة فريدة من أسماء الفنيين
+    // الحصول على قائمة الفنيين المميزة
     const uniqueTechnicians = await Technician.aggregate([
-      {
-        $group: {
-          _id: "$mainTitle",
-          technicianId: { $first: "$_id" }
-        }
-      },
+      { $group: { _id: "$mainTitle", mainTitle: { $first: "$mainTitle" } } },
       { $sort: { _id: 1 } }
     ]);
 
-    // الحصول على قائمة فريدة من الأحياء
-    const uniqueNeighborhoods = await Neighborhood.find({})
-      .select('name')
-      .sort({ name: 1 });
+    // الحصول على قائمة الأحياء المميزة
+    const uniqueNeighborhoods = await Technician.aggregate([
+      { $unwind: "$neighborhoodNames" },
+      {
+        $lookup: {
+          from: "neighborhoods",
+          localField: "neighborhoodNames",
+          foreignField: "_id",
+          as: "neighborhoodInfo",
+        },
+      },
+      { $unwind: "$neighborhoodInfo" },
+      { $group: { _id: "$neighborhoodInfo.name", name: { $first: "$neighborhoodInfo.name" } } },
+      { $sort: { name: 1 } }
+    ]);
 
     const jobId = req.query.jobId || "";
     const technician = req.query.technician || "";
@@ -43,58 +50,33 @@ exports.getHomePage = async (req, res) => {
 
     const techniciansRaw = await Technician.find(query)
       .populate("jobName")
-      .populate("neighborhoodNames"); 
+      .populate("neighborhoodNames");
 
     const technicians = neighborhood.trim()
       ? techniciansRaw.filter((t) =>
-          t.neighborhoodNames.some((n) =>
-            n.name === neighborhood.trim()
-          )
+          t.neighborhoodNames.some((n) => n.name === neighborhood.trim())
         )
       : techniciansRaw;
 
-    const blogs = await Blog.find({}); // جلب المدونات للهيدر
-
-
-    // هات الفنيين المميزين (distinct by mainTitle)
-const uniqueTechnicians = await Technician.aggregate([
-  { $group: { _id: "$mainTitle", mainTitle: { $first: "$mainTitle" } } }
-]);
-
-// هات الأحياء المميزة (distinct by name)
-const uniqueNeighborhoods = await Technician.aggregate([
-  { $unwind: "$neighborhoodNames" },
-  {
-    $lookup: {
-      from: "neighborhoods",
-      localField: "neighborhoodNames",
-      foreignField: "_id",
-      as: "neighborhoodInfo",
-    },
-  },
-  { $unwind: "$neighborhoodInfo" },
-  { $group: { _id: "$neighborhoodInfo.name", name: { $first: "$neighborhoodInfo.name" } } }
-]);
-
+    const blogs = await Blog.find({});
 
     res.render("landingpage/index", {
       jobs: uniqueJobs,
       technicians,
-      uniqueTechnicians, // إرسال قائمة الفنيين الفريدة
-      uniqueNeighborhoods, // إرسال قائمة الأحياء الفريدة
+      uniqueTechnicians,
+      uniqueNeighborhoods,
       technician,
       neighborhood,
       selectedJobId: jobId || "",
       blogs,
-      getSlug, // مررناها للهيدر
-      uniqueTechnicians,
-      uniqueNeighborhoods
+      getSlug
     });
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
   }
 };
+
 
 exports.autocompleteTechnicians = async (req, res) => {
   try {
