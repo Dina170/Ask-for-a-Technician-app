@@ -207,6 +207,12 @@ exports.getPostDetails = async (req, res) => {
 };
 
 
-exports.getPrivacyPolicy = (req, res) => {
-  res.render("public/privacyPolicy");
+exports.getPrivacyPolicy = async (req, res) => {
+  try {
+    const blogs = await Blog.find({});
+    res.render("public/privacyPolicy", { blogs, getSlug });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
 };

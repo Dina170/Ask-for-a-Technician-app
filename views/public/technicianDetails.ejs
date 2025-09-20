@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" class="font-[Cairo]">
-<html lang="ar" dir="rtl" class="font-[Cairo]">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>تفاصيل الفني <%= technician.mainTitle %></title>
-  <title>تفاصيل الفني <%= technician.mainTitle %></title>
+
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <!-- Cairo Font -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
- <style>
-  body, p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea, label, div {
-  font-family: 'Cairo', sans-serif;
-}
+  <style>
+    body, p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea, label, div {
+      font-family: 'Cairo', sans-serif;
+    }
 
     .description-text {
       word-wrap: break-word !important;
@@ -24,208 +28,101 @@
       overflow: hidden;
     }
 
-     .line-clamp-3 {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3; 
-  overflow: hidden;
-}
-  </style>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
- <style>
-  body, p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea, label, div {
-  font-family: 'Cairo', sans-serif;
-}
-
-    .description-text {
-      word-wrap: break-word !important;
-      word-break: break-word !important;
-      overflow-wrap: break-word !important;
-      hyphens: auto;
-      max-width: 100% !important;
+    .line-clamp-3 {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3; 
       overflow: hidden;
     }
-
-     .line-clamp-3 {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3; 
-  overflow: hidden;
-}
   </style>
 </head>
 
 <body class="m-0 p-0" style="font-family: 'Cairo', sans-serif;">
-<body class="m-0 p-0" style="font-family: 'Cairo', sans-serif;">
   <!-- header -->
   <%- include("../layouts/header") %>
 
- <!-- Breadcrumb -->
-<div class="bg-white   mt-5 px-4 sm:px-12 lg:px-24">
-  <div class="max-w-8xl mx-auto flex items-center">
-    <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
-      <i class="fa-solid fa-home text-xl sm:text-2xl ml-2 sm:ml-3"></i>
-    </a>
-    <i class="fa-solid fa-chevron-left ml-2 sm:ml-3 mr-2 ml-2"></i>
-    <span class="font-semibold text-[#2A4759] text-sm sm:text-base ">عرض المزيد</span>
-    <i class="fa-solid fa-chevron-left ml-2 sm:ml-3 mr-2 ml-2"></i>
-    <span class="font-semibold text-[#B3AFAF] text-sm sm:text-base "><%= technician.mainTitle %></span>
+  <!-- Breadcrumb -->
+  <div class="bg-white mt-5 px-4 sm:px-12 lg:px-24">
+    <div class="max-w-8xl mx-auto flex items-center">
+      <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
+        <i class="fa-solid fa-home text-xl sm:text-2xl ml-2 sm:ml-3"></i>
+      </a>
+      <i class="fa-solid fa-chevron-left ml-2 sm:ml-3 mr-2"></i>
+      <span class="font-semibold text-[#2A4759] text-sm sm:text-base">عرض المزيد</span>
+      <i class="fa-solid fa-chevron-left ml-2 sm:ml-3 mr-2"></i>
+      <span class="font-semibold text-[#B3AFAF] text-sm sm:text-base"><%= technician.mainTitle %></span>
+    </div>
   </div>
-</div>
-
- <!-- Breadcrumb -->
-<div class="bg-white   mt-5 px-4 sm:px-12 lg:px-24">
-  <div class="max-w-8xl mx-auto flex items-center">
-    <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
-      <i class="fa-solid fa-home text-xl sm:text-2xl ml-2 sm:ml-3"></i>
-    </a>
-    <i class="fa-solid fa-chevron-left ml-2 sm:ml-3 mr-2 ml-2"></i>
-    <span class="font-semibold text-[#2A4759] text-sm sm:text-base ">عرض المزيد</span>
-    <i class="fa-solid fa-chevron-left ml-2 sm:ml-3 mr-2 ml-2"></i>
-    <span class="font-semibold text-[#B3AFAF] text-sm sm:text-base "><%= technician.mainTitle %></span>
-  </div>
-</div>
-
 
   <!-- Main Content -->
   <div class="px-4 sm:px-8 lg:px-16 mt-3 sm:mt-5">
-  <!-- Main Content -->
-  <div class="px-4 sm:px-8 lg:px-16 mt-3 sm:mt-5">
-
     <div class="flex flex-col md:flex-row gap-4 sm:gap-6 p-2 sm:p-4 md:p-8 items-stretch">
       <% 
         let imageName = technician.jobTechnicianPhoto || "default.png";
       %>
-     <img src="/uploads/technicians/<%= imageName %>" 
-     alt="<%= technician.mainTitle %>" 
-     class="rounded-xl w-full md:w-1/2 h-[265px] sm:h-[365px] md:h-[465px] object-cover" />
-    <div class="flex flex-col md:flex-row gap-4 sm:gap-6 p-2 sm:p-4 md:p-8 items-stretch">
-      <% 
-        let imageName = technician.jobTechnicianPhoto || "default.png";
-      %>
-     <img src="/uploads/technicians/<%= imageName %>" 
-     alt="<%= technician.mainTitle %>" 
-     class="rounded-xl w-full md:w-1/2 h-[265px] sm:h-[365px] md:h-[465px] object-cover" />
-
+      <img src="/uploads/technicians/<%= imageName %>" 
+          alt="<%= technician.mainTitle %>" 
+          class="rounded-xl w-full md:w-1/2 h-[265px] sm:h-[365px] md:h-[465px] object-cover" />
 
       <div class="md:w-1/2 h-full flex flex-col justify-between overflow-hidden">
-        <h2 class="text-[#222222] text-2xl sm:text-3xl md:text-[32px] font-bold font-[700] text-right mb-3 sm:mb-4">
+        <h2 class="text-[#222222] text-2xl sm:text-3xl md:text-[32px] font-bold mb-3 sm:mb-4">
           <%= technician.mainTitle %>
         </h2>
         
         <div class="description-text text-right font-regular text-[13px] sm:text-[20px] leading-[200%] text-[#5C5C5C] pr-2 sm:pr-0">
-  <%- technician.description.replace(/<img.*?>/g, "") %>
-</div>
+          <%- technician.description.replace(/<img.*?>/g, "") %>
+        </div>
 
-      <div class="md:w-1/2 h-full flex flex-col justify-between overflow-hidden">
-        <h2 class="text-[#222222] text-2xl sm:text-3xl md:text-[32px] font-bold font-[700] text-right mb-3 sm:mb-4">
-          <%= technician.mainTitle %>
-        </h2>
-        
-        <div class="description-text text-right font-regular text-[13px] sm:text-[20px] leading-[200%] text-[#5C5C5C] pr-2 sm:pr-0">
-  <%- technician.description.replace(/<img.*?>/g, "") %>
-</div>
+        <div class="flex flex-row gap-3 mt-6 sm:mt-8 md:mt-12">
+          <% if (technician.phoneNumber) { %>
+            <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank" rel="noopener noreferrer" class="flex-1">
+              <button class="bg-[#2A4759] flex items-center justify-center gap-2 text-white rounded-lg w-full py-2 min-h-[48px] hover:bg-[#1e3442] transition duration-300 text-sm sm:text-base">
+                <i class="fab fa-whatsapp text-lg"></i>
+                <span>إرسال على واتساب</span>
+              </button>
+            </a>
+          <% } %>
 
-
-      <div class="flex flex-row gap-3 mt-6 sm:mt-8 md:mt-12">
-  <% if (technician.phoneNumber) { %>
-    <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank" rel="noopener noreferrer" class="flex-1">
-      <button class="bg-[#2A4759] flex items-center justify-center gap-2 text-white rounded-lg w-full py-2 sm:py-2 min-h-[48px] hover:bg-[#1e3442] transition duration-300 text-sm sm:text-base">
-        <i class="fab fa-whatsapp text-lg"></i>
-        <span>إرسال على واتساب</span>
-      </button>
-    </a>
-  <% } %>
-      <div class="flex flex-row gap-3 mt-6 sm:mt-8 md:mt-12">
-  <% if (technician.phoneNumber) { %>
-    <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank" rel="noopener noreferrer" class="flex-1">
-      <button class="bg-[#2A4759] flex items-center justify-center gap-2 text-white rounded-lg w-full py-2 sm:py-2 min-h-[48px] hover:bg-[#1e3442] transition duration-300 text-sm sm:text-base">
-        <i class="fab fa-whatsapp text-lg"></i>
-        <span>إرسال على واتساب</span>
-      </button>
-    </a>
-  <% } %>
-
- <a href="/technicians/<%= technician.mainTitle %>/seeMoreTechnicianNeighborhoods" rel="noopener noreferrer" class="flex-1">
-  <button class="bg-white border border-[#2A4759] flex items-center justify-center gap-2 text-[#2A4759] hover:text-white rounded-lg w-full py-2 sm:py-2 min-h-[48px] hover:bg-[#2A4759] transition duration-300 text-sm sm:text-base">
-    <span>عرض الأحياء</span>
-  </button>
-</a>
-
-</div>
-
-
-      </div>
-    </div>
-
+          <a href="/technicians/<%= technician.mainTitle %>/seeMoreTechnicianNeighborhoods" rel="noopener noreferrer" class="flex-1">
+            <button class="bg-white border border-[#2A4759] flex items-center justify-center gap-2 text-[#2A4759] hover:text-white rounded-lg w-full py-2 min-h-[48px] hover:bg-[#2A4759] transition duration-300 text-sm sm:text-base">
+              <span>عرض الأحياء</span>
+            </button>
+          </a>
+        </div>
       </div>
     </div>
 
     <% if (technician.phoneNumber) { %>
-    <div class="flex flex-col max-w-md mx-auto text-center mt-6 sm:mt-8 px-4">
-      <h2 class="text-[#222222] text-lg sm:text-xl font-semibold mb-4">اتصل الآن نصلك اينما كنت بالرياض</h2>
-      <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank" class="text-[#2A4759] font-bold underline text-lg sm:text-xl">
-        <%= technician.phoneNumber %>
-      </a>
-      <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank"
-        class="mt-4 mx-auto w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center rounded-full border-2 border-[#2A4759]">
-        <div class="bg-[#2A4759] w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center">
-          <i class="fab fa-whatsapp text-2xl sm:text-3xl text-white"></i>
-        </div>
-      </a>
-    </div>
-    <% } %>
-    <% if (technician.phoneNumber) { %>
-    <div class="flex flex-col max-w-md mx-auto text-center mt-6 sm:mt-8 px-4">
-      <h2 class="text-[#222222] text-lg sm:text-xl font-semibold mb-4">اتصل الآن نصلك اينما كنت بالرياض</h2>
-      <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank" class="text-[#2A4759] font-bold underline text-lg sm:text-xl">
-        <%= technician.phoneNumber %>
-      </a>
-      <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank"
-        class="mt-4 mx-auto w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center rounded-full border-2 border-[#2A4759]">
-        <div class="bg-[#2A4759] w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center">
-          <i class="fab fa-whatsapp text-2xl sm:text-3xl text-white"></i>
-        </div>
-      </a>
-    </div>
+      <div class="flex flex-col max-w-md mx-auto text-center mt-6 sm:mt-8 px-4">
+        <h2 class="text-[#222222] text-lg sm:text-xl font-semibold mb-4">اتصل الآن نصلك اينما كنت بالرياض</h2>
+        <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank" class="text-[#2A4759] font-bold underline text-lg sm:text-xl">
+          <%= technician.phoneNumber %>
+        </a>
+        <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank"
+          class="mt-4 mx-auto w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center rounded-full border-2 border-[#2A4759]">
+          <div class="bg-[#2A4759] w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center">
+            <i class="fab fa-whatsapp text-2xl sm:text-3xl text-white"></i>
+          </div>
+        </a>
+      </div>
     <% } %>
 
     <% if (technician.jobName) { %>
-    <div class="px-4 sm:px-8 lg:px-16 mt-6 sm:mt-8 mb-6 sm:mb-8">
-      <!-- Title -->
-      <div class="description-text text-right leading-relaxed whitespace-pre-line text-sm sm:text-base text-[14px] sm:text-[16px] font-medium font-[500] text-[#222222]">
+      <div class="px-4 sm:px-8 lg:px-16 mt-6 sm:mt-8 mb-6 sm:mb-8">
+        <!-- Title -->
+        <div class="description-text text-right leading-relaxed whitespace-pre-line text-sm sm:text-base text-[14px] sm:text-[16px] font-medium text-[#222222]">
           <%- technician.jobName.mainDescription.replace(/<img.*?>/g, "")  %>
-      </div>
+        </div>
 
-      <!-- Description -->
-      <div class="description-text text-right leading-relaxed whitespace-pre-line text-xs sm:text-sm mt-2 text-[#5C5C5C]">
-        <%- technician.jobName.subDescription.replace(/<img.*?>/g, "") %>
+        <!-- Description -->
+        <div class="description-text text-right leading-relaxed whitespace-pre-line text-xs sm:text-sm mt-2 text-[#5C5C5C]">
+          <%- technician.jobName.subDescription.replace(/<img.*?>/g, "") %>
+        </div>
       </div>
-    </div>
     <% } %>
-    <% if (technician.jobName) { %>
-    <div class="px-4 sm:px-8 lg:px-16 mt-6 sm:mt-8 mb-6 sm:mb-8">
-      <!-- Title -->
-      <div class="description-text text-right leading-relaxed whitespace-pre-line text-sm sm:text-base text-[14px] sm:text-[16px] font-medium font-[500] text-[#222222]">
-          <%- technician.jobName.mainDescription.replace(/<img.*?>/g, "")  %>
-      </div>
-
-      <!-- Description -->
-      <div class="description-text text-right leading-relaxed whitespace-pre-line text-xs sm:text-sm mt-2 text-[#5C5C5C]">
-        <%- technician.jobName.subDescription.replace(/<img.*?>/g, "") %>
-      </div>
-    </div>
-    <% } %>
-
-  </div>
   </div>
 
-  <!-- footer -->
-  <%- include("../layouts/footer") %>
   <!-- footer -->
   <%- include("../layouts/footer") %>
 </body>
 </html>
-
