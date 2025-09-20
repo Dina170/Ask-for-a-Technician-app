@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" class="font-[Cairo]">
+<html lang="ar" dir="rtl" class="font-[Cairo]">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,8 +13,16 @@
         font-family: 'Cairo', sans-serif !important;
       }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+      body, p, h1, h2, h3, h4, h5, h6, a, button, input, textarea, label, div {
+        font-family: 'Cairo', sans-serif !important;
+      }
+    </style>
   </head>
 
+  <body class="text-gray-800 flex flex-col min-h-screen">
   <body class="text-gray-800 flex flex-col min-h-screen">
     <!-- header -->
     <%- include("../layouts/header") %>
@@ -22,9 +31,14 @@
     <div class="bg-white border-b border-gray-200 py-4">
       <div class="max-w-8xl px-4 md:px-32 mx-auto flex items-center justify-between">
         <div class="flex items-center">
+    <!-- Breadcrumb -->
+    <div class="bg-white border-b border-gray-200 py-4">
+      <div class="max-w-8xl px-4 md:px-32 mx-auto flex items-center justify-between">
+        <div class="flex items-center">
           <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
             <i class="fa-solid fa-home text-2xl ml-3"></i>
           </a>
+          <i class="fa-solid fa-chevron-left ml-3 mr-3"></i>
           <i class="fa-solid fa-chevron-left ml-3 mr-3"></i>
           <span class="font-semibold">المدونة</span>
           <i class="fa-solid fa-chevron-left ml-3 mr-3"></i>
@@ -62,6 +76,7 @@
           </div>
         </form>
       </div>
+    </div>
     </div>
 
     <!-- Posts cards -->
@@ -110,7 +125,20 @@
       const cardsContainer = document.getElementById("cards-container");
 
       let searchTimeout; 
+      let searchTimeout; 
 
+      input.addEventListener("input", async () => {
+        const query = input.value.trim();
+        
+        if (searchTimeout) {
+          clearTimeout(searchTimeout);
+        }
+        
+        if (!query || query.length < 2) {
+          suggestions.innerHTML = "";
+          suggestions.classList.add("hidden");
+          return;
+        }
       input.addEventListener("input", async () => {
         const query = input.value.trim();
         
@@ -127,7 +155,18 @@
         searchTimeout = setTimeout(async () => {
           try {
             console.log('Searching for:', query);
+        searchTimeout = setTimeout(async () => {
+          try {
+            console.log('Searching for:', query);
 
+            const res = await fetch(`/posts/autocomplete?q=${encodeURIComponent(query)}`);
+            
+            if (!res.ok) {
+              throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            
+            const posts = await res.json();
+            console.log('Search results:', posts); 
             const res = await fetch(`/posts/autocomplete?q=${encodeURIComponent(query)}`);
             
             if (!res.ok) {
@@ -142,7 +181,24 @@
               suggestions.classList.remove("hidden");
               return;
             }
+            if (posts.length === 0) {
+              suggestions.innerHTML = "<li class='px-3 py-2 text-gray-500 text-center'>لا توجد نتائج</li>";
+              suggestions.classList.remove("hidden");
+              return;
+            }
 
+            suggestions.innerHTML = posts
+              .map((p) => {
+                let displayText = "";
+                if (p.title && p.name) {
+                  displayText = `${p.title} - ${p.name}`;
+                } else if (p.title) {
+                  displayText = p.title;
+                } else if (p.name) {
+                  displayText = p.name;
+                } else {
+                  displayText = "بدون عنوان";
+                }
             suggestions.innerHTML = posts
               .map((p) => {
                 let displayText = "";
@@ -168,9 +224,29 @@
                          </li>`;
               })
               .join("");
+                return `<li class="px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 transition-colors" 
+                             data-id="${p._id}" 
+                             data-title="${p.title || ''}" 
+                             data-name="${p.name || ''}" 
+                             data-link="/posts/${p.permaLink}">
+                           <div class="flex flex-col">
+                             ${p.title ? `<span class="font-semibold text-gray-800">${p.title}</span>` : ''}
+                             ${p.name ? `<span class="text-sm text-gray-600">${p.name}</span>` : ''}
+                           </div>
+                         </li>`;
+              })
+              .join("");
 
             suggestions.classList.remove("hidden");
+            suggestions.classList.remove("hidden");
 
+            suggestions.querySelectorAll("li[data-link]").forEach((li) => {
+              li.addEventListener("click", async (e) => {
+                e.preventDefault();
+                
+                const postLink = li.dataset.link;
+                const postTitle = li.dataset.title;
+                const postName = li.dataset.name;
             suggestions.querySelectorAll("li[data-link]").forEach((li) => {
               li.addEventListener("click", async (e) => {
                 e.preventDefault();
@@ -201,9 +277,70 @@
                       content: ""
                     };
                   }
+                try {
+                  let post;
+                  try {
+                    const res = await fetch(postLink + "?ajax=1");
+                    if (res.ok) {
+                      post = await res.json();
+                    } else {
+                      post = {
+                        title: postTitle,
+                        name: postName,
+                        permaLink: postLink.replace('/posts/', ''),
+                        content: ""
+                      };
+                    }
+                  } catch (ajaxError) {
+                    post = {
+                      title: postTitle,
+                      name: postName,
+                      permaLink: postLink.replace('/posts/', ''),
+                      content: ""
+                    };
+                  }
 
                   cardsContainer.innerHTML = "";
+                  cardsContainer.innerHTML = "";
 
+                  // ✅ هنا بيتسحب أول صورة من المحتوى لو موجودة
+                  const regex = /<img.*?src="(.*?)"/;
+                  const match = regex.exec(post.content || "");
+                  let descriptionImage = "/uploads/posts/default.png";
+                  if (match && match[1]) {
+                    descriptionImage = match[1];
+                  }
+
+                  cardsContainer.innerHTML = `
+                    <div class="col-span-3 max-w-2xl mx-auto">
+                      <div class="card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative flex flex-col">
+                        <div class="relative h-64">
+                          <img src="${descriptionImage}" 
+                               alt="${post.title || post.name}" 
+                               class="w-full h-full object-cover" 
+                               onerror="this.src='/uploads/posts/default.png'" />
+                        </div>
+                        <div class="card-body p-6 flex flex-col flex-1">
+                          <h3 class="text-2xl font-bold text-orange-500 mb-4">${post.title || post.name}</h3>
+                          ${post.content ? `
+                            <p class="text-gray-700 mb-4">
+                              ${post.content.replace(/<img.*?>/g, "").substring(0, 300)}...
+                            </p>
+                          ` : ''}
+                          <div class="mt-auto flex gap-2 justify-center">
+                            <a href="/posts/${post.permaLink}" 
+                              class="bg-[#2A4759] text-white px-8 py-3 text-center rounded-lg hover:opacity-80 transition-opacity duration-200">
+                              عرض المقال كاملاً
+                            </a>
+                            <button onclick="location.reload()" 
+                              class="bg-gray-500 text-white px-8 py-3 text-center rounded-lg hover:opacity-80 transition-opacity duration-200">
+                              عرض جميع المقالات
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  `;
                   // ✅ هنا بيتسحب أول صورة من المحتوى لو موجودة
                   const regex = /<img.*?src="(.*?)"/;
                   const match = regex.exec(post.content || "");
@@ -245,7 +382,15 @@
 
                   suggestions.classList.add("hidden");
                   input.value = "";
+                  suggestions.classList.add("hidden");
+                  input.value = "";
 
+                } catch (err) {
+                  console.error("Error loading post:", err);
+                  alert("حدث خطأ في تحميل المقال");
+                }
+              });
+            });
                 } catch (err) {
                   console.error("Error loading post:", err);
                   alert("حدث خطأ في تحميل المقال");
@@ -260,7 +405,19 @@
           }
         }, 200); 
       });
+          } catch (err) {
+            console.error("Error fetching posts:", err);
+            suggestions.innerHTML = "<li class='px-3 py-2 text-red-500 text-center'>حدث خطأ في البحث</li>";
+            suggestions.classList.remove("hidden");
+          }
+        }, 200); 
+      });
 
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest("#postSearch") && !e.target.closest("#postSuggestions")) {
+          suggestions.classList.add("hidden");
+        }
+      });
       document.addEventListener("click", (e) => {
         if (!e.target.closest("#postSearch") && !e.target.closest("#postSuggestions")) {
           suggestions.classList.add("hidden");
@@ -277,5 +434,16 @@
         }
       });
     </script>
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !suggestions.classList.contains("hidden")) {
+          e.preventDefault();
+          const firstResult = suggestions.querySelector("li[data-link]");
+          if (firstResult) {
+            firstResult.click();
+          }
+        }
+      });
+    </script>
   </body>
 </html>
+

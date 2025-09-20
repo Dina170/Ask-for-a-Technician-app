@@ -7,7 +7,11 @@
     <ul class="flex gap-8 text-white font-medium items-center">
       <li><a href="/" class="hover:underline hover:text-[#FC8500]">الرئيسية</a></li>
       <li><a href="/showMoreTechnicians" class="hover:underline hover:text-[#FC8500]">الفنيين</a></li>
+      <li><a href="/" class="hover:underline hover:text-[#FC8500]">الرئيسية</a></li>
+      <li><a href="/showMoreTechnicians" class="hover:underline hover:text-[#FC8500]">الفنيين</a></li>
       <li class="relative group">
+        <button class="hover:text-[#FC8500] flex items-center gap-1">المدونة
+          <i class="fa-solid fa-chevron-down text-xs group-hover:rotate-180 transition-transform"></i>
         <button class="hover:text-[#FC8500] flex items-center gap-1">المدونة
           <i class="fa-solid fa-chevron-down text-xs group-hover:rotate-180 transition-transform"></i>
         </button>
@@ -25,13 +29,20 @@
           <% } else { %>
             <li><span class="block px-4 py-3 text-gray-400">لا توجد مقالات</span></li>
           <% } %>
+            <% }) %>
+          <% } else { %>
+            <li><span class="block px-4 py-3 text-gray-400">لا توجد مقالات</span></li>
+          <% } %>
         </ul>
       </li>
+      <li><a href="/contact" class="hover:underline hover:text-[#FC8500]">تواصل معنا</a></li>
       <li><a href="/contact" class="hover:underline hover:text-[#FC8500]">تواصل معنا</a></li>
     </ul>
   </nav>
 
   <div class="hidden lg:block">
+    <a href="tel:05075813050" class="text-white hover:text-[#FC8500] flex items-center gap-2">
+      <i class="fa-solid fa-phone text-sm"></i><span class="hidden xl:inline">اتصل بنا:</span>05075813050
     <a href="tel:05075813050" class="text-white hover:text-[#FC8500] flex items-center gap-2">
       <i class="fa-solid fa-phone text-sm"></i><span class="hidden xl:inline">اتصل بنا:</span>05075813050
     </a>
@@ -73,6 +84,9 @@
        class="lg:hidden fixed top-0 right-0 h-full w-3/4 bg-[#2A4759] z-50 overflow-y-auto"
        style="transform: translateX(100%); transition: transform 300ms ease;">
     <nav class="py-6">
+       class="lg:hidden fixed top-0 right-0 h-full w-3/4 bg-[#2A4759] z-50 overflow-y-auto"
+       style="transform: translateX(100%); transition: transform 300ms ease;">
+    <nav class="py-6">
       <ul class="space-y-1">
         <li><a href="/" class="block px-6 py-3 text-white hover:bg-[#406A84]">الرئيسية</a></li>
         <li><a href="/showMoreTechnicians" class="block px-6 py-3 text-white hover:bg-[#406A84]">الفنيين</a></li>
@@ -84,6 +98,9 @@
           <ul id="mobileBlogList" class="hidden bg-[#406A84]">
             <% if (locals.blogs && blogs.length > 0) { %>
               <% blogs.forEach(blog => { %>
+          <ul id="mobileBlogList" class="hidden bg-[#406A84]">
+            <% if (locals.blogs && blogs.length > 0) { %>
+              <% blogs.forEach(blog => { %>
                 <li>
                 
           <a href="/blogs/<%= getSlug(blog.blog, { lang: false, uric: true }) %>" class="block px-4 py-3 hover:bg-[#2A4759] hover:text-white">
@@ -92,6 +109,10 @@
 
 
                 </li>
+              <% }) %>
+            <% } else { %>
+              <li><span class="block px-8 py-2 text-gray-300">لا توجد مقالات</span></li>
+            <% } %>
               <% }) %>
             <% } else { %>
               <li><span class="block px-8 py-2 text-gray-300">لا توجد مقالات</span></li>

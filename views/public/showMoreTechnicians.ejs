@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" class="font-[Cairo]">
+<html lang="ar" dir="rtl" class="font-[Cairo]">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,6 +20,7 @@
     }
   </style>
 </head>
+<body class="text-gray-800 flex flex-col min-h-screen">
 <body class="text-gray-800 flex flex-col min-h-screen">
   <!-- header -->
   <%- include("../layouts/header") %>
@@ -100,7 +102,15 @@
       <p class="text-lg font-semibold">لا يوجد فنيين حسب بحثك</p>
     </div>
   </div>
+    <!-- No results -->
+    <div id="no-results" class="hidden text-center py-10 text-gray-500">
+      <i class="fa-solid fa-circle-exclamation text-3xl mb-3 text-[#2A4759]"></i>
+      <p class="text-lg font-semibold">لا يوجد فنيين حسب بحثك</p>
+    </div>
+  </div>
 
+  <!-- footer -->
+  <%- include("../layouts/footer") %>
   <!-- footer -->
   <%- include("../layouts/footer") %>
 
@@ -109,7 +119,13 @@
     function setupAutocomplete(inputId, listId) {
       const searchInput = document.getElementById(inputId);
       const suggestionBox = document.getElementById(listId);
+  <script>
+    // Autocomplete function
+    function setupAutocomplete(inputId, listId) {
+      const searchInput = document.getElementById(inputId);
+      const suggestionBox = document.getElementById(listId);
 
+      if (searchInput) {
       if (searchInput) {
         searchInput.addEventListener('input', async () => {
           const query = searchInput.value.trim();
@@ -118,6 +134,7 @@
 
           try {
             const res = await fetch(`/technicians?search=${encodeURIComponent(query)}`, {
+              headers: { 'X-Requested-With': 'XMLHttpRequest' }
               headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
             const suggestions = await res.json();
@@ -190,5 +207,54 @@
     handleSearch("search-desktop"); // الديسكتوب
     handleSearch("search-mobile");  // الموبايل
   </script>
+      }
+    }
+
+    // Desktop search
+    setupAutocomplete('search-desktop', 'autocomplete-list-desktop');
+
+    // Mobile search toggle + autocomplete
+    const mobileSearchBtn = document.getElementById('mobile-search-btn');
+    const mobileSearchWrapper = document.getElementById('mobile-search-wrapper');
+    if (mobileSearchBtn && mobileSearchWrapper) {
+      mobileSearchBtn.addEventListener('click', () => {
+        mobileSearchWrapper.classList.toggle('hidden');
+      });
+    }
+    setupAutocomplete('search-mobile', 'autocomplete-list-mobile');
+
+    // فلترة الكروت + no results
+    function handleSearch(inputId) {
+      const searchInput = document.getElementById(inputId);
+      const noResults = document.getElementById("no-results");
+      if (!searchInput) return;
+
+      searchInput.addEventListener("input", function () {
+        const query = this.value.toLowerCase();
+        let anyVisible = false;
+
+        document.querySelectorAll(".technician-card").forEach(card => {
+          const name = card.querySelector(".tech-name").textContent.toLowerCase();
+          if (name.includes(query)) {
+            card.style.display = "block";
+            anyVisible = true;
+          } else {
+            card.style.display = "none";
+          }
+        });
+
+        if (!anyVisible) {
+          noResults.classList.remove("hidden");
+        } else {
+          noResults.classList.add("hidden");
+        }
+      });
+    }
+
+    // فعل السيرش
+    handleSearch("search-desktop"); // الديسكتوب
+    handleSearch("search-mobile");  // الموبايل
+  </script>
 </body>
 </html>
+

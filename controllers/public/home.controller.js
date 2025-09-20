@@ -1,5 +1,6 @@
 const Job = require("../../models/job");
 const Technician = require("../../models/technician");
+const Neighborhood = require("../../models/neighborhood"); // إضافة نموذج الحي
 const Blog = require("../../models/blog");
 const Post = require("../../models/post");
 const getSlug = require("speakingurl");
@@ -16,6 +17,22 @@ exports.getHomePage = async (req, res) => {
       },
     ]);
 
+    // الحصول على قائمة فريدة من أسماء الفنيين
+    const uniqueTechnicians = await Technician.aggregate([
+      {
+        $group: {
+          _id: "$mainTitle",
+          technicianId: { $first: "$_id" }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    // الحصول على قائمة فريدة من الأحياء
+    const uniqueNeighborhoods = await Neighborhood.find({})
+      .select('name')
+      .sort({ name: 1 });
+
     const jobId = req.query.jobId || "";
     const technician = req.query.technician || "";
     const neighborhood = req.query.neighborhood || "";
@@ -26,12 +43,12 @@ exports.getHomePage = async (req, res) => {
 
     const techniciansRaw = await Technician.find(query)
       .populate("jobName")
-      .populate("neighborhoodNames");
+      .populate("neighborhoodNames"); 
 
     const technicians = neighborhood.trim()
       ? techniciansRaw.filter((t) =>
           t.neighborhoodNames.some((n) =>
-            n.name.toLowerCase().includes(neighborhood.trim().toLowerCase())
+            n.name === neighborhood.trim()
           )
         )
       : techniciansRaw;
@@ -63,6 +80,8 @@ const uniqueNeighborhoods = await Technician.aggregate([
     res.render("landingpage/index", {
       jobs: uniqueJobs,
       technicians,
+      uniqueTechnicians, // إرسال قائمة الفنيين الفريدة
+      uniqueNeighborhoods, // إرسال قائمة الأحياء الفريدة
       technician,
       neighborhood,
       selectedJobId: jobId || "",
@@ -96,6 +115,7 @@ exports.autocompleteTechnicians = async (req, res) => {
         {
           $lookup: {
             from: "neighborhoods",
+            from: "neighborhoods",
             localField: "neighborhoodNames",
             foreignField: "_id",
             as: "neighborhoodInfo",
@@ -125,8 +145,8 @@ exports.autocompletePosts = async (req, res) => {
     const posts = await Post.find({
       $or: [{ title: { $regex: searchRegex } }, { name: { $regex: searchRegex } }],
     })
-      .select("title name permaLink content")
-      .limit(10);
+    .select("title name permaLink content") 
+    .limit(10);
 
     const formattedPosts = posts.map((post) => ({
       _id: post._id,
@@ -134,13 +154,13 @@ exports.autocompletePosts = async (req, res) => {
       name: post.name || "",
       permaLink: post.permaLink,
       content: post.content || "",
-      displayText:
-        post.title && post.name
-          ? `${post.title} - ${post.name}`
-          : post.title || post.name || "بدون عنوان",
+      displayText: post.title && post.name 
+        ? `${post.title} - ${post.name}`
+        : post.title || post.name || "بدون عنوان"
     }));
 
     return res.json(formattedPosts);
+    
   } catch (err) {
     console.error("Autocomplete error:", err);
     return res.status(500).json({ error: "Internal Server Error" });
