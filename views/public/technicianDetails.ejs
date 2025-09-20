@@ -60,9 +60,10 @@
       <% 
         let imageName = technician.jobTechnicianPhoto || "default.png";
       %>
-      <img src="/uploads/technicians/<%= imageName %>" 
-          alt="<%= technician.mainTitle %>" 
-          class="rounded-xl w-full md:w-1/2 h-[265px] sm:h-[365px] md:h-[465px] object-cover" />
+     <img src="<%= technician.jobTechnicianPhoto %>" 
+     alt="<%= technician.mainTitle %>" 
+     class="rounded-xl w-full md:w-1/2 h-[265px] sm:h-[365px] md:h-[465px] object-cover" />
+
 
       <div class="md:w-1/2 h-full flex flex-col justify-between overflow-hidden">
         <h2 class="text-[#222222] text-2xl sm:text-3xl md:text-[32px] font-bold mb-3 sm:mb-4">
