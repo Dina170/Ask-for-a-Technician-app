@@ -1,15 +1,17 @@
 <header class="bg-[#2A4759] shadow-md p-4 lg:px-20 px-4 flex justify-between items-center z-50 relative">
-  <!-- Logo -->
   <div class="flex items-center">
     <img src="/images/logo.png" alt="logo" class="h-8 lg:h-10 w-auto rounded-md" />
   </div>
 
-  <!-- Desktop Navigation -->
   <nav class="hidden lg:block">
     <ul class="flex gap-8 text-white font-medium items-center">
       <li><a href="/" class="hover:underline hover:text-[#FC8500]">الرئيسية</a></li>
       <li><a href="/showMoreTechnicians" class="hover:underline hover:text-[#FC8500]">الفنيين</a></li>
+      <li><a href="/" class="hover:underline hover:text-[#FC8500]">الرئيسية</a></li>
+      <li><a href="/showMoreTechnicians" class="hover:underline hover:text-[#FC8500]">الفنيين</a></li>
       <li class="relative group">
+        <button class="hover:text-[#FC8500] flex items-center gap-1">المدونة
+          <i class="fa-solid fa-chevron-down text-xs group-hover:rotate-180 transition-transform"></i>
         <button class="hover:text-[#FC8500] flex items-center gap-1">المدونة
           <i class="fa-solid fa-chevron-down text-xs group-hover:rotate-180 transition-transform"></i>
         </button>
@@ -17,8 +19,16 @@
           <% if (locals.blogs && blogs.length > 0) { %>
             <% blogs.forEach(blog => { %>
               <li>
-                <a href="/blogs/<%= blog._id %>" class="block px-4 py-3 hover:bg-[#2A4759] hover:text-white"><%= blog.blog %></a>
+               <a href="/blogs/<%= getSlug(blog.blog, { lang: false, uric: true }) %>" class="block px-4 py-3 hover:bg-[#2A4759] hover:text-white">
+  <%= blog.blog %>
+</a>
+
+
               </li>
+            <% }) %>
+          <% } else { %>
+            <li><span class="block px-4 py-3 text-gray-400">لا توجد مقالات</span></li>
+          <% } %>
             <% }) %>
           <% } else { %>
             <li><span class="block px-4 py-3 text-gray-400">لا توجد مقالات</span></li>
@@ -26,63 +36,60 @@
         </ul>
       </li>
       <li><a href="/contact" class="hover:underline hover:text-[#FC8500]">تواصل معنا</a></li>
+      <li><a href="/contact" class="hover:underline hover:text-[#FC8500]">تواصل معنا</a></li>
     </ul>
   </nav>
 
-  <!-- Contact (Desktop) -->
   <div class="hidden lg:block">
+    <a href="tel:05075813050" class="text-white hover:text-[#FC8500] flex items-center gap-2">
+      <i class="fa-solid fa-phone text-sm"></i><span class="hidden xl:inline">اتصل بنا:</span>05075813050
     <a href="tel:05075813050" class="text-white hover:text-[#FC8500] flex items-center gap-2">
       <i class="fa-solid fa-phone text-sm"></i><span class="hidden xl:inline">اتصل بنا:</span>05075813050
     </a>
   </div>
 
-  <!-- Mobile Controls -->
   <div class="flex lg:hidden items-center gap-4">
-    <!-- Search -->
     <div class="relative">
       <button id="mobileSearchBtn" class="text-white text-xl">
         <i class="fa-solid fa-magnifying-glass"></i>
       </button>
       <div id="mobileSearchWrapper" class="absolute top-0 left-8 hidden">
-        <form action="/technicians" method="GET" class="flex items-center">
+        <form action="/showMoreTechnicians" method="GET" class="flex items-center">
           <div class="relative">
             <input
               type="text"
               id="search-mobile"
               name="search"
               placeholder="ابحث عن فني"
-              class="w-0 max-w-[120px] transition-all duration-200 border border-gray-300 rounded-[12px] py-1 pl-3 pr-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2A4759]" />
+              class="w-0 max-w-[110px] transition-all duration-200 border border-gray-300 rounded-[12px] py-1 pl-3 pr-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2A4759]" />
             <ul id="autocomplete-list-mobile" class="absolute z-50 bg-[#FAFAFA] w-full mt-1 rounded-lg"></ul>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- Call (Mobile) -->
     <a href="tel:05075813050" class="text-white text-xl hover:text-[#FC8500]">
       <i class="fa-solid fa-phone"></i>
     </a>
 
-    <!-- Hamburger -->
     <button id="mobileMenuBtn" class="text-white text-xl" aria-expanded="false" aria-controls="mobileMenu">
       <i class="fa-solid fa-bars" id="hamburgerIcon"></i>
       <i class="fa-solid fa-times hidden" id="closeIcon"></i>
     </button>
   </div>
 
-  <!-- Overlay -->
   <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
 
-  <!-- Mobile Navigation Sidebar -->
   <div id="mobileMenu"
+       class="lg:hidden fixed top-0 right-0 h-full w-3/4 bg-[#2A4759] z-50 overflow-y-auto"
+       style="transform: translateX(100%); transition: transform 300ms ease;">
+    <nav class="py-6">
        class="lg:hidden fixed top-0 right-0 h-full w-3/4 bg-[#2A4759] z-50 overflow-y-auto"
        style="transform: translateX(100%); transition: transform 300ms ease;">
     <nav class="py-6">
       <ul class="space-y-1">
         <li><a href="/" class="block px-6 py-3 text-white hover:bg-[#406A84]">الرئيسية</a></li>
         <li><a href="/showMoreTechnicians" class="block px-6 py-3 text-white hover:bg-[#406A84]">الفنيين</a></li>
-
-        <!-- المدونة بالمقالات -->
         <li class="border-t border-[#406A84]">
           <button id="mobileBlogBtn" class="w-full flex justify-between items-center px-6 py-3 text-white hover:bg-[#406A84]">
             المدونة
@@ -91,50 +98,48 @@
           <ul id="mobileBlogList" class="hidden bg-[#406A84]">
             <% if (locals.blogs && blogs.length > 0) { %>
               <% blogs.forEach(blog => { %>
+          <ul id="mobileBlogList" class="hidden bg-[#406A84]">
+            <% if (locals.blogs && blogs.length > 0) { %>
+              <% blogs.forEach(blog => { %>
                 <li>
-                  <a href="/blogs/<%= blog._id %>" class="block px-8 py-2 text-white hover:bg-[#36566c]"><%= blog.blog %></a>
+                
+          <a href="/blogs/<%= getSlug(blog.blog, { lang: false, uric: true }) %>" class="block px-4 py-3 hover:bg-[#2A4759] hover:text-white">
+  <%= blog.blog %>
+</a>
+
+
                 </li>
+              <% }) %>
+            <% } else { %>
+              <li><span class="block px-8 py-2 text-gray-300">لا توجد مقالات</span></li>
+            <% } %>
               <% }) %>
             <% } else { %>
               <li><span class="block px-8 py-2 text-gray-300">لا توجد مقالات</span></li>
             <% } %>
           </ul>
         </li>
-
         <li><a href="/contact" class="block px-6 py-3 text-white hover:bg-[#406A84]">تواصل معنا</a></li>
       </ul>
     </nav>
   </div>
 </header>
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const mobileSearchBtn = document.getElementById('mobileSearchBtn');
   const mobileSearchWrapper = document.getElementById('mobileSearchWrapper');
   const mobileSearchInput = document.getElementById('search-mobile');
-
-  if (mobileSearchBtn) {
-    mobileSearchBtn.addEventListener('click', () => {
-      if (!mobileSearchWrapper) return;
-      mobileSearchWrapper.classList.toggle('hidden');
-      if (!mobileSearchWrapper.classList.contains('hidden')) {
-        if (mobileSearchInput) {
-          mobileSearchInput.classList.remove('w-0');
-          mobileSearchInput.classList.add('w-48','px-3');
-          mobileSearchInput.focus();
-        }
-      } else {
-        if (mobileSearchInput) {
-          mobileSearchInput.classList.remove('w-48','px-3');
-          mobileSearchInput.classList.add('w-0');
-        }
-      }
-    });
-  }
-
-  if (typeof setupAutocomplete === 'function') {
-    setupAutocomplete('search-mobile', 'autocomplete-list-mobile');
-  }
+  mobileSearchBtn?.addEventListener('click', () => {
+    mobileSearchWrapper?.classList.toggle('hidden');
+    if (!mobileSearchWrapper.classList.contains('hidden')) {
+      mobileSearchInput?.classList.replace('w-0','w-48');
+      mobileSearchInput?.classList.add('px-3');
+      mobileSearchInput?.focus();
+    } else {
+      mobileSearchInput?.classList.replace('w-48','w-0');
+      mobileSearchInput?.classList.remove('px-3');
+    }
+  });
 
   const mobileMenuBtn = document.getElementById('mobileMenuBtn');
   const mobileMenu = document.getElementById('mobileMenu');
@@ -142,51 +147,34 @@ document.addEventListener('DOMContentLoaded', function () {
   const closeIcon = document.getElementById('closeIcon');
   const overlay = document.getElementById('overlay');
 
-  if (mobileMenu && mobileMenuBtn) {
-    const openMenu = () => {
-      mobileMenu.style.transform = 'translateX(0)';
-      overlay.classList.remove('hidden');
-      mobileMenuBtn.setAttribute('aria-expanded', 'true');
-      if (hamburgerIcon) hamburgerIcon.classList.add('hidden');
-      if (closeIcon) closeIcon.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-    };
+  const openMenu = () => {
+    mobileMenu.style.transform = 'translateX(0)';
+    overlay.classList.remove('hidden');
+    mobileMenuBtn.setAttribute('aria-expanded','true');
+    hamburgerIcon?.classList.add('hidden');
+    closeIcon?.classList.remove('hidden');
+    document.body.style.overflow='hidden';
+  };
 
-    const closeMenu = () => {
-      mobileMenu.style.transform = 'translateX(100%)';
-      overlay.classList.add('hidden');
-      mobileMenuBtn.setAttribute('aria-expanded', 'false');
-      if (hamburgerIcon) hamburgerIcon.classList.remove('hidden');
-      if (closeIcon) closeIcon.classList.add('hidden');
-      document.body.style.overflow = '';
-    };
+  const closeMenu = () => {
+    mobileMenu.style.transform = 'translateX(100%)';
+    overlay.classList.add('hidden');
+    mobileMenuBtn.setAttribute('aria-expanded','false');
+    hamburgerIcon?.classList.remove('hidden');
+    closeIcon?.classList.add('hidden');
+    document.body.style.overflow='';
+  };
 
-    mobileMenuBtn.addEventListener('click', () => {
-      const isOpen = mobileMenu.style.transform === 'translateX(0)';
-      if (isOpen) closeMenu(); else openMenu();
-    });
-
-    overlay.addEventListener('click', closeMenu);
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeMenu();
-    });
-
-    mobileMenu.addEventListener('click', (e) => {
-      if (e.target.tagName === 'A') setTimeout(closeMenu, 50);
-    });
-  }
+  mobileMenuBtn?.addEventListener('click',()=>{ const isOpen = mobileMenu.style.transform==='translateX(0)'; isOpen?closeMenu():openMenu(); });
+  overlay?.addEventListener('click', closeMenu);
+  document.addEventListener('keydown', (e) => { if(e.key==='Escape') closeMenu(); });
+  mobileMenu?.addEventListener('click', (e)=>{ if(e.target.tagName==='A') setTimeout(closeMenu,50); });
 
   const mobileBlogBtn = document.getElementById('mobileBlogBtn');
   const mobileBlogList = document.getElementById('mobileBlogList');
   const mobileBlogIcon = document.getElementById('mobileBlogIcon');
 
-  if (mobileBlogBtn) {
-    mobileBlogBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (mobileBlogList) mobileBlogList.classList.toggle('hidden');
-      if (mobileBlogIcon) mobileBlogIcon.classList.toggle('rotate-180');
-    });
-  }
+  mobileBlogBtn?.addEventListener('click',(e)=>{e.preventDefault(); mobileBlogList?.classList.toggle('hidden'); mobileBlogIcon?.classList.toggle('rotate-180');});
+
 });
 </script>

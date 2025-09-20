@@ -12,14 +12,15 @@
       font-family: 'Cairo', sans-serif !important;
     }
     .line-clamp-3 {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3; 
-  overflow: hidden;
-}
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3; 
+      overflow: hidden;
+    }
   </style>
 </head>
 <body class="text-gray-800 flex flex-col min-h-screen">
+
   <!-- header -->
   <%- include("../layouts/header") %>
 
@@ -33,9 +34,6 @@
         <i class="fa-solid fa-chevron-left ml-3"></i>
         <span class="font-semibold text-[#B7BDC2]">عرض الفنيين</span>
       </div>
-
-      <!-- Mobile search -->
-      
     </div>
   </div>
 
@@ -72,20 +70,23 @@
   </div>
 
   <!-- Cards -->
-<div class="container mx-auto px-4 sm:px-4 lg:px-12 py-8 flex-grow">
+  <div class="container mx-auto px-4 sm:px-4 lg:px-12 py-8 flex-grow">
     <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <% technicians.forEach(tech => { %>
         <div class="technician-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative flex flex-col">
           <div class="relative h-48">
-            <img src="/uploads/technicians/<%= tech.jobTechnicianPhoto %>" alt="<%= tech.name %>" class="w-full h-full object-cover" />
+            <img src="/uploads/technicians/<%= tech.jobTechnicianPhoto || 'default.png' %>" 
+                 alt="<%= tech.mainTitle %>" 
+                 class="w-full h-full object-cover" />
           </div>
           <div class="card-body p-4 flex flex-col flex-1">
             <h3 class="tech-name text-lg font-bold text-[#222222] mb-2"><%= tech.mainTitle %></h3>
-<p class="text-[#5C5C5C] text-sm mb-5 break-words whitespace-normal overflow-hidden line-clamp-3">
+            <p class="text-[#5C5C5C] text-sm mb-5 break-words whitespace-normal overflow-hidden line-clamp-3">
               <%- tech.description.replace(/<img.*?>/g, "").replace(/<[^>]+>/g, "").substring(0, 200) %>...
             </p>
             <div class="mt-auto flex gap-2">
-              <a href="/technicians/<%= tech._id %>/details" class="flex-1 bg-[#2A4759] text-white text-sm text-center h-12 flex items-center justify-center rounded-lg hover:opacity-80 transition-opacity duration-200">
+              <a href="/technicians/<%= tech.mainTitle %>/details" 
+                 class="flex-1 bg-[#2A4759] text-white text-sm text-center h-12 flex items-center justify-center rounded-lg hover:opacity-80 transition-opacity duration-200">
                 عرض المزيد
               </a>
             </div>
@@ -155,8 +156,9 @@
       mobileSearchBtn.addEventListener('click', () => {
         mobileSearchWrapper.classList.toggle('hidden');
       });
+      setupAutocomplete('search-mobile', 'autocomplete-list-mobile');
+      handleSearch("search-mobile");
     }
-    setupAutocomplete('search-mobile', 'autocomplete-list-mobile');
 
     // فلترة الكروت + no results
     function handleSearch(inputId) {
@@ -187,8 +189,7 @@
     }
 
     // فعل السيرش
-    handleSearch("search-desktop"); // الديسكتوب
-    handleSearch("search-mobile");  // الموبايل
+    handleSearch("search-desktop");
   </script>
 </body>
 </html>

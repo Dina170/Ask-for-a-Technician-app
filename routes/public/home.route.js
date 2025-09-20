@@ -5,7 +5,6 @@ const technicianController = require("../../controllers/public/technician.contro
 
 router.get("/", homeController.getHomePage);
 
-// Technicians page with search
 router.get("/showMoreTechnicians", technicianController.getAllTechnicians);
 router.get("/autocomplete", homeController.autocompleteTechnicians);
 router.get("/blogs", homeController.getAllBlogs);

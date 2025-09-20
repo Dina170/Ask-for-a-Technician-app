@@ -14,18 +14,19 @@
     </style>
   </head>
 
-  <body class="m-0 p-0 flex flex-col min-h-screen">
+  <body class="m-0 p-0 flex flex-col min-h-screen ">
     <!-- header -->
     <%- include("../layouts/header") %>
 
     <!-- Breadcrumb -->
-    <div class="bg-white mt-5 sm:mb-5  lg:mb-10 px-4 sm:px-8 lg:px-32">
-      <div class="max-w-8xl mx-auto flex items-center flex-wrap text-sm sm:text-base">
+    <div class="mt-5 sm:mb-5 lg:mb-10 px-4 sm:px-8 lg:px-32 shadow-sm">
+      <div class="max-w-8xl mx-auto flex items-center flex-wrap text-sm sm:text-base py-3">
         <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
           <i class="fa-solid fa-home text-lg sm:text-2xl ml-2 sm:ml-3"></i>
         </a>
         <i class="fa-solid fa-chevron-left mx-2 text-gray-400"></i>
-        <a href="/blogs/<%= post.blog._id %>" class="font-semibold text-gray-600 hover:text-[#2A4759]">
+        <a href="/blogs/<%= post.blog.slug || post.blog._id %>"
+           class="font-semibold text-gray-600 hover:text-[#2A4759]">
           <%= post.blog.blog %>
         </a>
         <i class="fa-solid fa-chevron-left mx-2 text-gray-400"></i>
@@ -36,7 +37,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="px-4 sm:px-8 lg:px-32 mt-3 sm:mt-5 flex-grow max-w-8xl mx-auto">
+    <main class="px-4 sm:px-8 lg:px-32 mt-5 flex-grow max-w-8xl mx-auto">
       <!-- عنوان المقال -->
       <h1 class="text-[#222222] text-2xl sm:text-3xl md:text-[32px] font-bold mb-4 sm:mb-6 leading-relaxed text-right">
         <%= post.name %>
@@ -48,20 +49,21 @@
         <img
           src="/uploads/posts/<%= post.image %>"
           alt="<%= post.title || post.name %>"
-          class="rounded-xl w-full max-h-[300px] sm:max-h-[400px] object-cover shadow-lg"
+          class="rounded-xl w-full max-h-[400px] object-cover shadow-lg"
         />
       </div>
       <% } %>
 
       <!-- محتوى المقال -->
-      <div class="description-text prose prose-sm sm:prose-lg max-w-none text-gray-700 leading-relaxed text-right">
+      <article class="description-text prose prose-sm sm:prose-lg max-w-none text-gray-700 leading-relaxed text-right">
         <%- post.content %>
-      </div>
-    </div>
+      </article>
+    </main>
 
     <!-- footer -->
     <%- include("../layouts/footer") %>
 
+    <!-- Extra Styles -->
     <style>
       .prose h1,
       .prose h2,
