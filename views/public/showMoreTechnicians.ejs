@@ -75,7 +75,7 @@
       <% technicians.forEach(tech => { %>
         <div class="technician-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative flex flex-col">
           <div class="relative h-48">
-            <img src="/uploads/technicians/<%= tech.jobTechnicianPhoto || 'default.png' %>" 
+            <img src="<%= tech.jobTechnicianPhoto %>" 
                  alt="<%= tech.mainTitle %>" 
                  class="w-full h-full object-cover" />
           </div>
@@ -160,7 +160,6 @@
       handleSearch("search-mobile");
     }
 
-    // فلترة الكروت + no results
     function handleSearch(inputId) {
       const searchInput = document.getElementById(inputId);
       const noResults = document.getElementById("no-results");
@@ -188,7 +187,6 @@
       });
     }
 
-    // فعل السيرش
     handleSearch("search-desktop");
   </script>
 </body>
