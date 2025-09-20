@@ -4,7 +4,7 @@
   <% neighborhoodsWithJobs.forEach(({ neighborhood, job }) => { %>
     <div class="neighborhood-card bg-white border rounded-lg shadow-sm p-4 w-full max-w-3xl mx-auto">
       <div class="flex items-center">
-        <img src="/uploads/neighborhoods/<%= neighborhood.neighborhoodPhoto %>" 
+        <img src="<%= neighborhood.neighborhoodPhoto %>" 
              class="w-16 h-16 rounded-full object-cover mr-4" />
         <div class="mr-4">
           <h3 class="text-lg font-bold text-[#222222] mb-1"><%= neighborhood.name %></h3>
