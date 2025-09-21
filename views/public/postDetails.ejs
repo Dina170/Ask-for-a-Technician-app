@@ -11,6 +11,38 @@
       body, p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea, label, div {
         font-family: "Cairo", sans-serif !important;
       }
+
+       .description-text {
+    font-family: "Cairo", sans-serif;
+    font-weight: 500;
+    line-height: 200%;
+    letter-spacing: 0;
+    color: #5C5C5C;
+  }
+
+  /* حجم النص في الموبايل */
+  @media (max-width: 640px) {
+    .description-text {
+      font-size: 13px;
+    }
+  }
+
+  /* حجم النص في الديسكتوب */
+  @media (min-width: 641px) {
+    .description-text {
+      font-size: 16px;
+    }
+  }
+
+  /* منع تأثير الستايل على الصور */
+ .description-text img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px;   /* هيرجع البوردر */
+  margin: 1.5rem auto;
+}
+
     </style>
   </head>
 
@@ -19,16 +51,16 @@
     <%- include("../layouts/header") %>
 
     <!-- Breadcrumb -->
-    <div class="mt-5 sm:mb-5 lg:mb-10 px-4 sm:px-8 lg:px-32 shadow-sm">
+    <div class=" sm:mb-5 lg:mb-10 px-4 sm:px-8 lg:px-32 shadow-sm">
       <div class="max-w-8xl mx-auto flex items-center flex-wrap text-sm sm:text-base py-3">
         <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
           <i class="fa-solid fa-home text-lg sm:text-2xl ml-2 sm:ml-3"></i>
         </a>
         <i class="fa-solid fa-chevron-left mx-2 text-gray-400"></i>
-        <a href="/blogs/<%= post.blog.slug || post.blog._id %>"
-           class="font-semibold text-gray-600 hover:text-[#2A4759]">
-          <%= post.blog.blog %>
-        </a>
+     <a href="/blogs/<%= getSlug(post.blog.blog, { lang: false, uric: true }) %>" 
+   class="font-semibold text-gray-600 hover:text-[#2A4759]">
+  <%= post.blog.blog %>
+</a>
         <i class="fa-solid fa-chevron-left mx-2 text-gray-400"></i>
         <span class="font-semibold text-[#B3AFAF] truncate max-w-[180px] sm:max-w-none">
           <%= post.name %>
@@ -39,25 +71,27 @@
     <!-- Main Content -->
     <main class="px-4 sm:px-8 lg:px-32 mt-5 flex-grow max-w-8xl mx-auto">
       <!-- عنوان المقال -->
-      <h1 class="text-[#222222] text-2xl sm:text-3xl md:text-[32px] font-bold mb-4 sm:mb-6 leading-relaxed text-right">
-        <%= post.name %>
-      </h1>
+    <h1 class="font-[Cairo] font-bold text-[16px] leading-[100%] sm:text-[32px] text-[#222222] text-right mb-4 sm:mb-6">
+  <%= post.name %>
+</h1>
 
       <!-- صورة المقال -->
-      <% if (post.image) { %>
-      <div class="mb-6 sm:mb-8">
-        <img
-          src="/uploads/posts/<%= post.image %>"
-          alt="<%= post.title || post.name %>"
-          class="rounded-xl w-full max-h-[400px] object-cover shadow-lg"
-        />
-      </div>
-      <% } %>
+    <% if (post.image) { %>
+  <div class="mb-6 sm:mb-8 flex justify-center relative group">
+    <img
+      src="/uploads/posts/<%= post.image %>"
+      alt="<%= post.title || post.name %>"
+      title="<%= post.title || post.name %>"  
+      class="rounded-[10px] w-[368px] h-[208px] sm:w-[951px] sm:h-[538px] object-cover shadow-lg"
+    />
+  </div>
+<% } %>
+
 
       <!-- محتوى المقال -->
-      <article class="description-text prose prose-sm sm:prose-lg max-w-none text-gray-700 leading-relaxed text-right">
-        <%- post.content %>
-      </article>
+      <article class="description-text text-right">
+  <%- post.content %>
+</article>
     </main>
 
     <!-- footer -->
