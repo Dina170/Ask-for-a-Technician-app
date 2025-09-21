@@ -62,43 +62,83 @@
       %>
      <img src="<%= technician.jobTechnicianPhoto %>" 
      alt="<%= technician.mainTitle %>" 
-     class="rounded-xl w-full md:w-1/2 h-[265px] sm:h-[365px] md:h-[465px] object-cover" />
-
+class="rounded-xl w-full md:w-1/2 h-[265px] sm:h-[365px] md:h-[465px] object-cover"/>
 
       <div class="md:w-1/2 h-full flex flex-col justify-between overflow-hidden">
-        <h2 class="text-[#222222] text-2xl sm:text-3xl md:text-[32px] font-bold mb-3 sm:mb-4">
+        <h2 class="text-[#222222] text-2xl sm:text-[24px] md:text-[32px] font-bold mb-3 sm:mb-4">
           <%= technician.mainTitle %>
         </h2>
         
-        <div class="description-text text-right font-regular text-[13px] sm:text-[20px] leading-[200%] text-[#5C5C5C] pr-2 sm:pr-0">
-          <%- technician.description.replace(/<img.*?>/g, "") %>
-        </div>
+       <div class="flex flex-col 
+            w-full max-w-[368px] sm:max-w-[604px] 
+            gap-[4.87px] sm:gap-4 
+            h-auto sm:h-[255px]">
 
-        <div class="flex flex-row gap-3 mt-6 sm:mt-8 md:mt-12">
-          <% if (technician.phoneNumber) { %>
-            <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank" rel="noopener noreferrer" class="flex-1">
-              <button class="bg-[#2A4759] flex items-center justify-center gap-2 text-white rounded-lg w-full py-2 min-h-[48px] hover:bg-[#1e3442] transition duration-300 text-sm sm:text-base">
-                <i class="fab fa-whatsapp text-lg"></i>
-                <span>إرسال على واتساب</span>
-              </button>
-            </a>
-          <% } %>
+  <div class="description-text text-right font-regular 
+              text-[13px] sm:text-[20px] leading-[200%] 
+              text-[#5C5C5C] pr-2 sm:pr-0 
+              h-[182px] sm:h-auto">
+    <%- technician.description.replace(/<img.*?>/g, "") %>
+  </div>
 
-          <a href="/technicians/<%= technician.mainTitle %>/seeMoreTechnicianNeighborhoods" rel="noopener noreferrer" class="flex-1">
-            <button class="bg-white border border-[#2A4759] flex items-center justify-center gap-2 text-[#2A4759] hover:text-white rounded-lg w-full py-2 min-h-[48px] hover:bg-[#2A4759] transition duration-300 text-sm sm:text-base">
-              <span>عرض الأحياء</span>
-            </button>
-          </a>
-        </div>
+</div>
+
+
+<div class="flex flex-row justify-center mx-auto 
+            gap-2 sm:gap-4 
+            w-full max-w-[604px] 
+            mt-6 sm:mt-8 md:mt-12">
+
+  <% if (technician.phoneNumber) { %>
+    <a href="https://wa.me/<%= technician.phoneNumber %>" 
+       target="_blank" rel="noopener noreferrer" class="flex-1 max-w-[163px] sm:max-w-[272.25px]">
+      <button class="bg-[#2A4759] flex items-center justify-center gap-1.5 
+                     text-white rounded-[10px] sm:rounded-[12px] w-full 
+                     h-[38px] sm:h-[56px] 
+                     px-4 py-2 sm:px-[30px] sm:py-3
+                     border border-[#2A4759]
+                     hover:bg-[#1e3442] transition duration-300 
+                     text-xs sm:text-base">
+        <i class="fab fa-whatsapp text-lg sm:text-xl"></i>
+        <span>إرسال على واتساب</span>
+      </button>
+    </a>
+  <% } %>
+
+  <a href="/technicians/<%= technician.mainTitle %>/seeMoreTechnicianNeighborhoods" 
+     rel="noopener noreferrer" class="flex-1 max-w-[163px] sm:max-w-[272.25px]">
+    <button class="bg-white border border-[#2A4759] flex items-center justify-center gap-1.5 
+                   text-[#2A4759] hover:text-white rounded-[10px] sm:rounded-[12px] w-full 
+                   h-[38px] sm:h-[56px] 
+                   px-4 py-2 sm:px-[30px] sm:py-3
+                   hover:bg-[#2A4759] transition duration-300 
+                   text-xs sm:text-base">
+      <span>عرض الأحياء</span>
+    </button>
+  </a>
+</div>
+
+
+
+
       </div>
     </div>
 
     <% if (technician.phoneNumber) { %>
       <div class="flex flex-col max-w-md mx-auto text-center mt-6 sm:mt-8 px-4">
-        <h2 class="text-[#222222] text-lg sm:text-xl font-semibold mb-4">اتصل الآن نصلك اينما كنت بالرياض</h2>
-        <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank" class="text-[#2A4759] font-bold underline text-lg sm:text-xl">
-          <%= technician.phoneNumber %>
-        </a>
+<p class="font-[Cairo] text-[#222222] leading-[140%] 
+           font-normal text-[20px]   <!-- موبايل: Regular 400, 24px -->
+           sm:font-medium sm:text-[30px]  <!-- ديسكتوب: Medium 500, 30px -->
+           mb-4">
+  اتصل الآن نصلك اينما كنت بالرياض
+</p>
+       <a href="https://wa.me/<%= technician.phoneNumber %>" 
+   target="_blank" 
+   class="block text-center font-[Cairo] font-bold text-[20px] leading-[140%] tracking-normal text-[#2A4759] underline decoration-solid decoration-1">
+  <%= technician.phoneNumber %>
+</a>
+
+
         <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank"
           class="mt-4 mx-auto w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center rounded-full border-2 border-[#2A4759]">
           <div class="bg-[#2A4759] w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center">
@@ -108,19 +148,21 @@
       </div>
     <% } %>
 
-    <% if (technician.jobName) { %>
-      <div class="px-4 sm:px-8 lg:px-16 mt-6 sm:mt-8 mb-6 sm:mb-8">
-        <!-- Title -->
-        <div class="description-text text-right leading-relaxed whitespace-pre-line text-sm sm:text-base text-[14px] sm:text-[16px] font-medium text-[#222222]">
-          <%- technician.jobName.mainDescription.replace(/<img.*?>/g, "")  %>
-        </div>
+   <% if (technician.jobName) { %>
+  <div class="px-4 sm:px-8 lg:px-16 mt-6 sm:mt-8 mb-6 sm:mb-8">
+    
+    <!-- Title -->
+    <div class="font-[Cairo] font-semibold text-right leading-[140%] text-[18px] sm:text-[20px] text-[#222222]">
+      <%- technician.jobName.mainDescription.replace(/<img.*?>/g, "")  %>
+    </div>
 
-        <!-- Description -->
-        <div class="description-text text-right leading-relaxed whitespace-pre-line text-xs sm:text-sm mt-2 text-[#5C5C5C]">
-          <%- technician.jobName.subDescription.replace(/<img.*?>/g, "") %>
-        </div>
-      </div>
-    <% } %>
+    <!-- Description -->
+    <div class="font-[Cairo] font-semibold text-right leading-[140%] text-[14px] sm:text-[16px] text-[#5C5C5C] mt-5">
+      <%- technician.jobName.subDescription.replace(/<img.*?>/g, "") %>
+    </div>
+  </div>
+<% } %>
+
   </div>
 
   <!-- footer -->
