@@ -29,9 +29,11 @@
   <i class="fa-solid fa-chevron-left ml-3"></i>
   <a href="/technicians" class="text-[#2A4759] hover:text-[#406A84]">عرض المزيد</a>  
   <i class="fa-solid fa-chevron-left ml-3 mr-3"></i>
-  <a href="/technicians/<%= technician._id %>" class="text-[#2A4759] hover:text-[#406A84]">
-    <%= technician.mainTitle %>
-  </a>
+ <a href="/technicians/<%= encodeURIComponent(technician.mainTitle) %>" class="text-[#2A4759] hover:text-[#406A84]">
+  <%= technician.mainTitle %>
+</a>
+
+
   <i class="fa-solid fa-chevron-left ml-3 mr-3"></i>
   <span class="font-semibold text-[#B7BDC2]">عرض الأحياء</span>
 </div>
