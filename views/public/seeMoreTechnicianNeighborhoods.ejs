@@ -21,12 +21,21 @@
   <div class="bg-white border-b border-gray-200 py-4">
     <div class="max-w-8xl px-4 md:px-32 mx-auto flex items-center justify-between">
       <div class="flex items-center">
-        <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
-          <i class="fa-solid fa-home text-2xl ml-3"></i>
-        </a>
-        <i class="fa-solid fa-chevron-left ml-3"></i>
-        <span class="font-semibold text-[#B7BDC2]">عرض الأحياء</span>
-      </div>
+  <!-- الرئيسية -->
+  <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
+    <i class="fa-solid fa-home text-2xl ml-3"></i>
+  </a>
+
+  <i class="fa-solid fa-chevron-left ml-3"></i>
+  <a href="/technicians" class="text-[#2A4759] hover:text-[#406A84]">عرض المزيد</a>  
+  <i class="fa-solid fa-chevron-left ml-3 mr-3"></i>
+  <a href="/technicians/<%= technician._id %>" class="text-[#2A4759] hover:text-[#406A84]">
+    <%= technician.mainTitle %>
+  </a>
+  <i class="fa-solid fa-chevron-left ml-3 mr-3"></i>
+  <span class="font-semibold text-[#B7BDC2]">عرض الأحياء</span>
+</div>
+
     </div>
   </div>
 
