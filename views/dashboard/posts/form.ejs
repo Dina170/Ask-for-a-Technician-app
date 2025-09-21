@@ -4,7 +4,7 @@
       <%= post ? "تعديل مدونة" : "إضافة مدونة" %>
     </h1>
     <p class="text-gray-600 text-right">
-      <a href="/dashboard/posts" class="hover:text-sky-950 hover:font-medium">  مقالات المدونة  </a> &gt; 
+      <a href="/dashboard/posts" class="hover:text-sky-950 hover:font-medium"> مقالات المدونة </a> &gt;
       <%= post ? "تعديل مدونة" : "إضافة مدونة" %>
     </p>
   </div>
@@ -13,83 +13,81 @@
 
     <div class="bg-white rounded-lg px-6 py-2 space-y-6">
 
-     <!-- داخل الفورم -->
-<!-- Blog -->
-<div>
-  <label class="block text-right mb-2 required font-medium">المدونة</label>
-  <select name="blog" id="blogSelect"
+      <!-- داخل الفورم -->
+      <!-- Blog -->
+      <div>
+        <label class="block text-right mb-2 required font-medium">المدونة</label>
+        <select name="blog" id="blogSelect"
           class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1">
-    <option value="">اختر مدونة</option>
-    <% blogs.forEach(b => { %>
-      <option value="<%= b._id %>" <%= post && post.blog.equals(b._id) ? 'selected' : '' %>>
-        <%= b.blog %>
-      </option>
-    <% }) %>
-  </select>
-  <p id="blogError" class="text-red-500 text-sm mt-1 hidden"></p>
-</div>
+          <option value="">اختر مدونة</option>
+          <% blogs.forEach(b=> { %>
+            <option value="<%= b._id %>" <%=post && post.blog.equals(b._id) ? 'selected' : '' %>>
+              <%= b.blog %>
+            </option>
+            <% }) %>
+        </select>
+        <p id="blogError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
 
-<!-- Name -->
-<div>
-  <label class="block text-right mb-2 required font-medium">اسم المدونة</label>
-  <input type="text" name="name" id="nameInput"
-         class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1"
-         placeholder="اسم المدونة"
-         value="<%= post?.name || '' %>">
-  <p id="nameError" class="text-red-500 text-sm mt-1 hidden"></p>
-</div>
+      <!-- Name -->
+      <div>
+        <label class="block text-right mb-2 required font-medium">اسم المدونة</label>
+        <input type="text" name="name" id="nameInput"
+          class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1"
+          placeholder="اسم المدونة" value="<%= post?.name || '' %>">
+        <p id="nameError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
 
-<!-- Permanent Link -->
-<div>
-  <label class="block text-right mb-2 required font-medium">الرابط الدائم</label>
-  <input type="text" name="permaLink" id="permaLinkInput"
-         class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1"
-         placeholder="Permanent Link"
-         value="<%= post?.permaLink || '' %>">
-  <p id="permaLinkError" class="text-red-500 text-sm mt-1 hidden"></p>
-  <% if (typeof error !== 'undefined') { %>
-    <div class="text-red-500 text-sm mt-1 text-right font-medium" role="alert">
-      <strong class="font-bold">خطأ:</strong>
-      <span class="block sm:inline">
-        <% if (error.includes("E11000") && error.includes("permaLink")) { %>
-          الرابط الدائم موجود بالفعل، من فضلك اكتب رابط آخر.
-        <% } else { %>
-          <%= error %>
-        <% } %>
-      </span>
-    </div>
-  <% } %>
-</div>
+      <!-- Permanent Link -->
+      <div>
+        <label class="block text-right mb-2 required font-medium">الرابط الدائم</label>
+        <input type="text" name="permaLink" id="permaLinkInput"
+          class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1"
+          placeholder="Permanent Link" value="<%= post?.permaLink || '' %>">
+        <p id="permaLinkError" class="text-red-500 text-sm mt-1 hidden"></p>
+        <% if (typeof error !=='undefined' ) { %>
+          <div class="text-red-500 text-sm mt-1 text-right font-medium" role="alert">
+            <strong class="font-bold">خطأ:</strong>
+            <span class="block sm:inline">
+              <% if (error.includes("E11000") && error.includes("permaLink")) { %>
+                الرابط الدائم موجود بالفعل، من فضلك اكتب رابط آخر.
+                <% } else { %>
+                  <%= error %>
+                    <% } %>
+            </span>
+          </div>
+          <% } %>
+      </div>
 
-<!-- Title -->
-<div>
-  <label class="block text-right mb-2 required font-medium">العنوان</label>
-  <input type="text" name="title" id="titleInput"
-         class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1"
-         placeholder="Post Title"
-         value="<%= post?.title || '' %>">
-  <p id="titleError" class="text-red-500 text-sm mt-1 hidden"></p>
-</div>
+      <!-- Title -->
+      <div>
+        <label class="block text-right mb-2 required font-medium">العنوان</label>
+        <input type="text" name="title" id="titleInput"
+          class="w-full p-2 border rounded-md text-right focus:outline-blue-950 focus:outline-1"
+          placeholder="Post Title" value="<%= post?.title || '' %>">
+        <p id="titleError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
 
-<!-- Content -->
-<div>
-  <label class="block text-right mb-2 required font-medium">الوصف</label>
-  <div id="editor-container" dir="rtl" class="quill-container border rounded-md">
-    <%- post?.content || '' %>
-  </div>
-  <input type="hidden" name="content" id="content">
-  <p id="contentError" class="text-red-500 text-sm mt-1 hidden"></p>
-</div>
+      <!-- Content -->
+      <div>
+        <label class="block text-right mb-2 required font-medium">الوصف</label>
+        <div id="editor-container" dir="rtl" class="quill-container border rounded-md">
+          <%- post?.content || '' %>
+        </div>
+        <input type="hidden" name="content" id="content">
+        <p id="contentError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
 
 
       <!-- Buttons -->
       <div class="flex justify-between mt-10">
         <button type="submit"
-                class="bg-gray-400 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-md w-[45%] text-center flex items-center justify-center">
-          <i class="fa-regular fa-square-check me-2"></i><%= post ? "تحديث" : "حفظ" %>
+          class="bg-gray-400 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-md w-[45%] text-center flex items-center justify-center">
+          <i class="fa-regular fa-square-check me-2"></i>
+          <%= post ? "تحديث" : "حفظ" %>
         </button>
         <a href="/dashboard/posts"
-           class="bg-white border border-gray-700 hover:bg-gray-700 hover:text-white text-gray-800 font-bold py-3 px-4 rounded-md flex items-center justify-center w-[45%]">
+          class="bg-white border border-gray-700 hover:bg-gray-700 hover:text-white text-gray-800 font-bold py-3 px-4 rounded-md flex items-center justify-center w-[45%]">
           رجوع <i class="fa-solid fa-arrow-left ms-2"></i>
         </a>
       </div>
@@ -104,10 +102,9 @@
 <script>
   const editor = new Quill('#editor-container', {
     theme: 'snow',
-    placeholder: 'اكتب المحتوى هنا...',
     modules: {
       toolbar: [
-        [{ header: [1, 2, 3, false] }],
+        [{ header: [1, 2, 3, 4, 5, 6, false] }],
         ['bold', 'italic', 'underline', 'strike'],
         [{ 'color': [] }, { 'background': [] }],
         ['link', 'image', 'blockquote', 'code-block'],
@@ -118,6 +115,7 @@
     }
   });
 
+  editor.format('align', 'right');
   const form = document.querySelector('form');
 
   function showError(id, message) {
@@ -159,7 +157,7 @@
     if (!permaLink) {
       showError('permaLinkError', 'الرابط الدائم مطلوب.');
       isValid = false;
-    } 
+    }
     // Title
     const title = document.getElementById('titleInput').value.trim();
     if (!title) {
@@ -186,17 +184,114 @@
       e.preventDefault();
     }
   };
+
 </script>
 
 
 <style>
-  .quill-container {
-    height: 200px;
-  }
-  .ql-editor {
-    direction: rtl !important;
-    text-align: right !important;
-  }
+ .quill-container {
+        height: 150px;
+    }
+
+    .ql-editor {
+        direction: rtl !important;
+        text-align: right !important;
+    }
+    
+    .ql-editor ul,
+    .ql-editor ol {
+        list-style: none !important;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Quill align fix */
+    .ql-editor.ql-align-right {
+        text-align: right !important;
+    }
+
+    .ql-editor.ql-align-left {
+        text-align: left !important;
+    }
+
+    .ql-editor.ql-align-center {
+        text-align: center !important;
+    }
+
+    .ql-editor.ql-align-justify {
+        text-align: justify !important;
+    }
+
+    /* ===== Unordered list (•) ===== */
+    .ql-editor ul li {
+        position: relative;
+        margin-bottom: 0.3rem;
+        padding-inline-start: 1.2rem;
+    }
+
+    .ql-editor ul li::before {
+        content: "•";
+        position: absolute;
+        top: 0;
+        font-size: 1rem;
+        color: #000;
+        line-height: 1;
+    }
+
+    .ql-editor ul li::before {
+        right: 0;
+    }
+
+    .ql-editor ul li::before {
+        left: 0;
+    }
+
+    /* ===== Ordered list  ===== */
+    .ql-editor ol li {
+        position: relative;
+        margin-bottom: 0.3rem;
+        counter-increment: quill-counter;
+        padding-inline-start: 2rem;
+    }
+
+    .ql-editor ol {
+        counter-reset: quill-counter;
+    }
+
+
+    .ql-editor ol li::before {
+        content: counter(quill-counter) ".";
+        position: absolute;
+        top: 0;
+        font-size: 1rem;
+        color: #000;
+        line-height: 1;
+    }
+
+    .ql-editor ol li::before {
+        right: 0;
+    }
+
+    .ql-snow .ql-picker.ql-header .ql-picker-label::before {
+        content: attr(data-label);
+        margin-right: 1px;
+    }
+
+    .ql-snow .ql-picker.ql-header .ql-picker-label::after {
+        content: '▾';
+        font-size: 15px;
+        margin-left: 4px;
+        vertical-align: middle;
+    }
+
+    .ql-snow .ql-picker.ql-header .ql-picker-label svg {
+        display: none;
+    }
+
+    .ql-snow .ql-picker.ql-header .ql-picker-label:not([data-value]):before {
+        content: "Normal" !important;
+    }
+
   .required::after {
     content: " *";
     color: red;
