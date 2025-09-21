@@ -72,7 +72,7 @@
       <ul class="space-y-1">
         <li><a href="/" class="block px-6 py-3 text-white hover:bg-[#406A84]">الرئيسية</a></li>
         <li><a href="/showMoreTechnicians" class="block px-6 py-3 text-white hover:bg-[#406A84]">الفنيين</a></li>
-        <li class="border-t border-[#406A84]">
+        <li >
           <button id="mobileBlogBtn" class="w-full flex justify-between items-center px-6 py-3 text-white hover:bg-[#406A84]">
             المدونة
             <i class="fa-solid fa-chevron-down text-xs transition-transform" id="mobileBlogIcon"></i>
@@ -96,3 +96,86 @@
     </nav>
   </div>
 </header>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+  const mobileSearchWrapper = document.getElementById('mobileSearchWrapper');
+  const mobileSearchInput = document.getElementById('search-mobile');
+
+  if (mobileSearchBtn) {
+    mobileSearchBtn.addEventListener('click', () => {
+      if (!mobileSearchWrapper) return;
+      mobileSearchWrapper.classList.toggle('hidden');
+      if (!mobileSearchWrapper.classList.contains('hidden')) {
+        if (mobileSearchInput) {
+          mobileSearchInput.classList.remove('w-0');
+          mobileSearchInput.classList.add('w-48','px-3');
+          mobileSearchInput.focus();
+        }
+      } else {
+        if (mobileSearchInput) {
+          mobileSearchInput.classList.remove('w-48','px-3');
+          mobileSearchInput.classList.add('w-0');
+        }
+      }
+    });
+  }
+
+  if (typeof setupAutocomplete === 'function') {
+    setupAutocomplete('search-mobile', 'autocomplete-list-mobile');
+  }
+
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const hamburgerIcon = document.getElementById('hamburgerIcon');
+  const closeIcon = document.getElementById('closeIcon');
+  const overlay = document.getElementById('overlay');
+
+  if (mobileMenu && mobileMenuBtn) {
+    const openMenu = () => {
+      mobileMenu.style.transform = 'translateX(0)';
+      overlay.classList.remove('hidden');
+      mobileMenuBtn.setAttribute('aria-expanded', 'true');
+      if (hamburgerIcon) hamburgerIcon.classList.add('hidden');
+      if (closeIcon) closeIcon.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closeMenu = () => {
+      mobileMenu.style.transform = 'translateX(100%)';
+      overlay.classList.add('hidden');
+      mobileMenuBtn.setAttribute('aria-expanded', 'false');
+      if (hamburgerIcon) hamburgerIcon.classList.remove('hidden');
+      if (closeIcon) closeIcon.classList.add('hidden');
+      document.body.style.overflow = '';
+    };
+
+    mobileMenuBtn.addEventListener('click', () => {
+      const isOpen = mobileMenu.style.transform === 'translateX(0)';
+      if (isOpen) closeMenu(); else openMenu();
+    });
+
+    overlay.addEventListener('click', closeMenu);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeMenu();
+    });
+
+    mobileMenu.addEventListener('click', (e) => {
+      if (e.target.tagName === 'A') setTimeout(closeMenu, 50);
+    });
+  }
+
+  const mobileBlogBtn = document.getElementById('mobileBlogBtn');
+  const mobileBlogList = document.getElementById('mobileBlogList');
+  const mobileBlogIcon = document.getElementById('mobileBlogIcon');
+
+  if (mobileBlogBtn) {
+    mobileBlogBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (mobileBlogList) mobileBlogList.classList.toggle('hidden');
+      if (mobileBlogIcon) mobileBlogIcon.classList.toggle('rotate-180');
+    });
+  }
+});
+</script>
