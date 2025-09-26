@@ -25,8 +25,8 @@
   <%- include("../layouts/header") %>
 
   <!-- Breadcrumb -->
-  <div class="bg-white border-b border-gray-200 py-4">
-    <div class="max-w-8xl px-4 md:px-32 mx-auto flex items-center justify-between">
+  <div class="bg-white py-4">
+    <div class="mx-4 md:mx-[104px] flex items-center justify-between">
       <div class="flex items-center">
         <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
           <i class="fa-solid fa-home text-2xl ml-3"></i>
@@ -39,7 +39,7 @@
 
   <!-- Title + Desktop Search -->
   <div class="bg-white py-4">
-    <div class="max-w-8xl mx-auto px-4 md:px-32 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+    <div class="mx-4 md:mx-[104px] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
       <div class="text-right lg:text-right">
         <p class="text-[#2A4759] font-bold text-[20px] md:text-[24px] mb-2">
           الفنيون المتاحون الآن في مدينة الرياض
@@ -70,7 +70,7 @@
   </div>
 
   <!-- Cards -->
-  <div class="container mx-auto px-4 sm:px-4 lg:px-12 py-8 flex-grow">
+  <div class="mx-4 md:mx-[104px] py-8 flex-grow">
     <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <% technicians.forEach(tech => { %>
         <div class="technician-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative flex flex-col">
@@ -80,8 +80,8 @@
                  class="w-full h-full object-cover" />
           </div>
           <div class="card-body p-4 flex flex-col flex-1">
-            <h3 class="tech-name text-lg font-bold text-[#222222] mb-2"><%= tech.mainTitle %></h3>
-            <p class="text-[#5C5C5C] text-sm mb-5 break-words whitespace-normal overflow-hidden line-clamp-3">
+            <h3 class="tech-name text-[18px] font-bold text-[#222222] mb-2"><%= tech.mainTitle %></h3>
+          <p class="text-[#5C5C5C] font-normal text-[14px] leading-[200%] mb-5 break-words whitespace-normal overflow-hidden line-clamp-2 md:text-[16px] md:leading-[140%]">
               <%- tech.description.replace(/<img.*?>/g, "").replace(/<[^>]+>/g, "").substring(0, 200) %>...
             </p>
             <div class="mt-auto flex gap-2">
@@ -102,8 +102,10 @@
     </div>
   </div>
 
-  <!-- footer -->
-  <%- include("../layouts/footer") %>
+  <!-- footer full width -->
+  <footer class=" w-full">
+    <%- include("../layouts/footer") %>
+  </footer>
 
   <script>
     // Autocomplete function
@@ -146,19 +148,7 @@
       }
     }
 
-    // Desktop search
     setupAutocomplete('search-desktop', 'autocomplete-list-desktop');
-
-    // Mobile search toggle + autocomplete
-    const mobileSearchBtn = document.getElementById('mobile-search-btn');
-    const mobileSearchWrapper = document.getElementById('mobile-search-wrapper');
-    if (mobileSearchBtn && mobileSearchWrapper) {
-      mobileSearchBtn.addEventListener('click', () => {
-        mobileSearchWrapper.classList.toggle('hidden');
-      });
-      setupAutocomplete('search-mobile', 'autocomplete-list-mobile');
-      handleSearch("search-mobile");
-    }
 
     function handleSearch(inputId) {
       const searchInput = document.getElementById(inputId);

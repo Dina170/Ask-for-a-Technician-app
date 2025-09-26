@@ -31,371 +31,7 @@
       div {
         font-family: "Cairo", sans-serif !important;
       }
-      .line-clamp-3 {
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 3;
-        overflow: hidden;
-      }
-    </style>
-  </head>
 
-  <body
-    class="font-sans text-gray-800 flex flex-col min-h-screen"
-    style="font-family: 'Cairo', sans-serif;"
-  >
-    <%- include('../layouts/header') %>
-
-    <main class="flex-1">
-      <!-- Hero Section -->
-      <section
-        class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px]"
-      >
-        <!-- Background Image -->
-        <div class="absolute inset-0 z-0">
-          <img
-            src="/images/hero.png"
-            alt="hero"
-            class="w-full h-full object-cover"
-          />
-          <div class="absolute inset-0 bg-black bg-opacity-30"></div>
-        </div>
-
-        <!-- Hero Content -->
-        <div
-          class="relative z-20 flex flex-col justify-center h-full px-4 sm:px-6 md:px-10 lg:px-20"
-        >
-          <div class="max-w-5xl mx-auto w-full">
-       <p
-  class="font-[Cairo] font-bold text-[24px] sm:text-[36px] leading-[100%] tracking-[0] text-white text-center sm:text-right mb-6"
->
-  أعثر علي الفني المناسب لك
-</p>
-
-
-       <p
-  class="font-[Cairo] font-medium text-[18px] leading-[160%] text-white text-center mb-6" 
->
-  استكشف أفضل العمال المهرة بسهولة وسرعة، سواء كنت تبحث عن نجار،
-  كهربائي، سباك، أو أي خدمة أخرى — كل ما تحتاجه 
-  في مكان واحد
-</p>
-
-
-
-          <!-- Action Buttons -->
-<div
-  class="flex flex-row gap-2 sm:gap-4 items-center justify-center md:justify-start 
-         mt-8 sm:mt-8"
->
-  <!-- زر واتساب -->
-  <a
-    href="https://wa.me/0000000000"
-    target="_blank"
-    class="flex items-center justify-center gap-1.5 
-           bg-white hover:bg-[#2A4759] hover:text-white 
-           text-[#2A4759] text-xs sm:text-sm 
-           rounded-[10px] sm:rounded-[12px] 
-           px-4 sm:px-[30px] py-2 sm:py-3 
-           w-[163px] sm:w-[272.25px] h-[38px] sm:h-[56px] 
-           transition-all duration-300 shadow-md"
-  >
-    <i class="fab fa-whatsapp text-lg sm:text-xl"></i>
-    <span class="whitespace-nowrap">ارسال على واتساب</span>
-  </a>
-
-  <!-- زر اتصل -->
-  <a
-    href="tel:0000000000"
-    class="flex items-center justify-center gap-1.5 
-           border border-white hover:border-[#2A4759] 
-           hover:bg-[#2A4759] hover:text-white 
-           text-white text-xs sm:text-sm 
-           rounded-[10px] sm:rounded-[12px] 
-           px-4 sm:px-[30px] py-2 sm:py-3 
-           w-[163px] sm:w-[272.25px] h-[38px] sm:h-[56px] 
-           transition-all duration-300"
-  >
-    <i class="fa-solid fa-phone text-lg sm:text-xl"></i>
-    <span class="whitespace-nowrap">اتصل الآن</span>
-  </a>
-</div>
-
-          </div>
-        </div>
-      </section>
-
-      <!-- Search Form Section -->
-      <section
-        class="relative -mt-6 sm:-mt-8 md:-mt-12 lg:-mt-16 z-30 px-4 sm:px-8 md:px-8 lg:px-20"
-      >
-        <div class="max-w-5xl mx-auto">
-          <form
-            method="get"
-            action="/"
-            class="bg-white shadow-xl rounded-xl p-4 sm:p-6 md:p-8"
-          >
-            <!-- Search Form Row -->
-            <div
-              class="flex flex-row items-stretch gap-2 sm:gap-3 md:gap-4 w-full"
-            >
-              <!-- Technician Select Dropdown -->
-              <div class="relative flex-1">
-                <div
-                  class="relative flex items-center border border-gray-300 rounded-lg px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 focus-within:bg-white focus-within:border-[#2A4759] transition-all"
-                >
-                  <i
-                    class="fa-solid fa-user text-gray-500 ml-2 sm:ml-3 text-sm sm:text-base"
-                  ></i>
-                  <select
-                    id="technicianSelect"
-                    name="technician"
-                    class="w-full outline-none text-xs sm:text-sm md:text-base bg-transparent appearance-none cursor-pointer"
-                  >
-                    <option value="">اختر الفني</option>
-                    <% if (typeof uniqueTechnicians !== 'undefined') { %>
-                    <% uniqueTechnicians.forEach(tech => { %>
-                    <option
-                      value="<%= tech.mainTitle %>"
-                      <%= technician === tech.mainTitle ? 'selected' : '' %>
-                    >
-                      <%= tech.mainTitle %>
-                    </option>
-                    <% }) %>
-                    <% } %>
-                  </select>
-                  <i
-                    class="fa-solid fa-chevron-down text-gray-500 mr-2 pointer-events-none"
-                  ></i>
-                </div>
-              </div>
-
-              <!-- Neighborhood Select Dropdown -->
-              <div class="relative flex-1">
-                <div
-                  class="relative flex items-center border border-gray-300 rounded-lg px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 focus-within:bg-white focus-within:border-[#2A4759] transition-all"
-                >
-                  <i
-                    class="fa-solid fa-location-dot text-gray-500 ml-2 sm:ml-3 text-sm sm:text-base"
-                  ></i>
-                  <select
-                    id="neighborhoodSelect"
-                    name="neighborhood"
-                    class="w-full outline-none text-xs sm:text-sm md:text-base bg-transparent appearance-none cursor-pointer"
-                  >
-                    <option value="">اختر الحي</option>
-                    <% if (typeof uniqueNeighborhoods !== 'undefined') { %>
-                    <% uniqueNeighborhoods.forEach(hood => { %>
-                    <option
-                      value="<%= hood.name %>"
-                      <%= neighborhood === hood.name ? 'selected' : '' %>
-                    >
-                      <%= hood.name %>
-                    </option>
-                    <% }) %>
-                    <% } %>
-                  </select>
-                  <i
-                    class="fa-solid fa-chevron-down text-gray-500 mr-2 pointer-events-none"
-                  ></i>
-                </div>
-              </div>
-
-              <!-- Search Button -->
-              <div>
-                <button
-                  type="submit"
-                  class="w-full lg:w-auto bg-gradient-to-r from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg shadow-lg transition-all duration-300 text-xs sm:text-sm md:text-base font-medium whitespace-nowrap flex items-center justify-center"
-                >
-                  بحث
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </section>
-
-      <!-- Space after search form -->
-      <div class="h-12 sm:h-16 md:h-20"></div>
-
-      <!-- Technicians Cards -->
-      <div
-        id="cards-container"
-        class="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10"
-      >
-        <!-- Section Title -->
-<div class="w-full px-4 sm:px-6 text-right mb-8">
-          <p
-  class="font-[Cairo] font-bold text-[16px] leading-[140%] sm:text-[32px] sm:leading-[140%] text-[#2A4759] text-right mb-3"
->
-  الفنيون المتاحون الآن في مدينة الرياض
-</p>
-
-          <p
-  class="font-[Cairo] font-medium text-[11px] leading-[150%] sm:text-[16px] sm:leading-[140%] text-[#2A4759B2] max-w-2xl text-right"
->
-  فنيونا متواجدون حاليًا في مناطق متعددة داخل مدينة الرياض، ونسعد دائمًا بخدمتكم
-</p>
-
-        </div>
-
-        <div
-          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
-        >
-          <% if (typeof technicians !== 'undefined' && technicians.length === 0) { %>
-          <div
-            class="col-span-full text-center text-gray-600 bg-white py-12 rounded-xl shadow-md"
-          >
-            <i
-              class="fa-solid fa-triangle-exclamation text-orange-400 text-4xl mb-4"
-            ></i>
-            <p class="text-xl font-semibold mb-2">لا يوجد فنيين حسب بحثك</p>
-            <p class="text-sm text-gray-500">
-              جرب اختيار وظيفة أو حي مختلف
-            </p>
-          </div>
-          <% } else if (typeof technicians !== 'undefined') { %> <% technicians.forEach(technician => { %>
-          <div
-            class="card bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm duration-300 flex flex-col"
-          >
-            <!-- Card Image -->
-            <div class="relative h-48 sm:h-52 md:h-48 overflow-hidden">
-              <img
-                src="<%= technician.jobTechnicianPhoto %>"
-                alt="<%= technician.name %>"
-                class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              />
-              <div
-                class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"
-              ></div>
-            </div>
-
-            <!-- Card Body -->
-            <div class="card-body p-4 sm:p-5 flex flex-col flex-1">
-              <h3
-                class="text-lg sm:text-xl font-bold text-[#222222] mb-3 line-clamp-1"
-              >
-                <%= technician.mainTitle %>
-              </h3>
-
-              <!-- Description with line clamp -->
-              <p
-                class="text-[#5C5C5C] text-sm mb-5 break-words whitespace-normal overflow-hidden line-clamp-3"
-              >
-                <%- technician.description.replace(/<img.*?>/g, "").replace(/<[^>]+>/g, "").substring(0, 200) %>...
-              </p>
-
-              <!-- Action Button -->
-              <div class="mt-auto">
-                <a
-                  href="/technicians/<%= technician.mainTitle %>/details"
-                  class="block w-full bg-[#2A4759] hover:bg-[#1e3542] text-white text-sm sm:text-base text-center py-3 px-4 rounded-lg transition-colors duration-300 font-medium"
-                >
-                  عرض المزيد
-                </a>
-              </div>
-            </div>
-          </div>
-          <% }) %> <% } %>
-        </div>
-      </div>
-
-      <!-- Load More Section -->
-      <% if (typeof type !== 'undefined' && !isFiltered) { %>
-      <div class="text-center mt-8 sm:mt-12 px-4">
-        <% if (type === 'technicians') { %>
-        <a
-          href="/technicians"
-          class="inline-block bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border-2 border-[#2A4759] px-6 sm:px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium"
-        >
-          عرض المزيد
-          <i class="fa-solid fa-chevron-left mr-2"></i>
-        </a>
-        <% } else if (type === 'neighborhoods') { %>
-        <a
-          href="/technicians/<%= technician._id %>/seeMoreTechnicianNeighborhoods"
-          class="inline-block bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border-2 border-[#2A4759] px-6 sm:px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium"
-        >
-          عرض المزيد
-          <i class="fa-solid fa-chevron-left mr-2"></i>
-        </a>
-        <% } %>
-      </div>
-      <% } %>
-
-      <!-- Bottom Spacing -->
-      <div class="h-8 sm:h-12"></div>
-    </main>
-
-    <%- include('../layouts/footer') %>
-
-    <script>
-      // Job filter buttons functionality
-      document.querySelectorAll(".job-filter-btn").forEach(button => {
-        button.addEventListener("click", async function () {
-          const technicianId = this.dataset.technicianId;
-
-          try {
-            const response = await fetch(
-              `/technicians/${technicianId}/neighborhoods`
-            );
-            const html = await response.text();
-
-            document.getElementById("cards-container").innerHTML = html;
-
-            const loadMoreContainer = document.querySelector(
-              ".text-center.mt-8"
-            );
-            if (loadMoreContainer) {
-              loadMoreContainer.innerHTML = `
-                <a href="/technicians/${technicianId}/seeMoreTechnicianNeighborhoods" class="inline-block bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border-2 border-[#2A4759] px-6 sm:px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium">
-                  عرض المزيد
-                  <i class="fa-solid fa-chevron-left mr-2"></i>
-                </a>
-              `;
-            }
-          } catch (err) {
-            console.error("Error loading neighborhoods:", err);
-          }
-        });
-      });
-
-      // Smooth scroll for anchor links
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener("click", function (e) {
-          e.preventDefault();
-          const target = document.querySelector(this.getAttribute("href"));
-          if (target) {
-            target.scrollIntoView({
-              behavior: "smooth",
-              block: "start"
-            });
-          }
-        });
-      });
-
-      // Custom select styling and functionality
-      document.addEventListener("DOMContentLoaded", function () {
-        const selectElements = document.querySelectorAll("select");
-
-        selectElements.forEach(select => {
-          // Add focus and blur event listeners for better styling
-          select.addEventListener("focus", function () {
-            this.parentElement.style.borderColor = "#2A4759";
-            this.parentElement.style.boxShadow =
-              "0 0 0 3px rgba(42, 71, 89, 0.1)";
-          });
-
-          select.addEventListener("blur", function () {
-            this.parentElement.style.borderColor = "#d1d5db";
-            this.parentElement.style.boxShadow = "none";
-          });
-        });
-      });
-    </script>
-
-    <style>
-      /* Custom styles for better responsive design */
       .line-clamp-1 {
         display: -webkit-box;
         -webkit-line-clamp: 1;
@@ -410,16 +46,6 @@
         overflow: hidden;
       }
 
-      /* Mobile description line clamp */
-      @media (max-width: 640px) {
-        .line-clamp-mobile {
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-      }
-
       select {
         background-image: none;
       }
@@ -428,11 +54,11 @@
         display: none;
       }
 
-      /* Better focus styles */
       select:focus {
         outline: none;
       }
 
+      /* Adjust chevron for RTL */
       .relative select + .fa-chevron-down {
         position: absolute;
         left: 12px;
@@ -440,6 +66,201 @@
         transform: translateY(-50%);
         pointer-events: none;
         color: #6b7280;
+      }
+    </style>
+  </head>
+
+  <body class="font-sans text-gray-800 flex flex-col min-h-screen">
+    <%- include('../layouts/header') %>
+
+    <main class="flex-1">
+      <!-- Hero Section -->
+     <section class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px]">
+  <div class="absolute inset-0 z-0">
+    <img src="/images/hero.png" alt="hero" class="w-full h-full object-cover" />
+    <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+  </div>
+
+  <div class="relative z-20 flex flex-col justify-center h-full px-4 lg:px-[104px] w-full">
+    <!-- Hero Content -->
+    <p class="font-[Cairo] font-bold text-[24px] sm:text-[36px] leading-[100%] tracking-[0] text-white text-center sm:text-right mb-6">
+      أعثر علي الفني المناسب لك
+    </p>
+
+    <p class="font-[Cairo] font-medium text-[18px] leading-[160%] text-white text-center mb-6">
+      استكشف أفضل العمال المهرة بسهولة وسرعة، سواء كنت تبحث عن نجار، كهربائي، سباك، أو أي خدمة أخرى — كل ما تحتاجه في مكان واحد
+    </p>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-row gap-2 sm:gap-4 items-center justify-center md:justify-start mt-8">
+      <a href="https://wa.me/0000000000" target="_blank" class="flex items-center justify-center gap-1.5 bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] text-xs sm:text-sm rounded-[10px] sm:rounded-[12px] px-4 sm:px-[30px] py-2 sm:py-3 w-[163px] sm:w-[272.25px] h-[38px] sm:h-[56px] transition-all duration-300 shadow-md">
+        <i class="fab fa-whatsapp text-lg sm:text-xl"></i>
+        <span class="whitespace-nowrap">ارسال على واتساب</span>
+      </a>
+
+      <a href="tel:0000000000" class="flex items-center justify-center gap-1.5 border border-white hover:border-[#2A4759] hover:bg-[#2A4759] hover:text-white text-white text-xs sm:text-sm rounded-[10px] sm:rounded-[12px] px-4 sm:px-[30px] py-2 sm:py-3 w-[163px] sm:w-[272.25px] h-[38px] sm:h-[56px] transition-all duration-300">
+        <i class="fa-solid fa-phone text-lg sm:text-xl"></i>
+        <span class="whitespace-nowrap">اتصل الآن</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="relative -mt-6 sm:-mt-8 md:-mt-12 lg:-mt-10 z-30 px-4 lg:px-[104px]">
+  <div class="max-w-4xl mx-auto">
+    <form method="get" action="/" class="bg-white shadow-xl rounded-xl p-2 sm:p-3 md:p-4">
+      <div class="flex flex-row items-stretch gap-2 sm:gap-3 md:gap-4 w-full">
+        <!-- Technician Select -->
+        <div class="relative flex-1">
+          <div class="relative flex items-center min-h-[32px] sm:min-h-[36px] border border-gray-300 rounded-lg px-3 sm:px-4 bg-gray-50 focus-within:bg-white focus-within:border-[#2A4759] transition-all">
+            <i class="fa-solid fa-user text-gray-500 ml-2 sm:ml-3 text-sm sm:text-base"></i>
+            <select id="technicianSelect" name="technician" class="w-full outline-none text-xs sm:text-sm md:text-base bg-transparent appearance-none cursor-pointer h-full">
+              <option value="">اختر الفني</option>
+              <% if (typeof uniqueTechnicians !== 'undefined') { %>
+                <% uniqueTechnicians.forEach(tech => { %>
+                  <option value="<%= tech.mainTitle %>" <%= technician === tech.mainTitle ? 'selected' : '' %>><%= tech.mainTitle %></option>
+                <% }) %>
+              <% } %>
+            </select>
+            <i class="fa-solid fa-chevron-down text-gray-500 mr-2 pointer-events-none"></i>
+          </div>
+        </div>
+
+        <!-- Neighborhood Select -->
+        <div class="relative flex-1">
+          <div class="relative flex items-center min-h-[32px] sm:min-h-[36px] border border-gray-300 rounded-lg px-3 sm:px-4 bg-gray-50 focus-within:bg-white focus-within:border-[#2A4759] transition-all">
+            <i class="fa-solid fa-location-dot text-gray-500 ml-2 sm:ml-3 text-sm sm:text-base"></i>
+            <select id="neighborhoodSelect" name="neighborhood" class="w-full outline-none text-xs sm:text-sm md:text-base bg-transparent appearance-none cursor-pointer h-full">
+              <option value="">اختر الحي</option>
+              <% if (typeof uniqueNeighborhoods !== 'undefined') { %>
+                <% uniqueNeighborhoods.forEach(hood => { %>
+                  <option value="<%= hood.name %>" <%= neighborhood === hood.name ? 'selected' : '' %>><%= hood.name %></option>
+                <% }) %>
+              <% } %>
+            </select>
+            <i class="fa-solid fa-chevron-down text-gray-500 mr-2 pointer-events-none"></i>
+          </div>
+        </div>
+
+        <!-- Search Button -->
+        <div>
+          <button type="submit" class="w-full lg:w-auto bg-gradient-to-r from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white px-6 sm:px-8 min-h-[32px] sm:min-h-[36px] rounded-lg transition-all duration-300 text-xs sm:text-sm md:text-base font-medium whitespace-nowrap flex items-center justify-center">بحث</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+
+
+
+
+      <div class="h-12 sm:h-16 md:h-20"></div>
+
+      <!-- Technicians Cards -->
+      <div id="cards-container" class="mx-4 lg:mx-[104px]">
+        <div class="w-full text-right mb-8">
+          <p class="text-[#2A4759] font-bold text-[20px] md:text-[24px] mb-2"> الفنيون المتاحون الآن في مدينة الرياض</p>
+          <p class="text-[#2A4759] text-[14px] md:text-[16px]">فنيونا متواجدون حاليًا في مناطق متعددة داخل مدينة الرياض، ونسعد دائمًا بخدمتكم</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <% if (typeof technicians !== 'undefined' && technicians.length === 0) { %>
+            <div class="col-span-full text-center text-gray-600 bg-white py-12 rounded-xl shadow-md">
+              <i class="fa-solid fa-triangle-exclamation text-orange-400 text-4xl mb-4"></i>
+              <p class="text-xl font-semibold mb-2">لا يوجد فنيين حسب بحثك</p>
+              <p class="text-sm text-gray-500">جرب اختيار وظيفة أو حي مختلف</p>
+            </div>
+          <% } else if (typeof technicians !== 'undefined') { %>
+            <% technicians.forEach(technician => { %>
+              <div class="card bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm duration-300 flex flex-col">
+                <div class="relative h-48 sm:h-52 md:h-48 overflow-hidden">
+                  <img src="<%= technician.jobTechnicianPhoto %>" alt="<%= technician.name %>" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                </div>
+                <div class="card-body p-4 sm:p-5 flex flex-col flex-1">
+                  <h3 class="tech-name text-[18px] font-bold text-[#222222] mb-2"><%= technician.mainTitle %></h3>
+                  <p class="text-[#5C5C5C] font-normal text-[14px] leading-[200%] mb-5 break-words whitespace-normal overflow-hidden line-clamp-2 md:text-[16px] md:leading-[140%]"><%- technician.description.replace(/<img.*?>/g, "").replace(/<[^>]+>/g, "").substring(0, 200) %>...</p>
+                  <div class="mt-auto">
+                    <a href="/technicians/<%= technician.mainTitle %>/details" class="block w-full bg-[#2A4759] hover:bg-[#1e3542] text-white text-sm sm:text-base text-center py-3 px-4 rounded-lg transition-colors duration-300 font-medium">عرض المزيد</a>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+
+      <% if (typeof type !== 'undefined' && !isFiltered) { %>
+        <div class="text-center mt-8 sm:mt-12 px-4 lg:px-[104px]">
+          <% if (type === 'technicians') { %>
+            <a href="/technicians" class="inline-block bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border-2 border-[#2A4759] px-6 sm:px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium">عرض المزيد <i class="fa-solid fa-chevron-left mr-2"></i></a>
+          <% } else if (type === 'neighborhoods') { %>
+            <a href="/technicians/<%= technician._id %>/seeMoreTechnicianNeighborhoods" class="inline-block bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border-2 border-[#2A4759] px-6 sm:px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium">عرض المزيد <i class="fa-solid fa-chevron-left mr-2"></i></a>
+          <% } %>
+        </div>
+      <% } %>
+
+      <div class="h-8 sm:h-12"></div>
+    </main>
+
+    <%- include('../layouts/footer') %>
+
+    <script>
+      // Job filter buttons
+      document.querySelectorAll(".job-filter-btn").forEach(button => {
+        button.addEventListener("click", async function () {
+          const technicianId = this.dataset.technicianId;
+          try {
+            const response = await fetch(`/technicians/${technicianId}/neighborhoods`);
+            const html = await response.text();
+            document.getElementById("cards-container").innerHTML = html;
+
+            const loadMoreContainer = document.querySelector(".text-center.mt-8");
+            if (loadMoreContainer) {
+              loadMoreContainer.innerHTML = `<a href="/technicians/${technicianId}/seeMoreTechnicianNeighborhoods" class="inline-block bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border-2 border-[#2A4759] px-6 sm:px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium">عرض المزيد <i class="fa-solid fa-chevron-left mr-2"></i></a>`;
+            }
+          } catch (err) {
+            console.error("Error loading neighborhoods:", err);
+          }
+        });
+      });
+
+      // Smooth scroll
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      });
+
+      // Custom select styling
+      document.addEventListener("DOMContentLoaded", function () {
+        const selectElements = document.querySelectorAll("select");
+        selectElements.forEach(select => {
+          select.addEventListener("focus", function () {
+            this.parentElement.style.borderColor = "#2A4759";
+            this.parentElement.style.boxShadow = "0 0 0 3px rgba(42, 71, 89, 0.1)";
+          });
+          select.addEventListener("blur", function () {
+            this.parentElement.style.borderColor = "#d1d5db";
+            this.parentElement.style.boxShadow = "none";
+          });
+        });
+      });
+    </script>
+
+    <style>
+      @media (max-width: 640px) {
+        .line-clamp-mobile {
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
       }
     </style>
   </body>
