@@ -104,7 +104,7 @@
 
       <!-- Sub Description with Quill Editor -->
       <div>
-        <label class="block text-right mb-2 required font-medium">الوصف الفرعي</label>
+        <label class="block text-right mb-2 font-medium">الوصف الفرعي</label>
         <div id="subDescriptionEditor" dir="rtl" class="quill-container border rounded-md"><%- job?.subDescription || ''
             %>
         </div>
@@ -310,14 +310,6 @@
       isValid = false;
     }
 
-    // Validate sub description
-    if (!subDescriptionText) {
-      showError('subDescriptionError', 'الوصف الفرعي مطلوب');
-      isValid = false;
-    } else if (subDescriptionText.length < 10) {
-      showError('subDescriptionError', 'الوصف الفرعي يجب أن يكون على الأقل 10 أحرف');
-      isValid = false;
-    }
 
     // Validate photo
     const editPreviewVisible = isEdit && document.getElementById('editPreview') &&
