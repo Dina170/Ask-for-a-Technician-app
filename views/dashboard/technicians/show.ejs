@@ -100,7 +100,7 @@
         modules: { toolbar: toolbarOptions }
       });
 
-      editor.root.innerHTML = `<%- JSON.stringify(technician.description || '') %>`;
+      editor.root.innerHTML = <%- JSON.stringify(technician.description || '') %>;
 
 
       return editor;
@@ -119,5 +119,54 @@
     direction: rtl !important;
     text-align: right !important;
     background: #f7f5f5ef;
+  }
+   /* ===== Unordered list (•) ===== */
+  .ql-editor ul li {
+    position: relative;
+    margin-bottom: 0.3rem;
+    padding-inline-start: 1.2rem;
+  }
+
+  .ql-editor ul li::before {
+    content: "•";
+    position: absolute;
+    top: 0;
+    font-size: 1rem;
+    color: #000;
+    line-height: 1;
+  }
+
+  .ql-editor ul li::before {
+    right: 0;
+  }
+
+  .ql-editor ul li::before {
+    left: 0;
+  }
+
+  /* ===== Ordered list  ===== */
+  .ql-editor ol li {
+    position: relative;
+    margin-bottom: 0.3rem;
+    counter-increment: quill-counter;
+    padding-inline-start: 2rem;
+  }
+
+  .ql-editor ol {
+    counter-reset: quill-counter;
+  }
+
+
+  .ql-editor ol li::before {
+    content: counter(quill-counter) ".";
+    position: absolute;
+    top: 0;
+    font-size: 1rem;
+    color: #000;
+    line-height: 1;
+  }
+
+  .ql-editor ol li::before {
+    right: 0;
   }
 </style>
