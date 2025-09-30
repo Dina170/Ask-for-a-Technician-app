@@ -11,7 +11,7 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: "Ask-for-a-Technician", // Folder name in Cloudinary
-    allowed_formats: ["jpeg", "jpg", "png", "gif"],
+    allowed_formats: ["jpeg", "jpg", "png", "gif", "svg", "webp"], // Supported image formats
   },
 });
 
