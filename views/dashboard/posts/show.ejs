@@ -39,8 +39,6 @@
             <div id="descriptionEditor" dir="rtl" class="quill-container border rounded-md"></div>
         </div>
 
-
-
         <!-- Actions -->
         <div class="flex justify-between mt-10">
             <a href="/dashboard/posts"
@@ -94,4 +92,100 @@
     text-align: right !important;
     background: #f7f5f5ef; /* نفس ستايل الفني */
   }
+
+  /* Quill align fix */
+  .ql-editor.ql-align-right {
+    text-align: right !important;
+  }
+
+  .ql-editor.ql-align-left {
+    text-align: left !important;
+  }
+
+  .ql-editor.ql-align-center {
+    text-align: center !important;
+  }
+
+  .ql-editor.ql-align-justify {
+    text-align: justify !important;
+  }
+
+
+  .ql-editor ul,
+  .ql-editor ol {
+    list-style: none !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ===== Unordered list (•) ===== */
+  .ql-editor ul li {
+    position: relative;
+    margin-bottom: 0.3rem;
+    padding-inline-start: 1.5rem;
+  }
+
+  /* أضف نقطة قبل النص */
+  .ql-editor ul li::before {
+    content: "•";
+    position: absolute;
+    top: 0;
+    font-size: 1.2rem;
+    color: #000;
+    line-height: 1;
+  }
+
+  .ql-editor ul li::before {
+    right: 0;
+  }
+
+  .ql-editor ul li::before {
+    left: 0;
+  }
+
+  /* ===== Ordered list  ===== */
+  .ql-editor ol li {
+    position: relative;
+    margin-bottom: 0.3rem;
+    counter-increment: quill-counter;
+    padding-inline-start: 2rem;
+  }
+
+  .ql-editor ol {
+    counter-reset: quill-counter;
+  }
+
+  .ql-editor ol li::before {
+    content: counter(quill-counter) ".";
+    position: absolute;
+    top: 0;
+    font-size: 1rem;
+    color: #000;
+    line-height: 1;
+  }
+
+  .ql-editor ol li::before {
+    right: 0;
+  }
+
+  .ql-snow .ql-picker.ql-header .ql-picker-label::before {
+    content: attr(data-label);
+    margin-right: 1px;
+  }
+
+  .ql-snow .ql-picker.ql-header .ql-picker-label::after {
+    content: '▾';
+    font-size: 15px;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+
+  .ql-snow .ql-picker.ql-header .ql-picker-label svg {
+    display: none;
+  }
+
+  .ql-snow .ql-picker.ql-header .ql-picker-label:not([data-value]):before {
+    content: "Normal" !important;
+  }
+
 </style>

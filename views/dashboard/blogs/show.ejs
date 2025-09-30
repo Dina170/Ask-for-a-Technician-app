@@ -21,17 +21,64 @@
     <!-- description  -->
     <div class="mb-6">
       <label class="block text-right mb-2 font-medium">وصف</label>
-      <div class="border rounded-md p-3 text-right bg-gray-50">
+      <div class="blog-content border rounded-md p-3 text-right bg-gray-50">
         <%- blog.description %>
       </div>
     </div>
 
-
     <!-- Actions -->
     <div class="flex justify-between mt-10 gap-4">
-      <a href="/dashboard/blogs" class="bg-white border border-gray-900 hover:bg-gray-700 hover:text-white text-gray-800 font-bold py-3 px-4 rounded-md w-full text-center">
+      <a href="/dashboard/blogs"
+        class="bg-white border border-gray-900 hover:bg-gray-700 hover:text-white text-gray-800 font-bold py-3 px-4 rounded-md w-full text-center">
         <i class="fa-solid fa-arrow-left ms-2"></i> رجوع
       </a>
     </div>
   </div>
 </div>
+<style>
+  .blog-content h1 {
+    font-size: 1.875rem;
+    /* text-3xl */
+    font-weight: bold;
+    margin: .4rem 0;
+  }
+
+  .blog-content h2 {
+    font-size: 1.5rem;
+    /* text-2xl */
+    font-weight: bold;
+    margin: 0.3rem 0;
+  }
+
+  .blog-content h3 {
+    font-size: 1.25rem;
+    /* text-xl */
+    font-weight: bold;
+    margin: 0.2rem 0;
+  }
+
+  .blog-content ul {
+    list-style-type: disc;
+    margin-right: 1rem;
+    padding-right: 1rem;
+  }
+
+  .blog-content ol {
+    list-style-type: decimal;
+    margin-right: 1rem;
+    padding-right: 1rem;
+  }
+
+  .blog-content li {
+    margin-bottom: 0.01rem;
+  }
+
+  .blog-content p {
+    margin-bottom: 0.1rem;
+    line-height: 1.2;
+  }
+  .blog-content li p {
+  margin: 0;
+  line-height: 1;
+}
+</style>
