@@ -1,7 +1,6 @@
 <% if (neighborhoodsWithJobs.length === 0) { %>
   <p class="text-center text-gray-500">لا يوجد أحياء متاحة حالياً.</p>
 <% } else { %>
-  <% neighborhoodsWithJobs.forEach(({ neighborhood, job }) => { %>
     <div class="neighborhood-card bg-white border rounded-lg shadow-sm p-4 w-full max-w-3xl mx-auto">
       <div class="flex items-center">
         <img src="<%= neighborhood.neighborhoodPhoto %>" 
@@ -33,5 +32,4 @@
         </a>
       </div>
     </div>
-  <% }) %>
 <% } %>
