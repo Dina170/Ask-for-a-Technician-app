@@ -68,9 +68,10 @@
         color: #6b7280;
       }
 
-      .fa-chevron-down {
-        display: none !important;
-      }
+.relative select + .fa-chevron-down {
+  display: none !important;
+}
+
 
         @media (max-width: 360px) {
     .search-form .input-box,
@@ -142,18 +143,16 @@
         <div class="flex-1">
           <div class="flex items-center border border-gray-300 rounded-lg px-2 sm:px-3 bg-gray-50">
             <i class="fa-solid fa-user text-gray-500 ml-2 text-xs sm:text-sm md:text-base"></i>
-            <select id="technicianSelect" name="technician" 
-              class="w-full outline-none text-xs sm:text-sm md:text-base bg-transparent cursor-pointer">
-              <option value="">اختر الفني</option>
-              <% if (typeof uniqueTechnicians !== 'undefined') { %>
-                <% uniqueTechnicians.forEach(tech => { %>
-                  <option value="<%= tech.mainTitle %>" <%= technician === tech.mainTitle ? 'selected' : '' %>>
-                    <%= tech.mainTitle %>
-                    
-                  </option>
-                <% }) %>
-              <% } %>
-            </select>
+            
+            <select id="technicianSelect" name="jobId" class="w-full outline-none text-xs sm:text-sm md:text-base bg-transparent cursor-pointer">
+            <option value="">اختر الفني</option>
+            <% jobs.forEach(job => { %>
+              <option value="<%= job.jobId %>" <%= selectedJobId == job.jobId ? "selected" : "" %>>
+                <%= job._id %>
+              </option>
+            <% }) %>
+          </select>
+
             <i class="fa-solid fa-chevron-down text-gray-500 mr-2 pointer-events-none text-xs sm:text-sm md:text-base"></i>
           </div>
         </div>
@@ -215,7 +214,7 @@
             <% technicians.forEach(technician => { %>
               <div class="card bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm duration-300 flex flex-col">
                 <div class="relative h-48 sm:h-52 md:h-48 overflow-hidden">
-                  <img src="<%= technician.jobTechnicianPhoto %>" alt="<%= technician.name %>" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                  <img src="<%= technician.jobTechnicianPhoto %>" alt="<%= technician.jobName.name %>" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
                   <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                 </div>
                 <div class="card-body p-4 sm:p-5 flex flex-col flex-1">

@@ -56,8 +56,7 @@
       </div>
 
       <!-- Desktop Search -->
-      <form action="/technicians/<%= technician._id %>/seeMoreTechnicianNeighborhoods" method="GET" class="hidden lg:flex items-center w-full lg:w-1/3">
-        <div class="relative w-full">
+     <form action="/technicians/<%= encodeURIComponent(technician.mainTitle) %>/seeMoreTechnicianNeighborhoods" method="GET" class="hidden lg:flex items-center w-full lg:w-1/3">
           <input
             type="text"
             id="search-desktop"
