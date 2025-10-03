@@ -76,7 +76,7 @@
         <div class="technician-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative flex flex-col">
           <div class="relative h-48">
             <img src="<%= tech.jobTechnicianPhoto %>" 
-                 alt="<%= tech.mainTitle %>" 
+                 alt="<%= tech.jobName.name %>" 
                  class="w-full h-full object-cover" />
           </div>
           <div class="card-body p-4 flex flex-col flex-1">
@@ -120,21 +120,22 @@
           if (query.length === 0) return;
 
           try {
-            const res = await fetch(`/technicians?search=${encodeURIComponent(query)}`, {
+            const res = await fetch(`/autocomplete?q=${encodeURIComponent(query)}&type=technician`, {
               headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
             const suggestions = await res.json();
 
             suggestions.forEach(tech => {
-              const li = document.createElement('li');
-              li.textContent = tech.name;
-              li.className = "px-4 py-2 cursor-pointer hover:bg-gray-100";
-              li.addEventListener('click', () => {
-                searchInput.value = tech.name;
-                suggestionBox.innerHTML = '';
-              });
-              suggestionBox.appendChild(li);
-            });
+  const li = document.createElement('li');
+  li.textContent = tech.jobName?.name || ""; 
+  li.className = "px-4 py-2 cursor-pointer hover:bg-gray-100";
+  li.addEventListener('click', () => {
+    searchInput.value = tech.jobName?.name || "";
+    suggestionBox.innerHTML = '';
+  });
+  suggestionBox.appendChild(li);
+});
+
           } catch (err) {
             console.error("Autocomplete fetch error:", err);
           }

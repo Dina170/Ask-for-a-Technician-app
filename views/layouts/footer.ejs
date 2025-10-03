@@ -23,6 +23,15 @@
           <ul class="space-y-3 text-sm">
             <li><a href="/" class="hover:underline text-gray-300">الرئيسية</a></li>
             <li><a href="/technicians" class="hover:underline text-gray-300">الفنيين</a></li>
+
+            <li class="border-t border-gray-700">
+          <button id="footerDrawerBtn" aria-expanded="false" aria-controls="footerDrawer"
+                  class="w-full flex items-center justify-between text-gray-300  py-3 hover:bg-[#406A84]">
+            <span class="flex items-center ">
+              المدونة
+            </span>
+          </button>
+        </li>
             <li><a href="https://wa.me/05075813050" class="hover:underline text-gray-300">تواصل معنا</a></li>
             <li><a href="/privacy-policy" class="hover:underline text-gray-300">سياسة الخصوصية</a></li>
           </ul>
@@ -46,6 +55,40 @@
         </div>
       </div>
     </div>
+  
+      <!-- overlay -->
+  <div id="footerDrawerOverlay" class="fixed inset-0 bg-black bg-opacity-40 hidden z-40 md:hidden"></div>
+
+  <!-- drawer -->
+  <aside id="footerDrawer"
+         class="fixed top-0 right-0 h-full w-3/4 max-w-[420px] bg-[#2A4759] text-white z-50 transform translate-x-full transition-transform duration-300 md:hidden"
+         aria-hidden="true">
+    <div class="p-4 flex items-center justify-between border-b border-[#406A84]">
+      <h4 class="font-bold text-lg">المدونة</h4>
+      <button id="footerDrawerClose" class="text-white text-xl p-2" aria-label="إغلاق">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+
+    <nav class="p-4">
+      <ul class="space-y-2">
+        <% if (typeof blogs !== 'undefined' && blogs.length > 0) { %>
+          <% blogs.forEach(blog => { %>
+            <li>
+              <a href="/blogs/<%= getSlug(blog.blog, { lang: false, uric: true }) %>"
+                 class="block px-3 py-3 hover:bg-[#406A84] rounded">
+                <%= blog.blog %>
+              </a>
+            </li>
+          <% }) %>
+        <% } else { %>
+          <li class="px-3 py-3 text-gray-300">لا توجد مقالات</li>
+        <% } %>
+      </ul>
+    </nav>
+  </aside>
+
+    
 
     <!-- Desktop Layout (equal spacing between columns) -->
 <div class="hidden md:grid md:grid-cols-3 gap-8 items-start">
@@ -64,6 +107,33 @@
         <ul class="space-y-2">
           <li><a href="/" class="hover:underline">الرئيسية</a></li>
           <li><a href="/technicians" class="hover:underline">الفنيين</a></li>
+           <!-- Dropdown Blog -->
+      <li class="relative">
+        <button id="desktopBlogBtn" class="hover:underline flex items-center gap-2">
+          المدونة
+          <i id="desktopBlogIcon" class="fa-solid fa-chevron-down text-xs transition-transform"></i>
+        </button>
+
+        <!-- Dropdown list -->
+        <ul id="desktopBlogList" 
+            class="absolute right-0 mt-2 w-56 bg-[white]  shadow-lg rounded-md hidden text-[#1e3542] text-sm  z-50">
+          <% if (locals.blogs && blogs.length > 0) { %>
+            <% blogs.forEach(blog => { %>
+              <li>
+                <a href="/blogs/<%= getSlug(blog.blog, { lang: false, uric: true }) %>" 
+                   class="block px-4 py-2 hover:bg-[#406A84]">
+                  <%= blog.blog %>
+                </a>
+              </li>
+            <% }) %>
+          <% } else { %>
+            <li>
+              <span class="block px-4 py-2 text-gray-300">لا توجد مقالات</span>
+            </li>
+          <% } %>
+        </ul>
+      </li>
+
           <li><a href="https://wa.me/05075813050" class="hover:underline">تواصل معنا</a></li>
           <li><a href="/privacy-policy" class="hover:underline">سياسة الخصوصية</a></li>
         </ul>
@@ -73,11 +143,21 @@
       <div class="text-right">
         <h3 class="font-bold text-xl mb-4 mt-3">تواصل معنا</h3>
         <ul class="space-y-2">
-          <li><a href="tel:05075813050" class="hover:underline">05075813050</a></li>
+       <li>
+  <a href="tel:<%= mainPhone %>" class="hover:underline text-gray-300">
+    <%= mainPhone %>
+  </a>
+</li>
+
+
+
           <li>info@etlbfany.com</li>
           <li class="flex justify-start gap-4 mt-2">
             <a href="#"><i class="fab fa-facebook-f text-2xl"></i></a>
-            <a href="https://wa.me/05075813050"><i class="fab fa-whatsapp text-2xl"></i></a>
+              <a href="https://wa.me/<%= mainPhone %>" >
+    <i class="fab fa-whatsapp text-2xl"></i>
+  </a>
+
           </li>
         </ul>
       </div>
@@ -90,5 +170,64 @@
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
+     const footerDrawerBtn = document.getElementById("footerDrawerBtn");
+  const footerDrawer = document.getElementById("footerDrawer");
+  const footerOverlay = document.getElementById("footerDrawerOverlay");
+  const footerDrawerClose = document.getElementById("footerDrawerClose");
+  const footerDrawerBtnIcon = document.getElementById("footerDrawerBtnIcon");
+
+  function openFooterDrawer() {
+    footerDrawer.classList.remove('translate-x-full');
+    footerDrawer.classList.add('translate-x-0');
+    footerOverlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    footerDrawer.setAttribute('aria-hidden', 'false');
+    footerDrawerBtn.setAttribute('aria-expanded', 'true');
+    footerDrawerBtnIcon.classList.add('rotate-180');
+    footerDrawerClose.focus();
+  }
+
+  function closeFooterDrawer() {
+    footerDrawer.classList.remove('translate-x-0');
+    footerDrawer.classList.add('translate-x-full');
+    footerOverlay.classList.add('hidden');
+    document.body.style.overflow = '';
+    footerDrawer.setAttribute('aria-hidden', 'true');
+    footerDrawerBtn.setAttribute('aria-expanded', 'false');
+    footerDrawerBtnIcon.classList.remove('rotate-180');
+  }
+
+  footerDrawerBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const isOpen = footerDrawer.classList.contains('translate-x-0');
+    isOpen ? closeFooterDrawer() : openFooterDrawer();
+  });
+
+  footerDrawerClose?.addEventListener('click', closeFooterDrawer);
+  footerOverlay?.addEventListener('click', closeFooterDrawer);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeFooterDrawer();
+  });
+
+  footerDrawer?.addEventListener('click', (e) => {
+    if (e.target.closest('a')) closeFooterDrawer();
+  });
+
+  const desktopBlogBtn = document.getElementById("desktopBlogBtn");
+  const desktopBlogList = document.getElementById("desktopBlogList");
+  const desktopBlogIcon = document.getElementById("desktopBlogIcon");
+
+  desktopBlogBtn?.addEventListener("click", () => {
+    desktopBlogList.classList.toggle("hidden");
+    desktopBlogIcon.classList.toggle("rotate-180");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!desktopBlogBtn.contains(e.target) && !desktopBlogList.contains(e.target)) {
+      desktopBlogList.classList.add("hidden");
+      desktopBlogIcon.classList.remove("rotate-180");
+    }
+  });
   </script>
 </footer>

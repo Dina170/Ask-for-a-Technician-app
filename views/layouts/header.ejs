@@ -1,5 +1,11 @@
 <header class="bg-[#2A4759] shadow-md p-4 lg:px-20 px-4 flex justify-between items-center z-50 relative">
-  <div class="flex items-center">
+  <div class="flex items-center gap-3">
+
+    <button onclick="window.history.back()" 
+            class="lg:hidden text-white text-xl hover:text-[#FC8500]">
+      <i class="fa-solid fa-arrow-right"></i> 
+    </button>
+
     <img src="/images/logo.png" alt="logo" class="h-8 lg:h-10 w-auto rounded-md" />
   </div>
 
@@ -26,15 +32,22 @@
           <% } %>
         </ul>
       </li>
-      <li><a href="/contact" class="hover:underline hover:text-[#FC8500]">تواصل معنا</a></li>
+<li>
+  <a href="https://wa.me/<%= mainPhone %>" 
+     class="hover:underline hover:text-[#FC8500]">
+    تواصل معنا
+  </a>
+</li>
     </ul>
   </nav>
 
   <div class="hidden lg:block">
-    <a href="tel:05075813050" class="text-white hover:text-[#FC8500] flex items-center gap-2">
-      <i class="fa-solid fa-phone text-sm"></i>
-      <span class="hidden xl:inline">اتصل بنا:</span>05075813050
-    </a>
+   <a href="tel:<%= mainPhone %>" class="text-white hover:text-[#FC8500] flex items-center gap-2">
+  <i class="fa-solid fa-phone text-sm"></i>
+  <span class="hidden xl:inline">اتصل بنا:</span>
+  <%= mainPhone %>
+</a>
+
   </div>
 
   <div class="flex lg:hidden items-center gap-4">
@@ -66,35 +79,59 @@
   <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
 
   <div id="mobileMenu"
-       class="lg:hidden fixed top-0 right-0 h-full w-3/4 bg-[#2A4759] z-50 overflow-y-auto"
-       style="transform: translateX(100%); transition: transform 300ms ease;">
-    <nav class="py-6">
-      <ul class="space-y-1">
-        <li><a href="/" class="block px-6 py-3 text-white hover:bg-[#406A84]">الرئيسية</a></li>
-        <li><a href="/showMoreTechnicians" class="block px-6 py-3 text-white hover:bg-[#406A84]">الفنيين</a></li>
-        <li >
-          <button id="mobileBlogBtn" class="w-full flex justify-between items-center px-6 py-3 text-white hover:bg-[#406A84]">
+     class="lg:hidden fixed top-0 right-0 h-full w-3/4 bg-[#2A4759] z-50 overflow-y-auto"
+     style="transform: translateX(100%); transition: transform 300ms ease;">
+  <nav class="py-6">
+    <ul class="space-y-1 divide-y divide-[#406A84]">
+      <li>
+        <a href="/" class="flex items-center gap-3 px-6 py-3 text-white hover:bg-[#406A84]">
+          <i class="fa-solid fa-house text-sm"></i>
+          الرئيسية
+        </a>
+      </li>
+      <li>
+        <a href="/showMoreTechnicians" class="flex items-center gap-3 px-6 py-3 text-white hover:bg-[#406A84]">
+          <i class="fa-solid fa-screwdriver-wrench text-sm"></i>
+          الفنيين
+        </a>
+      </li>
+      <li>
+        <button id="mobileBlogBtn" 
+                class="w-full flex justify-between items-center px-6 py-3 text-white hover:bg-[#406A84]">
+          <span class="flex items-center gap-3">
+            <i class="fa-solid fa-blog text-sm"></i>
             المدونة
-            <i class="fa-solid fa-chevron-down text-xs transition-transform" id="mobileBlogIcon"></i>
-          </button>
-          <ul id="mobileBlogList" class="hidden bg-[#406A84]">
-            <% if (locals.blogs && blogs.length > 0) { %>
-              <% blogs.forEach(blog => { %>
-                <li>
-                  <a href="/blogs/<%= getSlug(blog.blog, { lang: false, uric: true }) %>" class="block px-4 py-3 hover:bg-[#2A4759] hover:text-white">
-                    <%= blog.blog %>
-                  </a>
-                </li>
-              <% }) %>
-            <% } else { %>
-              <li><span class="block px-8 py-2 text-gray-300">لا توجد مقالات</span></li>
-            <% } %>
-          </ul>
-        </li>
-        <li><a href="https://wa.me/05075813050" class="block px-6 py-3 text-white hover:bg-[#406A84]">تواصل معنا</a></li>
-      </ul>
-    </nav>
-  </div>
+          </span>
+          <i class="fa-solid fa-chevron-down text-xs transition-transform" id="mobileBlogIcon"></i>
+        </button>
+
+        <ul id="mobileBlogList" class="hidden text-white divide-y divide-[#406A84]">
+          <% if (locals.blogs && blogs.length > 0) { %>
+            <% blogs.forEach(blog => { %>
+              <li >
+                <a href="/blogs/<%= getSlug(blog.blog, { lang: false, uric: true }) %>" 
+                   class="block px-4 py-3 hover:bg-[#406A84] hover:text-white">
+                  <%= blog.blog %>
+                </a>
+              </li>
+            <% }) %>
+          <% } else { %>
+            <li>
+              <span class="block px-8 py-2 text-gray-300">لا توجد مقالات</span>
+            </li>
+          <% } %>
+        </ul>
+      </li>
+      <li>
+        <a href="https://wa.me/05075813050" class="flex items-center gap-3 px-6 py-3 text-white hover:bg-[#406A84]">
+          <i class="fa-solid fa-phone text-sm"></i>
+          تواصل معنا
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
 </header>
 <script>
 document.addEventListener('DOMContentLoaded', function () {

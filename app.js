@@ -60,6 +60,19 @@ app.use(
   })
 );
 
+// Middleware: إضافة رقم أول فني بشكل جلوبال للفيوز
+app.use(async (req, res, next) => {
+  try {
+    const technician = await Technician.findOne(); 
+    res.locals.mainPhone = technician ? technician.phoneNumber : "05075813050"; 
+  } catch (err) {
+    console.error("Error fetching technician:", err);
+    res.locals.mainPhone = "05075813050"; 
+  }
+  next();
+});
+
+
 // app.use(
 //   session({
 //     secret: process.env.SESSION_SECRET || "secret",

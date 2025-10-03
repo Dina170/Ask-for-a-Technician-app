@@ -105,21 +105,47 @@ exports.getTechnicianDetails = async (req, res) => {
 
 exports.getAllTechnicians = async (req, res) => {
   try {
-    const search = req.query.search || "";
+    const rawSearch = req.query.search || "";
+    const search = rawSearch.trim();
 
-    const query = {};
-    if (search.trim()) {
-      query.mainTitle = { $regex: search.trim(), $options: "i" };
+    if (!search) {
+      const technicians = await Technician.find({})
+        .populate("jobName")
+        .populate("neighborhoodNames");
+
+      const common = await getCommonData();
+      return res.render("public/showMoreTechnicians", {
+        technicians,
+        search: rawSearch,
+        type: "technicians",
+        ...common,
+      });
     }
 
-    const technicians = await Technician.find(query).populate(
-      "jobName neighborhoodNames"
-    );
+    const regex = new RegExp(search, "i");
 
-    if (req.xhr || req.headers.accept.indexOf("json") > -1) {
-      const suggestions = technicians.map((tech) => ({
-        id: tech._id,
-        name: tech.mainTitle,
+    const matchingJobs = await Job.find({ name: { $regex: regex } }).select("_id").lean();
+    const jobIds = matchingJobs.map(j => j._id);
+
+    const matchingNeighborhoods = await Neighborhood.find({ name: { $regex: regex } }).select("_id").lean();
+    const neighborhoodIds = matchingNeighborhoods.map(n => n._id);
+
+    const orConditions = [
+      { mainTitle: { $regex: regex } } 
+    ];
+    if (jobIds.length) orConditions.push({ jobName: { $in: jobIds } });
+    if (neighborhoodIds.length) orConditions.push({ neighborhoodNames: { $in: neighborhoodIds } });
+
+    const query = { $or: orConditions };
+
+    const technicians = await Technician.find(query)
+      .populate("jobName")
+      .populate("neighborhoodNames");
+
+    if (req.xhr || (req.headers.accept && req.headers.accept.indexOf("json") > -1)) {
+      const suggestions = technicians.map(t => ({
+        id: t._id,
+        display: (t.jobName && t.jobName.name) ? t.jobName.name : t.mainTitle,
       }));
       return res.json(suggestions);
     }
@@ -127,12 +153,12 @@ exports.getAllTechnicians = async (req, res) => {
     const common = await getCommonData();
     res.render("public/showMoreTechnicians", {
       technicians,
-      search,
+      search: rawSearch,
       type: "technicians",
       ...common,
     });
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching technicians:", err);
     res.status(500).send("Internal Server Error");
   }
 };
@@ -141,12 +167,16 @@ exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
   try {
     const searchQuery = req.query.search?.trim().toLowerCase() || "";
 
-    const tech = await Technician.findOne({ mainTitle: req.params.title })
+    // لو فيه searchQuery على حي
+    let tech = await Technician.findOne({ mainTitle: req.params.title })
       .populate("jobName")
       .populate("neighborhoodNames");
 
-    if (!tech) return res.status(404).send("Technician not found");
+    if (!tech) {
+      return res.status(404).send("Technician not found");
+    }
 
+    // فلترة الأحياء
     let filteredNeighborhoods = tech.neighborhoodNames;
     if (searchQuery) {
       filteredNeighborhoods = filteredNeighborhoods.filter(
