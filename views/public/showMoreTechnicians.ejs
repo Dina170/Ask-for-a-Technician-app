@@ -80,9 +80,9 @@
                  class="w-full h-full object-cover" />
           </div>
           <div class="card-body p-4 flex flex-col flex-1">
-            <h3 class="tech-name text-[18px] font-bold text-[#222222] mb-2"><%= tech.mainTitle %></h3>
+            <h3 class="tech-name text-[18px] font-bold text-[#222222] mb-2"><%= tech.jobName.name %></h3>
           <p class="text-[#5C5C5C] font-normal text-[14px] leading-[200%] mb-5 break-words whitespace-normal overflow-hidden line-clamp-2 md:text-[16px] md:leading-[140%]">
-              <%- tech.description.replace(/<img.*?>/g, "").replace(/<[^>]+>/g, "").substring(0, 200) %>...
+              <%- tech.mainTitle.replace(/<img.*?>/g, "").replace(/<[^>]+>/g, "").substring(0, 200) %>...
             </p>
             <div class="mt-auto flex gap-2">
               <a href="/technicians/<%= tech.mainTitle %>/details" 
