@@ -1,10 +1,10 @@
 <header class="bg-[#2A4759] shadow-md p-4 lg:px-20 px-4 flex justify-between items-center z-50 relative">
-  <div class="flex items-center gap-3">
+  <div class="flex items-center ">
 
-    <button onclick="window.history.back()" 
+    <!-- <button onclick="window.history.back()" 
             class="lg:hidden text-white text-xl hover:text-[#FC8500]">
       <i class="fa-solid fa-arrow-right"></i> 
-    </button>
+    </button> -->
 
     <img src="/images/logo.png" alt="logo" class="h-8 lg:h-10 w-auto rounded-md" />
   </div>
@@ -66,7 +66,7 @@
       </div>
     </div>
 
-    <a href="tel:05075813050" class="text-white text-xl hover:text-[#FC8500]">
+    <a href="tel:<%= mainPhone %>" class="text-white text-xl hover:text-[#FC8500]">
       <i class="fa-solid fa-phone"></i>
     </a>
 
@@ -123,8 +123,8 @@
           </ul>
         </li>
         <li>
-          <a href="https://wa.me/05075813050" class="flex items-center gap-3 px-6 py-3 text-white hover:bg-[#406A84]">
-            <i class="fa-solid fa-phone text-sm"></i>
+          <a href="https://wa.me/<%= mainPhone %>" class="flex items-center gap-3 px-6 py-3 text-white hover:bg-[#406A84]">
+            <i class="fa-brands fa-whatsapp text-sm"></i>
             تواصل معنا
           </a>
         </li>
