@@ -140,27 +140,27 @@ document.addEventListener('DOMContentLoaded', function () {
   const mobileSearchForm = document.getElementById('mobileSearchForm');
   const searchContainer = mobileSearchWrapper.parentElement;
   const searchType = searchContainer.dataset.searchType; // "technician" | "neighborhood" | "blog"
+  const techTitle = searchContainer.dataset.title;
 
- const techTitle = searchContainer.dataset.title;
-
-if (searchType && mobileSearchInput && mobileSearchForm) {
-  switch(searchType) {
-    case "technician":
-      mobileSearchInput.placeholder = "ابحث عن فني";
-      mobileSearchForm.action = "/showMoreTechnicians";
-      break;
-    case "neighborhood":
-      mobileSearchInput.placeholder = "ابحث عن حي";
-      // اضيف title هنا
-      mobileSearchForm.action = `/technicians/${techTitle}/seeMoreTechnicianNeighborhoods`;
-      break;
-    case "blog":
-      mobileSearchInput.placeholder = "ابحث عن مقال";
-      mobileSearchForm.action = "/blogs/search";
-      break;
+  // إعداد الـ form و placeholder حسب النوع
+  if (searchType && mobileSearchInput && mobileSearchForm) {
+    switch(searchType) {
+      case "technician":
+        mobileSearchInput.placeholder = "ابحث عن فني";
+        mobileSearchForm.action = "/showMoreTechnicians";
+        break;
+      case "neighborhood":
+        mobileSearchInput.placeholder = "ابحث عن حي";
+        mobileSearchForm.action = techTitle ? `/technicians/${techTitle}/seeMoreTechnicianNeighborhoods` : "/showMoreTechnicians";
+        break;
+      case "blog":
+        mobileSearchInput.placeholder = "ابحث عن مقال";
+        mobileSearchForm.action = "/posts";
+        break;
+    }
   }
-}
 
+  // فتح وغلق البحث على الموبايل
   const mobileSearchBtn = document.getElementById('mobileSearchBtn');
   if (mobileSearchBtn) {
     mobileSearchBtn.addEventListener('click', () => {
@@ -177,13 +177,70 @@ if (searchType && mobileSearchInput && mobileSearchForm) {
     });
   }
 
-  // استدعاء autocomplete لو موجود
-  if (typeof setupAutocomplete === 'function') {
-    setupAutocomplete('search-mobile', 'autocomplete-list-mobile');
+  // إعداد autocomplete لكل نوع
+  if (mobileSearchInput && searchType) {
+    mobileSearchInput.addEventListener("input", async () => {
+      const query = mobileSearchInput.value.trim();
+      const list = document.getElementById("autocomplete-list-mobile");
+
+      if (!query) {
+        list.innerHTML = "";
+        list.classList.add("hidden");
+        return;
+      }
+
+      try {
+        let url = "";
+        switch(searchType) {
+          case "blog":
+            url = `/posts/autocomplete?q=${encodeURIComponent(query)}`;
+            break;
+          case "neighborhood":
+            if(!techTitle) {
+              console.warn("techTitle فارغ، البحث عن الأحياء سيتم بدون فلتر فني");
+              url = `/technicians/autocompleteNeighborhood?q=${encodeURIComponent(query)}`;
+            } else {
+              url = `/technicians/${techTitle}/autocompleteNeighborhood?q=${encodeURIComponent(query)}`;
+            }
+            break;
+          case "technician":
+            url = `/autocompleteTechnicians?q=${encodeURIComponent(query)}`;
+            break;
+          default:
+            return;
+        }
+
+        const res = await fetch(url);
+        const items = await res.json();
+
+        if (!items.length) {
+          list.innerHTML = "<li class='px-3 py-2 text-gray-500 text-center'>لا توجد نتائج</li>";
+          list.classList.remove("hidden");
+          return;
+        }
+
+        list.innerHTML = items.map(item => {
+          let display = item.title || item.name || item.neighborhood || item.mainTitle;
+          let link = "#";
+          if(searchType === "blog") link = "/posts/" + item.permaLink;
+          else if(searchType === "neighborhood") link = `/technicians/${techTitle || "all"}/neighborhoods/${item.id}`;
+          else if(searchType === "technician") link = `/technicians/${item.id}`;
+          return `<li class="px-3 py-2 hover:bg-blue-50 cursor-pointer" data-link="${link}">${display}</li>`;
+        }).join("");
+
+        list.classList.remove("hidden");
+
+        list.querySelectorAll("li[data-link]").forEach(li => {
+          li.addEventListener("click", () => window.location.href = li.dataset.link);
+        });
+
+      } catch(err) {
+        console.error("Autocomplete error:", err);
+      }
+    });
   }
 
-
-
+  // MOBILE MENU
   const mobileMenuBtn = document.getElementById('mobileMenuBtn');
   const mobileMenu = document.getElementById('mobileMenu');
   const hamburgerIcon = document.getElementById('hamburgerIcon');
@@ -225,6 +282,7 @@ if (searchType && mobileSearchInput && mobileSearchForm) {
     });
   }
 
+  // MOBILE BLOG TOGGLE
   const mobileBlogBtn = document.getElementById('mobileBlogBtn');
   const mobileBlogList = document.getElementById('mobileBlogList');
   const mobileBlogIcon = document.getElementById('mobileBlogIcon');
