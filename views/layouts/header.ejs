@@ -105,10 +105,10 @@
           <i class="fa-solid fa-chevron-down text-xs transition-transform" id="mobileBlogIcon"></i>
         </button>
 
-        <ul id="mobileBlogList" class="hidden text-white divide-y divide-[#406A84]">
+        <ul id="mobileBlogList" class="hidden text-white divide-y divide-[#406A84] ">
           <% if (locals.blogs && blogs.length > 0) { %>
             <% blogs.forEach(blog => { %>
-              <li >
+              <li class="pr-12" >
                 <a href="/blogs/<%= getSlug(blog.blog, { lang: false, uric: true }) %>" 
                    class="block px-4 py-3 hover:bg-[#406A84] hover:text-white">
                   <%= blog.blog %>
