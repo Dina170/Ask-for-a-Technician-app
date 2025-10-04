@@ -32,34 +32,34 @@
           <% } %>
         </ul>
       </li>
-<li>
-  <a href="https://wa.me/<%= mainPhone %>" 
-     class="hover:underline hover:text-[#FC8500]">
-    تواصل معنا
-  </a>
-</li>
+      <li>
+        <a href="https://wa.me/<%= mainPhone %>" 
+           class="hover:underline hover:text-[#FC8500]">
+          تواصل معنا
+        </a>
+      </li>
     </ul>
   </nav>
 
   <div class="hidden lg:block">
-   <a href="tel:<%= mainPhone %>" class="text-white hover:text-[#FC8500] flex items-center gap-2">
-  <i class="fa-solid fa-phone text-sm"></i>
-  <span class="hidden xl:inline">اتصل بنا:</span>
-  <%= mainPhone %>
-</a>
-
+    <a href="tel:<%= mainPhone %>" class="text-white hover:text-[#FC8500] flex items-center gap-2">
+      <i class="fa-solid fa-phone text-sm"></i>
+      <span class="hidden xl:inline">اتصل بنا:</span>
+      <%= mainPhone %>
+    </a>
   </div>
 
   <div class="flex lg:hidden items-center gap-4">
-    <div class="relative">
-      <button id="mobileSearchBtn" class="text-white text-xl">
+    <div class="relative" data-search-type="<%= searchType %>" 
+         data-title="<%= typeof technician !== 'undefined' && technician ? encodeURIComponent(technician.mainTitle) : '' %>">
+      <button id="mobileSearchBtn" class="text-white text-md">
         <i class="fa-solid fa-magnifying-glass"></i>
       </button>
-      <div id="mobileSearchWrapper" class="absolute top-0 left-8 hidden">
-        <form action="/showMoreTechnicians" method="GET" class="flex items-center">
-          <div class="relative">
-            <input type="text" id="search-mobile" name="search" placeholder="ابحث عن فني"
-              class="w-0 max-w-[110px] transition-all duration-200 border border-gray-300 rounded-[12px] py-1 pl-3 pr-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2A4759]" />
+      <div id="mobileSearchWrapper" class="absolute top-0 left-6 hidden">
+        <form action="/" method="GET" class="flex items-center" id="mobileSearchForm">
+          <div class="relative w-full">
+            <input type="text" id="search-mobile" name="search" placeholder="ابحث..." 
+              class="w-0 max-w-[95px] text-[12px] transition-all duration-200 border border-gray-300 rounded-[12px] py-1 pl-3 pr-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2A4759]" />
             <ul id="autocomplete-list-mobile" class="absolute z-50 bg-[#FAFAFA] w-full mt-1 rounded-lg"></ul>
           </div>
         </form>
@@ -81,87 +81,166 @@
   <div id="mobileMenu"
      class="lg:hidden fixed top-0 right-0 h-full w-3/4 bg-[#2A4759] z-50 overflow-y-auto"
      style="transform: translateX(100%); transition: transform 300ms ease;">
-  <nav class="py-6">
-    <ul class="space-y-1 divide-y divide-[#406A84]">
-      <li>
-        <a href="/" class="flex items-center gap-3 px-6 py-3 text-white hover:bg-[#406A84]">
-          <i class="fa-solid fa-house text-sm"></i>
-          الرئيسية
-        </a>
-      </li>
-      <li>
-        <a href="/showMoreTechnicians" class="flex items-center gap-3 px-6 py-3 text-white hover:bg-[#406A84]">
-          <i class="fa-solid fa-screwdriver-wrench text-sm"></i>
-          الفنيين
-        </a>
-      </li>
-      <li>
-        <button id="mobileBlogBtn" 
-                class="w-full flex justify-between items-center px-6 py-3 text-white hover:bg-[#406A84]">
-          <span class="flex items-center gap-3">
-            <i class="fa-solid fa-blog text-sm"></i>
-            المدونة
-          </span>
-          <i class="fa-solid fa-chevron-down text-xs transition-transform" id="mobileBlogIcon"></i>
-        </button>
+    <nav class="py-6">
+      <ul class="space-y-1 divide-y divide-[#406A84]">
+        <li>
+          <a href="/" class="flex items-center gap-3 px-6 py-3 text-white hover:bg-[#406A84]">
+            <i class="fa-solid fa-house text-sm"></i>
+            الرئيسية
+          </a>
+        </li>
+        <li>
+          <a href="/showMoreTechnicians" class="flex items-center gap-3 px-6 py-3 text-white hover:bg-[#406A84]">
+            <i class="fa-solid fa-screwdriver-wrench text-sm"></i>
+            الفنيين
+          </a>
+        </li>
+        <li>
+          <button id="mobileBlogBtn" 
+                  class="w-full flex justify-between items-center px-6 py-3 text-white hover:bg-[#406A84]">
+            <span class="flex items-center gap-3">
+              <i class="fa-solid fa-blog text-sm"></i>
+              المدونة
+            </span>
+            <i class="fa-solid fa-chevron-down text-xs transition-transform" id="mobileBlogIcon"></i>
+          </button>
 
-        <ul id="mobileBlogList" class="hidden text-white divide-y divide-[#406A84] ">
-          <% if (locals.blogs && blogs.length > 0) { %>
-            <% blogs.forEach(blog => { %>
-              <li class="pr-12" >
-                <a href="/blogs/<%= getSlug(blog.blog, { lang: false, uric: true }) %>" 
-                   class="block px-4 py-3 hover:bg-[#406A84] hover:text-white">
-                  <%= blog.blog %>
-                </a>
+          <ul id="mobileBlogList" class="hidden text-white divide-y divide-[#406A84] ">
+            <% if (locals.blogs && blogs.length > 0) { %>
+              <% blogs.forEach(blog => { %>
+                <li class="pr-12" >
+                  <a href="/blogs/<%= getSlug(blog.blog, { lang: false, uric: true }) %>" 
+                     class="block px-4 py-3 hover:bg-[#406A84] hover:text-white">
+                    <%= blog.blog %>
+                  </a>
+                </li>
+              <% }) %>
+            <% } else { %>
+              <li>
+                <span class="block px-8 py-2 text-gray-300">لا توجد مقالات</span>
               </li>
-            <% }) %>
-          <% } else { %>
-            <li>
-              <span class="block px-8 py-2 text-gray-300">لا توجد مقالات</span>
-            </li>
-          <% } %>
-        </ul>
-      </li>
-      <li>
-        <a href="https://wa.me/05075813050" class="flex items-center gap-3 px-6 py-3 text-white hover:bg-[#406A84]">
-          <i class="fa-solid fa-phone text-sm"></i>
-          تواصل معنا
-        </a>
-      </li>
-    </ul>
-  </nav>
-</div>
+            <% } %>
+          </ul>
+        </li>
+        <li>
+          <a href="https://wa.me/05075813050" class="flex items-center gap-3 px-6 py-3 text-white hover:bg-[#406A84]">
+            <i class="fa-solid fa-phone text-sm"></i>
+            تواصل معنا
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
 
 </header>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  const mobileSearchBtn = document.getElementById('mobileSearchBtn');
   const mobileSearchWrapper = document.getElementById('mobileSearchWrapper');
   const mobileSearchInput = document.getElementById('search-mobile');
+  const mobileSearchForm = document.getElementById('mobileSearchForm');
+  const searchContainer = mobileSearchWrapper.parentElement;
+  const searchType = searchContainer.dataset.searchType; // "technician" | "neighborhood" | "blog"
+  const techTitle = searchContainer.dataset.title;
 
+  // إعداد الـ form و placeholder حسب النوع
+  if (searchType && mobileSearchInput && mobileSearchForm) {
+    switch(searchType) {
+      case "technician":
+        mobileSearchInput.placeholder = "ابحث عن فني";
+        mobileSearchForm.action = "/showMoreTechnicians";
+        break;
+      case "neighborhood":
+        mobileSearchInput.placeholder = "ابحث عن حي";
+        mobileSearchForm.action = techTitle ? `/technicians/${techTitle}/seeMoreTechnicianNeighborhoods` : "/showMoreTechnicians";
+        break;
+      case "blog":
+        mobileSearchInput.placeholder = "ابحث عن مقال";
+        mobileSearchForm.action = "/posts";
+        break;
+    }
+  }
+
+  // فتح وغلق البحث على الموبايل
+  const mobileSearchBtn = document.getElementById('mobileSearchBtn');
   if (mobileSearchBtn) {
     mobileSearchBtn.addEventListener('click', () => {
       if (!mobileSearchWrapper) return;
       mobileSearchWrapper.classList.toggle('hidden');
       if (!mobileSearchWrapper.classList.contains('hidden')) {
-        if (mobileSearchInput) {
-          mobileSearchInput.classList.remove('w-0');
-          mobileSearchInput.classList.add('w-48','px-3');
-          mobileSearchInput.focus();
-        }
+        mobileSearchInput.classList.remove('w-0');
+        mobileSearchInput.classList.add('w-48','px-3');
+        mobileSearchInput.focus();
       } else {
-        if (mobileSearchInput) {
-          mobileSearchInput.classList.remove('w-48','px-3');
-          mobileSearchInput.classList.add('w-0');
-        }
+        mobileSearchInput.classList.remove('w-48','px-3');
+        mobileSearchInput.classList.add('w-0');
       }
     });
   }
 
-  if (typeof setupAutocomplete === 'function') {
-    setupAutocomplete('search-mobile', 'autocomplete-list-mobile');
+  // إعداد autocomplete لكل نوع
+  if (mobileSearchInput && searchType) {
+    mobileSearchInput.addEventListener("input", async () => {
+      const query = mobileSearchInput.value.trim();
+      const list = document.getElementById("autocomplete-list-mobile");
+
+      if (!query) {
+        list.innerHTML = "";
+        list.classList.add("hidden");
+        return;
+      }
+
+      try {
+        let url = "";
+        switch(searchType) {
+          case "blog":
+            url = `/posts/autocomplete?q=${encodeURIComponent(query)}`;
+            break;
+          case "neighborhood":
+            if(!techTitle) {
+              console.warn("techTitle فارغ، البحث عن الأحياء سيتم بدون فلتر فني");
+              url = `/technicians/autocompleteNeighborhood?q=${encodeURIComponent(query)}`;
+            } else {
+              url = `/technicians/${techTitle}/autocompleteNeighborhood?q=${encodeURIComponent(query)}`;
+            }
+            break;
+          case "technician":
+            url = `/autocompleteTechnicians?q=${encodeURIComponent(query)}`;
+            break;
+          default:
+            return;
+        }
+
+        const res = await fetch(url);
+        const items = await res.json();
+
+        if (!items.length) {
+          list.innerHTML = "<li class='px-3 py-2 text-gray-500 text-center'>لا توجد نتائج</li>";
+          list.classList.remove("hidden");
+          return;
+        }
+
+        list.innerHTML = items.map(item => {
+          let display = item.title || item.name || item.neighborhood || item.mainTitle;
+          let link = "#";
+          if(searchType === "blog") link = "/posts/" + item.permaLink;
+          else if(searchType === "neighborhood") link = `/technicians/${techTitle || "all"}/neighborhoods/${item.id}`;
+          else if(searchType === "technician") link = `/technicians/${item.id}`;
+          return `<li class="px-3 py-2 hover:bg-blue-50 cursor-pointer" data-link="${link}">${display}</li>`;
+        }).join("");
+
+        list.classList.remove("hidden");
+
+        list.querySelectorAll("li[data-link]").forEach(li => {
+          li.addEventListener("click", () => window.location.href = li.dataset.link);
+        });
+
+      } catch(err) {
+        console.error("Autocomplete error:", err);
+      }
+    });
   }
 
+  // MOBILE MENU
   const mobileMenuBtn = document.getElementById('mobileMenuBtn');
   const mobileMenu = document.getElementById('mobileMenu');
   const hamburgerIcon = document.getElementById('hamburgerIcon');
@@ -203,6 +282,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // MOBILE BLOG TOGGLE
   const mobileBlogBtn = document.getElementById('mobileBlogBtn');
   const mobileBlogList = document.getElementById('mobileBlogList');
   const mobileBlogIcon = document.getElementById('mobileBlogIcon');
