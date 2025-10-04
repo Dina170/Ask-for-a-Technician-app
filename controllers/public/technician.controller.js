@@ -168,9 +168,14 @@ exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
     const searchQuery = req.query.search?.trim().toLowerCase() || "";
 
     // لو فيه searchQuery على حي
-    let tech = await Technician.findOne({ mainTitle: req.params.title })
-      .populate("jobName")
-      .populate("neighborhoodNames");
+  
+      let tech = await Technician.findOne({ mainTitle: req.params.title })
+  .populate("jobName")
+  .populate({
+    path: "neighborhoodNames",
+    select: "name" // نجيب بس الاسماء
+  });
+
 
     if (!tech) {
       return res.status(404).send("Technician not found");
