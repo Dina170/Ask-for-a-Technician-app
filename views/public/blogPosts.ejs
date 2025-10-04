@@ -101,13 +101,14 @@
           const descriptionImage = match ? match[1] : '/uploads/posts/default.png'; 
         %>
         <div class="card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative flex flex-col">
-          <div class="relative h-48">
-            <img
-              src="<%= descriptionImage %>"
-              alt="<%= post.title || post.name %>"
-              class="w-full h-full object-cover"
-            />
-          </div>
+         <div class="relative w-full">
+  <img
+    src="<%= descriptionImage %>"
+    alt="<%= post.title || post.name %>"
+    class="w-full h-auto object-cover"
+  />
+</div>
+
           <div class="card-body p-4 flex flex-col flex-1">
             <h3 class="text-[18px] font-bold text-[#222222]">
               <%= post.name || post.title %>
