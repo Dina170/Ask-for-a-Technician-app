@@ -175,7 +175,7 @@ exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
   .populate("jobName")
   .populate({
     path: "neighborhoodNames",
-    select: "name" // نجيب بس الاسماء
+     select: "name neighborhoodPhoto" 
   });
 
 
