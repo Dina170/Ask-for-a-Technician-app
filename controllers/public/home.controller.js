@@ -65,6 +65,7 @@ exports.getHomePage = async (req, res) => {
       technician,
       neighborhood,
       selectedJobId: jobId || "",
+      searchType: "technician",
       blogs,
       getSlug
     });
@@ -170,7 +171,7 @@ exports.getAllBlogs = async (req, res) => {
     const blog = blogs[0]; 
     const posts = await Post.find({ blog: blog._id }).sort({ createdAt: -1 });
 
-    res.render("public/blogPosts", { posts, blog, getSlug });
+    res.render("public/blogPosts", { posts, blog,searchType: "blog", getSlug });
   } catch (err) {
     console.error(err);
     res.status(500).send("حدث خطأ في جلب المقالات");
@@ -187,7 +188,7 @@ exports.getBlogPosts = async (req, res) => {
     if (!blog) return res.status(404).render("public/404", { message: "Blog not found" });
 
     const posts = await Post.find({ blog: blog._id }).sort({ createdAt: -1 });
-    res.render("public/blogPosts", { blog, posts, getSlug });
+    res.render("public/blogPosts", { blog, posts, searchType: "blog", getSlug });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error");
@@ -206,6 +207,7 @@ exports.getPostDetails = async (req, res) => {
     res.render("public/postDetails", { 
       post, 
       blogs,  
+      searchType: "blog",
       getSlug 
     });
   } catch (err) {
@@ -218,7 +220,7 @@ exports.getPostDetails = async (req, res) => {
 exports.getPrivacyPolicy = async (req, res) => {
   try {
     const blogs = await Blog.find({});
-    res.render("public/privacyPolicy", { blogs, getSlug });
+    res.render("public/privacyPolicy", { blogs,searchType: "blog", getSlug });
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");

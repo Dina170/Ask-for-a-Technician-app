@@ -96,7 +96,7 @@ exports.getTechnicianDetails = async (req, res) => {
     const job = technician.jobName || null;
 
     const common = await getCommonData();
-    res.render("public/technicianDetails", { technician, job, ...common });
+    res.render("public/technicianDetails", { technician, job,searchType: "technician", ...common });
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
@@ -118,6 +118,7 @@ exports.getAllTechnicians = async (req, res) => {
         technicians,
         search: rawSearch,
         type: "technicians",
+        searchType: "technician",
         ...common,
       });
     }
@@ -155,6 +156,7 @@ exports.getAllTechnicians = async (req, res) => {
       technicians,
       search: rawSearch,
       type: "technicians",
+      searchType: "technician",
       ...common,
     });
   } catch (err) {
@@ -208,6 +210,7 @@ exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
       neighborhoodsWithJobs,
       searchQuery,
       type: "neighborhoods",
+      searchType: "neighborhood",
       ...common,
     });
   } catch (error) {
