@@ -22,7 +22,8 @@
           <% if (locals.blogs && blogs.length > 0) { %>
             <% blogs.forEach(blog => { %>
               <li>
-                <a href="/blogs/<%= getSlug(blog.blog, { lang: false, uric: true }) %>" class="block px-4 py-3 hover:bg-[#2A4759] hover:text-white">
+                <a href="/blogs/<%= encodeURIComponent(blog.blog) %>"
+ class="block px-4 py-3 hover:bg-[#2A4759] hover:text-white">
                   <%= blog.blog %>
                 </a>
               </li>
@@ -109,7 +110,8 @@
             <% if (locals.blogs && blogs.length > 0) { %>
               <% blogs.forEach(blog => { %>
                 <li class="pr-12" >
-                  <a href="/blogs/<%= getSlug(blog.blog, { lang: false, uric: true }) %>" 
+                 <a href="/blogs/<%= encodeURIComponent(blog.blog) %>"
+
                      class="block px-4 py-3 hover:bg-[#406A84] hover:text-white">
                     <%= blog.blog %>
                   </a>

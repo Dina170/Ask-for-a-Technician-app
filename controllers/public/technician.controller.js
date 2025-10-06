@@ -238,7 +238,6 @@ exports.getTechnicianDetails = async (req, res) => {
       });
     }
 
-    // ✅ لو لقينا الفني فعلاً
     const common = await getCommonData();
     return res.render("public/technicianDetails", {
       technician,

@@ -230,7 +230,7 @@
                   <h3 class="tech-name text-[18px] font-bold text-[#222222] mb-2"><%= technician.jobName.name %></h3>
                   <p class="text-[#5C5C5C] font-normal text-[14px] leading-[200%] mb-5 break-words whitespace-normal overflow-hidden line-clamp-2 md:text-[16px] md:leading-[140%]"><%- technician.mainTitle.replace(/<img.*?>/g, "").replace(/<[^>]+>/g, "").substring(0, 200) %>...</p>
                   <div class="mt-auto">
-                    <a href="/technicians/<%= technician.mainTitle %>/details" class="block w-full bg-[#2A4759] hover:bg-[#1e3542] text-white text-sm sm:text-base text-center py-3 px-4 rounded-lg transition-colors duration-300 font-medium">عرض المزيد</a>
+                    <a href="/technicians/<%= encodeURIComponent(technician.jobName.name) %>/details" class="block w-full bg-[#2A4759] hover:bg-[#1e3542] text-white text-sm sm:text-base text-center py-3 px-4 rounded-lg transition-colors duration-300 font-medium">عرض المزيد</a>
                   </div>
                 </div>
               </div>

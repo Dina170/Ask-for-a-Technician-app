@@ -1,6 +1,6 @@
 const Job = require("../../models/job");
 const Technician = require("../../models/technician");
-const Neighborhood = require("../../models/neighborhood"); // إضافة نموذج الحي
+const Neighborhood = require("../../models/neighborhood"); 
 const Blog = require("../../models/blog");
 const Post = require("../../models/post");
 const getSlug = require("speakingurl");
@@ -181,9 +181,9 @@ exports.getAllBlogs = async (req, res) => {
 exports.getBlogPosts = async (req, res) => {
   try {
     const blogs = await Blog.find({});
-    const blog = blogs.find(
-  (b) => getSlug(b.blog, { lang: false, uric: true }) === req.params.blog
-);
+   const decodedSlug = decodeURIComponent(req.params.blog);
+const blog = blogs.find((b) => b.blog === decodedSlug);
+
 
     if (!blog) return res.status(404).render("public/404", { message: "Blog not found" });
 
