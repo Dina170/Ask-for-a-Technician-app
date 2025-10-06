@@ -1,21 +1,37 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" class="font-[Cairo]">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>تفاصيل الفني <%= technician.mainTitle %></title>
+  <title>تفاصيل الفني <%= technician.mainTitle %>
+  </title>
 
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <!-- Cairo Font -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
-    body, p, span, h1, h2, h3, h4, h5, h6, a, button, input, textarea, label, div {
+    body,
+    p,
+    span,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    a,
+    button,
+    input,
+    textarea,
+    label,
+    div {
       font-family: 'Cairo', sans-serif;
     }
 
@@ -31,113 +47,95 @@
     .line-clamp-3 {
       display: -webkit-box;
       -webkit-box-orient: vertical;
-      -webkit-line-clamp: 3; 
+      -webkit-line-clamp: 3;
       overflow: hidden;
     }
 
-  .description-text ul,
-.description-text ol {
-  margin: 1rem 1.5rem;
-  padding-right: 1.5rem; 
-  list-style-position: inside;
-}
+    .description-text ul,
+    .description-text ol {
+      margin: 1rem 1.5rem;
+      padding-right: 1.5rem;
+      list-style-position: inside;
+    }
 
-.description-text ul {
-  list-style-type: disc; 
-}
+    .description-text ul {
+      list-style-type: disc;
+    }
 
-.description-text ol {
-  list-style-type: decimal; 
-}
+    .description-text ol {
+      list-style-type: decimal;
+    }
 
-.description-text li {
-  margin-bottom: 0.5rem;
-  line-height: 1.8;
-}
-
+    .description-text li {
+      margin-bottom: 0.5rem;
+      line-height: 1.8;
+    }
   </style>
 </head>
 
 <body class="m-0 p-0" style="font-family: 'Cairo', sans-serif;">
   <!-- header -->
-<%- include("../layouts/header", { searchType: searchType }) %>
+  <%- include("../layouts/header", { searchType: searchType }) %>
 
-  <!-- Breadcrumb -->
-  <div class="bg-white mt-5">
-    <div class="mx-4 md:mx-[104px] flex items-center">
-      <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
-        <i class="fa-solid fa-home text-xl sm:text-2xl ml-2 sm:ml-3"></i>
-      </a>
-      <i class="fa-solid fa-chevron-left ml-2 sm:ml-3 mr-2"></i>
-      <span class="font-semibold text-[#2A4759] text-sm sm:text-base">عرض المزيد</span>
-      <i class="fa-solid fa-chevron-left ml-2 sm:ml-3 mr-2"></i>
-      <span class="font-semibold text-[#B3AFAF] text-sm sm:text-base"><%= technician.jobName.name %></span>
-    </div>
-  </div>
-
-  <!-- Main Content -->
-  <div class="mx-4 md:mx-[104px] mt-3 sm:mt-5">
-    <div class="flex flex-col md:flex-row gap-4 sm:gap-6 items-stretch">
-      <% let imageName = technician.jobTechnicianPhoto || "default.png"; %>
-      <img src="<%= imageName %>" 
-           alt="<%= technician.mainTitle %>" 
-           class="rounded-xl w-full md:w-1/2 h-[265px] sm:h-[365px] md:h-[465px] object-cover"/>
-
-      <div class="md:w-1/2 h-full flex flex-col justify-between overflow-hidden">
-        <h2 class="text-[#222222] text-2xl sm:text-[24px] md:text-[32px] font-bold mb-3 sm:mb-4 leading-snug md:leading-[1.6]">
+    <!-- Breadcrumb -->
+    <div class="bg-white mt-5">
+      <div class="mx-4 md:mx-[104px] flex items-center">
+        <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
+          <i class="fa-solid fa-home text-xl sm:text-2xl ml-2 sm:ml-3"></i>
+        </a>
+        <i class="fa-solid fa-chevron-left ml-2 sm:ml-3 mr-2"></i>
+        <span class="font-semibold text-[#2A4759] text-sm sm:text-base">عرض المزيد</span>
+        <i class="fa-solid fa-chevron-left ml-2 sm:ml-3 mr-2"></i>
+        <span class="font-semibold text-[#B3AFAF] text-sm sm:text-base">
           <%= technician.jobName.name %>
-        </h2>
-        
-       <div class="flex flex-col w-full max-w-[368px] sm:max-w-[604px] gap-[4.87px] sm:gap-4 h-auto sm:h-[auto]">
-  <div class="description-text text-right font-regular text-[13px] sm:text-[20px] leading-[200%] text-[#5C5C5C] pr-2 sm:pr-0 max-h-[400px] sm:max-h-[600px] overflow-auto">
-    <%= technician.mainTitle %>
-  </div>
-</div>
-
-
-        <div class="flex flex-row justify-center mx-auto gap-2 sm:gap-4 w-full max-w-[604px] mt-6 sm:mt-8 md:mt-12">
-          <% if (technician.phoneNumber) { %>
-            <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank" rel="noopener noreferrer" class="flex-1 max-w-[163px] sm:max-w-[272.25px]">
-              <button class="bg-[#2A4759] flex items-center justify-center gap-1.5 text-white rounded-[10px] sm:rounded-[12px] w-full h-[38px] sm:h-[56px] px-4 py-2 sm:px-[30px] sm:py-3 border border-[#2A4759] hover:bg-[#1e3442] transition duration-300 text-xs sm:text-base">
-                <i class="fab fa-whatsapp text-lg sm:text-xl"></i>
-                <span>إرسال على واتساب</span>
-              </button>
-            </a>
-          <% } %>
-
-          <a href="/technicians/<%= technician.mainTitle %>/seeMoreTechnicianNeighborhoods" rel="noopener noreferrer" class="flex-1 max-w-[163px] sm:max-w-[272.25px]">
-            <button class="bg-white border border-[#2A4759] flex items-center justify-center gap-1.5 text-[#2A4759] hover:text-white rounded-[10px] sm:rounded-[12px] w-full h-[38px] sm:h-[56px] px-4 py-2 sm:px-[30px] sm:py-3 hover:bg-[#2A4759] transition duration-300 text-xs sm:text-base">
-              <span>عرض الأحياء</span>
-            </button>
-          </a>
-        </div>
+        </span>
       </div>
     </div>
-  </div>
 
-  <% if (technician.phoneNumber) { %>
-    <div class="flex flex-col max-w-md mx-auto text-center mt-6 sm:mt-8">
-      <p class="font-[Cairo] text-[#222222] leading-[140%] font-normal text-[20px] sm:font-medium sm:text-[30px] mb-4">
-        اتصل الآن نصلك اينما كنت بالرياض
-      </p>
-      <a href="tel:<%= technician.phoneNumber %>" target="_blank" class="block text-center font-[Cairo] font-bold text-[20px] leading-[140%] tracking-normal text-[#2A4759] underline decoration-solid decoration-1">
-        <%= technician.phoneNumber %>
-      </a>
-      <a href="tel:<%= technician.phoneNumber %>" target="_blank" class="mt-4 mx-auto w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center rounded-full border-2 border-[#2A4759]">
-        <div class="bg-[#2A4759] w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center">
-          <i class="fa-solid fa-phone text-2xl sm:text-3xl text-white"></i>
-        </div>
-      </a>
-    </div>
-  <% } %>
+    <!-- Main Content -->
+    <div class="mx-4 md:mx-[104px] mt-3 sm:mt-5">
+      <div class="flex flex-col md:flex-row gap-4 sm:gap-6 items-stretch">
+        <% let imageName=technician.jobTechnicianPhoto || "default.png" ; %>
+          <img src="<%= imageName %>" alt="<%= technician.mainTitle %>"
+            class="rounded-xl w-full md:w-1/2 h-[265px] sm:h-[365px] md:h-[465px] object-cover" />
 
-  <% if (technician.jobName) { %>
-    <div class="mx-4 md:mx-[104px] mt-6 sm:mt-8">
-      <div class="description-text font-[Cairo] text-right text-[#222222] leading-[140%] text-[18px] sm:text-[20px]">
-        <%- technician.description.replace(/<img.*?>/g, "") %>
+          <div class="md:w-1/2 h-full flex flex-col justify-between overflow-hidden">
+            <h2
+              class="text-[#222222] text-2xl sm:text-[24px] md:text-[32px] font-bold mb-3 sm:mb-4 leading-snug md:leading-[1.6]">
+              <%= technician.jobName.name %>
+            </h2>
+
+            <div class="flex flex-col w-full max-w-[368px] sm:max-w-[604px] gap-[4.87px] sm:gap-4 h-auto sm:h-[auto]">
+              <div
+                class="description-text text-right font-regular text-[13px] sm:text-[20px] leading-[200%] text-[#5C5C5C] pr-2 sm:pr-0 max-h-[400px] sm:max-h-[600px] overflow-auto">
+                <%= technician.mainTitle %>
+              </div>
+            </div>
+
+
+            <div class="flex flex-row justify-center mx-auto gap-2 sm:gap-4 w-full max-w-[604px] mt-6 sm:mt-8 md:mt-12">
+              <% if (technician.phoneNumber) { %>
+                <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank" rel="noopener noreferrer"
+                  class="flex-1 max-w-[163px] sm:max-w-[272.25px]">
+                  <button
+                    class="bg-[#2A4759] flex items-center justify-center gap-1.5 text-white rounded-[10px] sm:rounded-[12px] w-full h-[38px] sm:h-[56px] px-4 py-2 sm:px-[30px] sm:py-3 border border-[#2A4759] hover:bg-[#1e3442] transition duration-300 text-xs sm:text-base">
+                    <i class="fab fa-whatsapp text-lg sm:text-xl"></i>
+                    <span>إرسال على واتساب</span>
+                  </button>
+                </a>
+                <% } %>
+
+                  <a href="/technicians/عرض-الاحياء/<%= technician.slug %>" rel="noopener noreferrer"
+                    class="flex-1 max-w-[163px] sm:max-w-[272.25px]">
+                    <button
+                      class="bg-white border border-[#2A4759] flex items-center justify-center gap-1.5 text-[#2A4759] hover:text-white rounded-[10px] sm:rounded-[12px] w-full h-[38px] sm:h-[56px] px-4 py-2 sm:px-[30px] sm:py-3 hover:bg-[#2A4759] transition duration-300 text-xs sm:text-base">
+                      <span>عرض الأحياء</span>
+                    </button>
+                  </a>
+            </div>
+          </div>
       </div>
     </div>
-  <% } %>
 
   <!-- footer -->
   <%- include("../layouts/footer") %>
@@ -167,4 +165,5 @@
 
 </div>
 </body>
+
 </html>

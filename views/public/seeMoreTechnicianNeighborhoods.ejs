@@ -1,164 +1,177 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" class="font-[Cairo]">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>كل الأحياء</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    body, p, h1, h2, h3, h4, h5, h6, a, button, input, textarea, label, div {
+    body,
+    p,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    a,
+    button,
+    input,
+    textarea,
+    label,
+    div {
       font-family: 'Cairo', sans-serif !important;
     }
   </style>
 </head>
+
 <body class="text-gray-800 flex flex-col min-h-screen">
 
   <!-- header -->
-<%- include("../layouts/header", { searchType: searchType }) %>
+  <%- include("../layouts/header", { searchType: searchType }) %>
 
-  <!-- Breadcrumb -->
-  <div class="bg-white mt-5">
-    <div class="mx-4 lg:mx-[104px] flex items-center">
-      <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
-        <i class="fa-solid fa-home text-xl sm:text-2xl ml-2 sm:ml-3"></i>
-      </a>
+    <!-- Breadcrumb -->
+    <div class="bg-white mt-5">
+      <div class="mx-4 lg:mx-[104px] flex items-center">
+        <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
+          <i class="fa-solid fa-home text-xl sm:text-2xl ml-2 sm:ml-3"></i>
+        </a>
 
-      <i class="fa-solid fa-chevron-left ml-2 sm:ml-3 mr-1 "></i>
+        <i class="fa-solid fa-chevron-left ml-2 sm:ml-3 mr-1 "></i>
 
-      <a href="/technicians" class="font-semibold text-[#2A4759] text-sm sm:text-base hover:text-[#406A84]">
-        عرض المزيد
-      </a>
+        <a href="/technicians" class="font-semibold text-[#2A4759] text-sm sm:text-base hover:text-[#406A84]">
+          عرض المزيد
+        </a>
 
-      <i class="fa-solid fa-chevron-left ml-2 sm:ml-3  mr-1"></i>
+        <i class="fa-solid fa-chevron-left ml-2 sm:ml-3  mr-1"></i>
 
-      <a href="/technicians/<%= encodeURIComponent(technician.mainTitle) %>" class="font-semibold text-[#2A4759] text-sm sm:text-base hover:text-[#406A84]">
-        <%= technician.jobName.name %>
-      </a>
+        <a href="/technicians/<%= encodeURIComponent(technician.mainTitle) %>"
+          class="font-semibold text-[#2A4759] text-sm sm:text-base hover:text-[#406A84]">
+          <%= technician.jobName.name %>
+        </a>
 
-      <i class="fa-solid fa-chevron-left ml-2 sm:ml-3  mr-1"></i>
+        <i class="fa-solid fa-chevron-left ml-2 sm:ml-3  mr-1"></i>
 
-      <span class="font-semibold text-[#B3AFAF] text-sm sm:text-base">عرض الأحياء</span>
+        <span class="font-semibold text-[#B3AFAF] text-sm sm:text-base">عرض الأحياء</span>
+      </div>
     </div>
-  </div>
 
-  <!-- Title + Desktop Search -->
-  <div class="bg-white py-4">
-    <div class="mx-4 lg:mx-[104px] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-      <div class="text-right lg:text-right">
-        <p class="text-[#2A4759] font-bold text-[20px] md:text-[24px] mb-2">
-          المناطق التي تتواجد بها خدماتنا
-        </p>
-        <p class="text-[#2A4759] text-[14px] md:text-[16px]">
-          خدماتنا حاليًا متاحة في مناطق متعددة داخل مدينة الرياض، ونسعد بخدمتكم دائمًا
-        </p>
+    <!-- Title + Desktop Search -->
+    <div class="bg-white py-4">
+      <div class="mx-4 lg:mx-[104px] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+        <div class="text-right lg:text-right">
+          <p class="text-[#2A4759] font-bold text-[20px] md:text-[24px] mb-2">
+            المناطق التي تتواجد بها خدماتنا
+          </p>
+          <p class="text-[#2A4759] text-[14px] md:text-[16px]">
+            خدماتنا حاليًا متاحة في مناطق متعددة داخل مدينة الرياض، ونسعد بخدمتكم دائمًا
+          </p>
+        </div>
+
+        <!-- Desktop Search -->
+        <form action="/technicians/<%= encodeURIComponent(technician.slug) %>/seeMoreTechnicianNeighborhoods"
+          method="GET" class="hidden lg:flex items-center w-full lg:w-1/3">
+          <div class="relative w-full">
+            <input type="text" id="search-desktop" name="search" value="<%= searchQuery || '' %>"
+              placeholder="ابحث عن حي"
+              class="w-full border border-gray-300 rounded-[12px] py-2 pr-8 pl-4 focus:outline-none focus:ring-2 focus:ring-[#2A4759]" />
+            <ul id="autocomplete-list-desktop" class="absolute z-50 bg-[#FAFAFA] w-full mt-1 rounded-lg"></ul>
+            <button type="submit"
+              class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 hover:text-[#2A4759]">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Cards -->
+    <div class="mx-4 lg:mx-[104px] py-8 flex-grow">
+      <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <% neighborhoodsWithJobs.forEach(({ neighborhood, job })=> { %>
+          <%- include('../partials/neighborhoodCard', { neighborhood, job }) %>
+            <% }) %>
       </div>
 
-      <!-- Desktop Search -->
-     <form action="/technicians/<%= encodeURIComponent(technician.mainTitle) %>/seeMoreTechnicianNeighborhoods" method="GET" class="hidden lg:flex items-center w-full lg:w-1/3">
-       <div class="relative w-full">
-          <input
-            type="text"
-            id="search-desktop"
-            name="search"
-            value="<%= searchQuery || '' %>"
-            placeholder="ابحث عن حي"
-            class="w-full border border-gray-300 rounded-[12px] py-2 pr-8 pl-4 focus:outline-none focus:ring-2 focus:ring-[#2A4759]"
-          />
-          <ul id="autocomplete-list-desktop" class="absolute z-50 bg-[#FAFAFA] w-full mt-1 rounded-lg"></ul>
-          <button type="submit" class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 hover:text-[#2A4759]">
-            <i class="fa-solid fa-magnifying-glass"></i>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Cards -->
-  <div class="mx-4 lg:mx-[104px] py-8 flex-grow">
-    <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-      <% neighborhoodsWithJobs.forEach(({ neighborhood, job }) => { %>
-        <%- include('../partials/neighborhoodCard', { neighborhood, job }) %>
-      <% }) %>
+      <!-- No results -->
+      <div id="no-results" class="hidden text-center py-10 text-gray-500">
+        <i class="fa-solid fa-circle-exclamation text-3xl mb-3 text-[#2A4759]"></i>
+        <p class="text-lg font-semibold">لا يوجد أحياء حسب بحثك</p>
+      </div>
     </div>
 
-    <!-- No results -->
-    <div id="no-results" class="hidden text-center py-10 text-gray-500">
-      <i class="fa-solid fa-circle-exclamation text-3xl mb-3 text-[#2A4759]"></i>
-      <p class="text-lg font-semibold">لا يوجد أحياء حسب بحثك</p>
-    </div>
-  </div>
+    <!-- footer -->
+    <%- include("../layouts/footer") %>
 
-  <!-- footer -->
-  <%- include("../layouts/footer") %>
+      <script>
+        // Autocomplete function
+        function setupAutocomplete(inputId, listId, data) {
+          const searchInput = document.getElementById(inputId);
+          const suggestionBox = document.getElementById(listId);
 
-  <script>
-    // Autocomplete function
-    function setupAutocomplete(inputId, listId, data) {
-      const searchInput = document.getElementById(inputId);
-      const suggestionBox = document.getElementById(listId);
-
-      if (searchInput) {
-        searchInput.addEventListener('input', () => {
-          const val = searchInput.value.toLowerCase();
-          suggestionBox.innerHTML = '';
-          if (!val) return;
-
-          const matches = data.filter(name => name.toLowerCase().includes(val));
-
-          matches.forEach(name => {
-            const li = document.createElement('li');
-            li.textContent = name;
-            li.className = "px-4 py-2 cursor-pointer hover:bg-gray-100";
-            li.addEventListener('click', () => {
-              searchInput.value = name;
+          if (searchInput) {
+            searchInput.addEventListener('input', () => {
+              const val = searchInput.value.toLowerCase();
               suggestionBox.innerHTML = '';
+              if (!val) return;
+
+              const matches = data.filter(name => name.toLowerCase().includes(val));
+
+              matches.forEach(name => {
+                const li = document.createElement('li');
+                li.textContent = name;
+                li.className = "px-4 py-2 cursor-pointer hover:bg-gray-100";
+                li.addEventListener('click', () => {
+                  searchInput.value = name;
+                  suggestionBox.innerHTML = '';
+                });
+                suggestionBox.appendChild(li);
+              });
             });
-            suggestionBox.appendChild(li);
-          });
-        });
 
-        document.addEventListener('click', (e) => {
-          if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
-            suggestionBox.innerHTML = '';
+            document.addEventListener('click', (e) => {
+              if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+                suggestionBox.innerHTML = '';
+              }
+            });
           }
-        });
-      }
-    }
-
-    const neighborhoods = JSON.parse('<%- JSON.stringify(neighborhoodsWithJobs.map(n => n.neighborhood.name)) %>');
-
-    // Desktop search
-    setupAutocomplete('search-desktop', 'autocomplete-list-desktop', neighborhoods);
-
-    // فلترة الكروت + no results
-    function handleSearch(inputId) {
-      const searchInput = document.getElementById(inputId);
-      const noResults = document.getElementById("no-results");
-      if (!searchInput) return;
-
-      searchInput.addEventListener("input", function () {
-        const query = this.value.toLowerCase();
-        let anyVisible = false;
-
-        document.querySelectorAll("#cards-container > div").forEach(card => {
-          const name = card.querySelector(".neighborhood-card-title")?.textContent.toLowerCase() || "";
-          if (name.includes(query)) {
-            card.style.display = "block";
-            anyVisible = true;
-          } else {
-            card.style.display = "none";
-          }
-        });
-
-        if (!anyVisible) {
-          noResults.classList.remove("hidden");
-        } else {
-          noResults.classList.add("hidden");
         }
-      });
-    }
+
+        const neighborhoods = JSON.parse('<%- JSON.stringify(neighborhoodsWithJobs.map(n => n.neighborhood.name)) %>');
+
+        // Desktop search
+        setupAutocomplete('search-desktop', 'autocomplete-list-desktop', neighborhoods);
+
+        // فلترة الكروت + no results
+        function handleSearch(inputId) {
+          const searchInput = document.getElementById(inputId);
+          const noResults = document.getElementById("no-results");
+          if (!searchInput) return;
+
+          searchInput.addEventListener("input", function () {
+            const query = this.value.toLowerCase();
+            let anyVisible = false;
+
+            document.querySelectorAll("#cards-container > div").forEach(card => {
+              const name = card.querySelector(".neighborhood-card-title")?.textContent.toLowerCase() || "";
+              if (name.includes(query)) {
+                card.style.display = "block";
+                anyVisible = true;
+              } else {
+                card.style.display = "none";
+              }
+            });
+
+            if (!anyVisible) {
+              noResults.classList.remove("hidden");
+            } else {
+              noResults.classList.add("hidden");
+            }
+          });
+        }
 
     // فعل السيرش
     handleSearch("search-desktop");
@@ -187,4 +200,5 @@
 
 </div>
 </body>
+
 </html>

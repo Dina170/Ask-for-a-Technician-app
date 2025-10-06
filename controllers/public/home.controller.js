@@ -19,7 +19,7 @@ exports.getHomePage = async (req, res) => {
 
     const uniqueTechnicians = await Technician.aggregate([
       { $group: { _id: "$mainTitle", mainTitle: { $first: "$mainTitle" } } },
-      { $sort: { _id: 1 } }
+      { $sort: { _id: 1 } },
     ]);
 
     const uniqueNeighborhoods = await Technician.aggregate([
@@ -33,8 +33,13 @@ exports.getHomePage = async (req, res) => {
         },
       },
       { $unwind: "$neighborhoodInfo" },
-      { $group: { _id: "$neighborhoodInfo.name", name: { $first: "$neighborhoodInfo.name" } } },
-      { $sort: { name: 1 } }
+      {
+        $group: {
+          _id: "$neighborhoodInfo.name",
+          name: { $first: "$neighborhoodInfo.name" },
+        },
+      },
+      { $sort: { name: 1 } },
     ]);
 
     const jobId = req.query.jobId || "";
@@ -43,7 +48,8 @@ exports.getHomePage = async (req, res) => {
 
     const query = {};
     if (jobId) query.jobName = jobId;
-    if (technician.trim()) query.mainTitle = { $regex: technician.trim(), $options: "i" };
+    if (technician.trim())
+      query.mainTitle = { $regex: technician.trim(), $options: "i" };
 
     const techniciansRaw = await Technician.find(query)
       .populate("jobName")
@@ -67,14 +73,13 @@ exports.getHomePage = async (req, res) => {
       selectedJobId: jobId || "",
       searchType: "technician",
       blogs,
-      getSlug
+      getSlug,
     });
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
   }
 };
-
 
 exports.autocompleteTechnicians = async (req, res) => {
   try {
@@ -85,16 +90,15 @@ exports.autocompleteTechnicians = async (req, res) => {
 
     if (type === "technician") {
       const jobResults = await Job.find({
-        name: { $regex: search, $options: "i" }
+        name: { $regex: search, $options: "i" },
       })
         .select("name")
         .limit(10)
         .lean();
 
-      const uniqueJobs = [...new Set(jobResults.map(j => j.name))];
+      const uniqueJobs = [...new Set(jobResults.map((j) => j.name))];
 
-      return res.json(uniqueJobs.map(name => ({ jobName: { name } })));
-
+      return res.json(uniqueJobs.map((name) => ({ jobName: { name } })));
     } else if (type === "neighborhood") {
   const neighborhoodResults = await Technician.aggregate([
     { $unwind: "$neighborhoodNames" },
@@ -121,13 +125,11 @@ exports.autocompleteTechnicians = async (req, res) => {
     } else {
       return res.status(400).json({ error: "Invalid type parameter" });
     }
-
   } catch (err) {
     console.error("Autocomplete error:", err);
     res.status(500).send("Internal Server Error");
   }
 };
-
 
 exports.autocompletePosts = async (req, res) => {
   try {
@@ -136,10 +138,13 @@ exports.autocompletePosts = async (req, res) => {
 
     const searchRegex = new RegExp(search.split(" ").join("|"), "i");
     const posts = await Post.find({
-      $or: [{ title: { $regex: searchRegex } }, { name: { $regex: searchRegex } }],
+      $or: [
+        { title: { $regex: searchRegex } },
+        { name: { $regex: searchRegex } },
+      ],
     })
-    .select("title name permaLink content") 
-    .limit(10);
+      .select("title name permaLink content")
+      .limit(10);
 
     const formattedPosts = posts.map((post) => ({
       _id: post._id,
@@ -147,31 +152,39 @@ exports.autocompletePosts = async (req, res) => {
       name: post.name || "",
       permaLink: post.permaLink,
       content: post.content || "",
-      displayText: post.title && post.name 
-        ? `${post.title} - ${post.name}`
-        : post.title || post.name || "بدون عنوان"
+      displayText:
+        post.title && post.name
+          ? `${post.title} - ${post.name}`
+          : post.title || post.name || "بدون عنوان",
     }));
 
     return res.json(formattedPosts);
-    
   } catch (err) {
     console.error("Autocomplete error:", err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-
 exports.getAllBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find({});
     if (!blogs.length) {
-      return res.render("public/blogPosts", { posts: [], blog: { blog: "لا توجد مدونات" }, getSlug });
+      return res.render("public/blogPosts", {
+        posts: [],
+        blog: { blog: "لا توجد مدونات" },
+        getSlug,
+      });
     }
 
-    const blog = blogs[0]; 
+    const blog = blogs[0];
     const posts = await Post.find({ blog: blog._id }).sort({ createdAt: -1 });
 
-    res.render("public/blogPosts", { posts, blog,searchType: "blog", getSlug });
+    res.render("public/blogPosts", {
+      posts,
+      blog,
+      searchType: "blog",
+      getSlug,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send("حدث خطأ في جلب المقالات");
@@ -185,10 +198,18 @@ exports.getBlogPosts = async (req, res) => {
 const blog = blogs.find((b) => b.blog === decodedSlug);
 
 
-    if (!blog) return res.status(404).render("public/404", { message: "Blog not found" });
+    if (!blog)
+      return res
+        .status(404)
+        .render("public/404", { message: "Blog not found" });
 
     const posts = await Post.find({ blog: blog._id }).sort({ createdAt: -1 });
-    res.render("public/blogPosts", { blog, posts, searchType: "blog", getSlug });
+    res.render("public/blogPosts", {
+      blog,
+      posts,
+      searchType: "blog",
+      getSlug,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error");
@@ -197,18 +218,18 @@ const blog = blogs.find((b) => b.blog === decodedSlug);
 
 exports.getPostDetails = async (req, res) => {
   try {
-    const permaLink = req.params.slug;
+    const slug = req.params.slug;
 
-    const post = await Post.findOne({ permaLink }).populate("blog");
+    const post = await Post.findOne({ slug }).populate("blog");
     if (!post) return res.status(404).send("Post not found");
 
     const blogs = await Blog.find({});
 
-    res.render("public/postDetails", { 
-      post, 
-      blogs,  
+    res.render("public/postDetails", {
+      post,
+      blogs,
       searchType: "blog",
-      getSlug 
+      getSlug,
     });
   } catch (err) {
     console.error(err);
@@ -216,11 +237,10 @@ exports.getPostDetails = async (req, res) => {
   }
 };
 
-
 exports.getPrivacyPolicy = async (req, res) => {
   try {
     const blogs = await Blog.find({});
-    res.render("public/privacyPolicy", { blogs,searchType: "blog", getSlug });
+    res.render("public/privacyPolicy", { blogs, searchType: "blog", getSlug });
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
