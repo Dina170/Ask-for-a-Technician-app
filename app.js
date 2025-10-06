@@ -35,20 +35,6 @@ mongoose
   .then(async () => {
     console.log("✅ Connected to MongoDB");
     await seedAdmin();
-    const posts = await post.find();
-
-    for (const post of posts) {
-      if (post.permaLink && post.permaLink.includes("-")) {
-        const oldLink = post.permaLink;
-        post.permaLink = post.permaLink.replace(/-/g, " ");
-        console.log(`🔄 Updated: "${oldLink}" → "${post.permaLink}"`);
-      }
-      if (!post.slug) {
-        post.slug = post.name.trim().replace(/\s+/g, "-");
-        console.log(`📝 Added slug for: ${post.name} → ${post.slug}`);
-      }
-      await post.save();
-    }
   })
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
