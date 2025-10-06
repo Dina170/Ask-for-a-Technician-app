@@ -206,7 +206,7 @@ exports.getPostDetails = async (req, res) => {
 
     res.render("public/postDetails", { 
       post, 
-      blogs,  
+      blog: post.blog,
       searchType: "blog",
       getSlug 
     });
