@@ -35,26 +35,6 @@ mongoose
   .then(async () => {
     console.log("✅ Connected to MongoDB");
     await seedAdmin();
-    const technicians = await technician.find({});
-    for (const tech of technicians) {
-      if (!tech.slug) {
-        tech.slug = tech.mainTitle.trim().replace(/\s+/g, "-");
-        await tech.save();
-        console.log(`✅ Technician updated: ${tech.mainTitle} → ${tech.slug}`);
-      }
-    }
-
-    // --- Update Posts ---
-    const posts = await post.find({});
-    for (const post of posts) {
-      // normalize permalink (in case admin entered spaces)
-      const cleaned = post.permaLink.trim().replace(/\s+/g, "-");
-      if (post.permaLink !== cleaned) {
-        post.permaLink = cleaned;
-        await post.save();
-        console.log(`✅ Post updated: ${post.title} → ${post.permaLink}`);
-      }
-    }
   })
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
