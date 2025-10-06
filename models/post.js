@@ -8,4 +8,12 @@ const PostSchema = new Schema({
   content: { type: String, required: true },
 });
 
+PostSchema.pre("save", function (next) {
+  if (this.isModified("permaLink")) {
+    this.permaLink = this.permaLink.trim().replace(/\s+/g, "-");
+  }
+
+  next();
+});
+
 module.exports = model("Post", PostSchema);

@@ -26,6 +26,8 @@ const publicTechnicianRouter = require("./routes/public/technician.route");
 const authRouter = require("./routes/auth/auth.route");
 
 const loadBlogs = require("./middlewares/loadBlogs");
+const technician = require("./models/technician");
+const post = require("./models/post");
 
 // Connect to MongoDB
 mongoose
@@ -33,6 +35,26 @@ mongoose
   .then(async () => {
     console.log("✅ Connected to MongoDB");
     await seedAdmin();
+    const technicians = await technician.find({});
+    for (const tech of technicians) {
+      if (!tech.slug) {
+        tech.slug = tech.mainTitle.trim().replace(/\s+/g, "-");
+        await tech.save();
+        console.log(`✅ Technician updated: ${tech.mainTitle} → ${tech.slug}`);
+      }
+    }
+
+    // --- Update Posts ---
+    const posts = await post.find({});
+    for (const post of posts) {
+      // normalize permalink (in case admin entered spaces)
+      const cleaned = post.permaLink.trim().replace(/\s+/g, "-");
+      if (post.permaLink !== cleaned) {
+        post.permaLink = cleaned;
+        await post.save();
+        console.log(`✅ Post updated: ${post.title} → ${post.permaLink}`);
+      }
+    }
   })
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
@@ -63,15 +85,14 @@ app.use(
 // Middleware: إضافة رقم أول فني بشكل جلوبال للفيوز
 app.use(async (req, res, next) => {
   try {
-    const technician = await Technician.findOne(); 
-    res.locals.mainPhone = technician ? technician.phoneNumber : "05075813050"; 
+    const technician = await Technician.findOne();
+    res.locals.mainPhone = technician ? technician.phoneNumber : "05075813050";
   } catch (err) {
     console.error("Error fetching technician:", err);
-    res.locals.mainPhone = "05075813050"; 
+    res.locals.mainPhone = "05075813050";
   }
   next();
 });
-
 
 // app.use(
 //   session({
