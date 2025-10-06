@@ -21,9 +21,18 @@ const TechnicianSchema = new mongoose.Schema({
   },
 });
 
-TechnicianSchema.pre("save", function (next) {
-  if (this.isModified("mainTitle")) {
-    this.slug = this.mainTitle.trim().replace(/\s+/g, "-");
+TechnicianSchema.pre("save", async function (next) {
+  if (this.isModified("jobName") || !this.slug) {
+    try {
+      const Job = mongoose.model("Job");
+      const job = await Job.findById(this.jobName);
+
+      if (job && job.name) {
+        this.slug = job.name.trim().replace(/\s+/g, "-");
+      }
+    } catch (err) {
+      console.error("Error generating slug from jobName:", err);
+    }
   }
   next();
 });
