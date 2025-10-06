@@ -9,10 +9,10 @@ router.use((req, res, next) => {
 
 router.get("/", techController.getAllTechnicians);
 router.get(
-  "/:title/seeMoreTechnicianNeighborhoods",
+  "/:slug/seeMoreTechnicianNeighborhoods",
   techController.getSeeMoreTechnicianNeighborhoods
 );
-router.get("/:title/details", techController.getTechnicianDetails);
-router.get("/:title", techController.getTechnicianDetails);
+router.get("/:slug/details", techController.getTechnicianDetails);
+router.get("/:slug", techController.getTechnicianDetails);
 
 module.exports = router;

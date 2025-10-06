@@ -1,184 +1,199 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" class="font-[Cairo]">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>جميع الفنيين</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    body, p, h1, h2, h3, h4, h5, h6, a, button, input, textarea, label, div {
+    body,
+    p,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    a,
+    button,
+    input,
+    textarea,
+    label,
+    div {
       font-family: 'Cairo', sans-serif !important;
     }
+
     .line-clamp-3 {
       display: -webkit-box;
       -webkit-box-orient: vertical;
-      -webkit-line-clamp: 3; 
+      -webkit-line-clamp: 3;
       overflow: hidden;
     }
   </style>
 </head>
+
 <body class="text-gray-800 flex flex-col min-h-screen">
 
   <!-- header -->
-<%- include("../layouts/header", { searchType: searchType }) %>
+  <%- include("../layouts/header", { searchType: searchType }) %>
 
-  <!-- Breadcrumb -->
-  <div class="bg-white py-4">
-    <div class="mx-4 md:mx-[104px] flex items-center justify-between">
-      <div class="flex items-center">
-        <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
-          <i class="fa-solid fa-home text-2xl ml-3"></i>
-        </a>
-        <i class="fa-solid fa-chevron-left ml-3"></i>
-        <span class="font-semibold text-[#B7BDC2]">عرض الفنيين</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Title + Desktop Search -->
-  <div class="bg-white py-4">
-    <div class="mx-4 md:mx-[104px] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-      <div class="text-right lg:text-right">
-        <p class="text-[#2A4759] font-bold text-[20px] md:text-[24px] mb-2">
-          الفنيون المتاحون الآن في مدينة الرياض
-        </p>
-        <p class="text-[#2A4759] text-[14px] md:text-[16px]">
-          فنيونا متواجدون حاليًا في مناطق متعددة داخل مدينة الرياض، ونسعد دائمًا بخدمتكم
-        </p>
-      </div>
-
-      <!-- Desktop Search -->
-      <form action="/technicians" method="GET" class="hidden lg:flex items-center w-full lg:w-1/3">
-        <div class="relative w-full">
-          <input
-            type="text"
-            id="search-desktop"
-            name="search"
-            value="<%= search || '' %>"
-            placeholder="ابحث عن فني"
-            class="w-full border border-gray-300 rounded-[12px] py-2 pr-8 pl-4 focus:outline-none focus:ring-2 focus:ring-[#2A4759]"
-          />
-          <ul id="autocomplete-list-desktop" class="absolute z-50 bg-[#FAFAFA] w-full mt-1 rounded-lg"></ul>
-          <button type="submit" class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 hover:text-[#2A4759]">
-            <i class="fa-solid fa-magnifying-glass"></i>
-          </button>
+    <!-- Breadcrumb -->
+    <div class="bg-white py-4">
+      <div class="mx-4 md:mx-[104px] flex items-center justify-between">
+        <div class="flex items-center">
+          <a href="/" class="text-[#2A4759] hover:text-[#406A84]">
+            <i class="fa-solid fa-home text-2xl ml-3"></i>
+          </a>
+          <i class="fa-solid fa-chevron-left ml-3"></i>
+          <span class="font-semibold text-[#B7BDC2]">عرض الفنيين</span>
         </div>
-      </form>
+      </div>
     </div>
-  </div>
 
-  <!-- Cards -->
-  <div class="mx-4 md:mx-[104px] py-8 flex-grow">
-    <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <% technicians.forEach(tech => { %>
-        <div class="technician-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative flex flex-col">
-          <div class="relative h-48">
-            <img src="<%= tech.jobTechnicianPhoto %>" 
-                 alt="<%= tech.jobName.name %>" 
-                 class="w-full h-full object-cover" />
+    <!-- Title + Desktop Search -->
+    <div class="bg-white py-4">
+      <div class="mx-4 md:mx-[104px] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+        <div class="text-right lg:text-right">
+          <p class="text-[#2A4759] font-bold text-[20px] md:text-[24px] mb-2">
+            الفنيون المتاحون الآن في مدينة الرياض
+          </p>
+          <p class="text-[#2A4759] text-[14px] md:text-[16px]">
+            فنيونا متواجدون حاليًا في مناطق متعددة داخل مدينة الرياض، ونسعد دائمًا بخدمتكم
+          </p>
+        </div>
+
+        <!-- Desktop Search -->
+        <form action="/technicians" method="GET" class="hidden lg:flex items-center w-full lg:w-1/3">
+          <div class="relative w-full">
+            <input type="text" id="search-desktop" name="search" value="<%= search || '' %>" placeholder="ابحث عن فني"
+              class="w-full border border-gray-300 rounded-[12px] py-2 pr-8 pl-4 focus:outline-none focus:ring-2 focus:ring-[#2A4759]" />
+            <ul id="autocomplete-list-desktop" class="absolute z-50 bg-[#FAFAFA] w-full mt-1 rounded-lg"></ul>
+            <button type="submit"
+              class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 hover:text-[#2A4759]">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
           </div>
-          <div class="card-body p-4 flex flex-col flex-1">
-            <h3 class="tech-name text-[18px] font-bold text-[#222222] mb-2"><%= tech.jobName.name %></h3>
-          <p class="text-[#5C5C5C] font-normal text-[14px] leading-[200%] mb-5 break-words whitespace-normal overflow-hidden line-clamp-2 md:text-[16px] md:leading-[140%]">
-              <%- tech.mainTitle.replace(/<img.*?>/g, "").replace(/<[^>]+>/g, "").substring(0, 200) %>...
-            </p>
-            <div class="mt-auto flex gap-2">
-              <a href="/technicians/<%= tech.mainTitle %>/details" 
-                 class="flex-1 bg-[#2A4759] text-white text-sm text-center h-12 flex items-center justify-center rounded-lg hover:opacity-80 transition-opacity duration-200">
-                عرض المزيد
-              </a>
+        </form>
+      </div>
+    </div>
+
+    <!-- Cards -->
+    <div class="mx-4 md:mx-[104px] py-8 flex-grow">
+      <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% technicians.forEach(tech=> { %>
+          <div
+            class="technician-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative flex flex-col">
+            <div class="relative h-48">
+              <img src="<%= tech.jobTechnicianPhoto %>" alt="<%= tech.jobName.name %>"
+                class="w-full h-full object-cover" />
+            </div>
+            <div class="card-body p-4 flex flex-col flex-1">
+              <h3 class="tech-name text-[18px] font-bold text-[#222222] mb-2">
+                <%= tech.jobName.name %>
+              </h3>
+              <p
+                class="text-[#5C5C5C] font-normal text-[14px] leading-[200%] mb-5 break-words whitespace-normal overflow-hidden line-clamp-2 md:text-[16px] md:leading-[140%]">
+                <%- tech.mainTitle.replace(/<img.*?>/g, "").replace(/<[^>]+>/g, "").substring(0, 200) %>...
+              </p>
+              <div class="mt-auto flex gap-2">
+                <a href="/technicians/<%= tech.slug %>/details"
+                  class="flex-1 bg-[#2A4759] text-white text-sm text-center h-12 flex items-center justify-center rounded-lg hover:opacity-80 transition-opacity duration-200">
+                  عرض المزيد
+                </a>
+              </div>
             </div>
           </div>
-        </div>
-      <% }) %>
+          <% }) %>
+      </div>
+
+      <!-- No results -->
+      <div id="no-results" class="hidden text-center py-10 text-gray-500">
+        <i class="fa-solid fa-circle-exclamation text-3xl mb-3 text-[#2A4759]"></i>
+        <p class="text-lg font-semibold">لا يوجد فنيين حسب بحثك</p>
+      </div>
     </div>
 
-    <!-- No results -->
-    <div id="no-results" class="hidden text-center py-10 text-gray-500">
-      <i class="fa-solid fa-circle-exclamation text-3xl mb-3 text-[#2A4759]"></i>
-      <p class="text-lg font-semibold">لا يوجد فنيين حسب بحثك</p>
-    </div>
-  </div>
+    <!-- footer full width -->
+    <footer class=" w-full">
+      <%- include("../layouts/footer") %>
+    </footer>
 
-  <!-- footer full width -->
-  <footer class=" w-full">
-    <%- include("../layouts/footer") %>
-  </footer>
+    <script>
+      // Autocomplete function
+      function setupAutocomplete(inputId, listId) {
+        const searchInput = document.getElementById(inputId);
+        const suggestionBox = document.getElementById(listId);
 
-  <script>
-    // Autocomplete function
-    function setupAutocomplete(inputId, listId) {
-      const searchInput = document.getElementById(inputId);
-      const suggestionBox = document.getElementById(listId);
-
-      if (searchInput) {
-        searchInput.addEventListener('input', async () => {
-          const query = searchInput.value.trim();
-          suggestionBox.innerHTML = '';
-          if (query.length === 0) return;
-
-          try {
-            const res = await fetch(`/autocomplete?q=${encodeURIComponent(query)}&type=technician`, {
-              headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            const suggestions = await res.json();
-
-            suggestions.forEach(tech => {
-  const li = document.createElement('li');
-  li.textContent = tech.jobName?.name || ""; 
-  li.className = "px-4 py-2 cursor-pointer hover:bg-gray-100";
-  li.addEventListener('click', () => {
-    searchInput.value = tech.jobName?.name || "";
-    suggestionBox.innerHTML = '';
-  });
-  suggestionBox.appendChild(li);
-});
-
-          } catch (err) {
-            console.error("Autocomplete fetch error:", err);
-          }
-        });
-
-        document.addEventListener('click', (e) => {
-          if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+        if (searchInput) {
+          searchInput.addEventListener('input', async () => {
+            const query = searchInput.value.trim();
             suggestionBox.innerHTML = '';
+            if (query.length === 0) return;
+
+            try {
+              const res = await fetch(`/autocomplete?q=${encodeURIComponent(query)}&type=technician`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+              });
+              const suggestions = await res.json();
+
+              suggestions.forEach(tech => {
+                const li = document.createElement('li');
+                li.textContent = tech.jobName?.name || "";
+                li.className = "px-4 py-2 cursor-pointer hover:bg-gray-100";
+                li.addEventListener('click', () => {
+                  searchInput.value = tech.jobName?.name || "";
+                  suggestionBox.innerHTML = '';
+                });
+                suggestionBox.appendChild(li);
+              });
+
+            } catch (err) {
+              console.error("Autocomplete fetch error:", err);
+            }
+          });
+
+          document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+              suggestionBox.innerHTML = '';
+            }
+          });
+        }
+      }
+
+      setupAutocomplete('search-desktop', 'autocomplete-list-desktop');
+
+      function handleSearch(inputId) {
+        const searchInput = document.getElementById(inputId);
+        const noResults = document.getElementById("no-results");
+        if (!searchInput) return;
+
+        searchInput.addEventListener("input", function () {
+          const query = this.value.toLowerCase();
+          let anyVisible = false;
+
+          document.querySelectorAll(".technician-card").forEach(card => {
+            const name = card.querySelector(".tech-name").textContent.toLowerCase();
+            if (name.includes(query)) {
+              card.style.display = "block";
+              anyVisible = true;
+            } else {
+              card.style.display = "none";
+            }
+          });
+
+          if (!anyVisible) {
+            noResults.classList.remove("hidden");
+          } else {
+            noResults.classList.add("hidden");
           }
         });
       }
-    }
 
-    setupAutocomplete('search-desktop', 'autocomplete-list-desktop');
-
-    function handleSearch(inputId) {
-      const searchInput = document.getElementById(inputId);
-      const noResults = document.getElementById("no-results");
-      if (!searchInput) return;
-
-      searchInput.addEventListener("input", function () {
-        const query = this.value.toLowerCase();
-        let anyVisible = false;
-
-        document.querySelectorAll(".technician-card").forEach(card => {
-          const name = card.querySelector(".tech-name").textContent.toLowerCase();
-          if (name.includes(query)) {
-            card.style.display = "block";
-            anyVisible = true;
-          } else {
-            card.style.display = "none";
-          }
-        });
-
-        if (!anyVisible) {
-          noResults.classList.remove("hidden");
-        } else {
-          noResults.classList.add("hidden");
-        }
-      });
-    }
-
-    handleSearch("search-desktop");
-  </script>
+      handleSearch("search-desktop");
+    </script>
 </body>
+
 </html>

@@ -87,7 +87,7 @@ exports.getNeighborhoodDetails = async (req, res) => {
 
 exports.getTechnicianDetails = async (req, res) => {
   try {
-    const technician = await Technician.findOne({ mainTitle: req.params.title })
+    const technician = await Technician.findOne({ slug: req.params.slug })
       .populate("jobName")
       .populate("neighborhoodNames");
 
@@ -96,7 +96,12 @@ exports.getTechnicianDetails = async (req, res) => {
     const job = technician.jobName || null;
 
     const common = await getCommonData();
-    res.render("public/technicianDetails", { technician, job,searchType: "technician", ...common });
+    res.render("public/technicianDetails", {
+      technician,
+      job,
+      searchType: "technician",
+      ...common,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
@@ -125,17 +130,22 @@ exports.getAllTechnicians = async (req, res) => {
 
     const regex = new RegExp(search, "i");
 
-    const matchingJobs = await Job.find({ name: { $regex: regex } }).select("_id").lean();
-    const jobIds = matchingJobs.map(j => j._id);
+    const matchingJobs = await Job.find({ name: { $regex: regex } })
+      .select("_id")
+      .lean();
+    const jobIds = matchingJobs.map((j) => j._id);
 
-    const matchingNeighborhoods = await Neighborhood.find({ name: { $regex: regex } }).select("_id").lean();
-    const neighborhoodIds = matchingNeighborhoods.map(n => n._id);
+    const matchingNeighborhoods = await Neighborhood.find({
+      name: { $regex: regex },
+    })
+      .select("_id")
+      .lean();
+    const neighborhoodIds = matchingNeighborhoods.map((n) => n._id);
 
-    const orConditions = [
-      { mainTitle: { $regex: regex } } 
-    ];
+    const orConditions = [{ mainTitle: { $regex: regex } }];
     if (jobIds.length) orConditions.push({ jobName: { $in: jobIds } });
-    if (neighborhoodIds.length) orConditions.push({ neighborhoodNames: { $in: neighborhoodIds } });
+    if (neighborhoodIds.length)
+      orConditions.push({ neighborhoodNames: { $in: neighborhoodIds } });
 
     const query = { $or: orConditions };
 
@@ -143,10 +153,13 @@ exports.getAllTechnicians = async (req, res) => {
       .populate("jobName")
       .populate("neighborhoodNames");
 
-    if (req.xhr || (req.headers.accept && req.headers.accept.indexOf("json") > -1)) {
-      const suggestions = technicians.map(t => ({
+    if (
+      req.xhr ||
+      (req.headers.accept && req.headers.accept.indexOf("json") > -1)
+    ) {
+      const suggestions = technicians.map((t) => ({
         id: t._id,
-        display: (t.jobName && t.jobName.name) ? t.jobName.name : t.mainTitle,
+        display: t.jobName && t.jobName.name ? t.jobName.name : t.mainTitle,
       }));
       return res.json(suggestions);
     }
@@ -170,14 +183,13 @@ exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
     const searchQuery = req.query.search?.trim().toLowerCase() || "";
 
     // لو فيه searchQuery على حي
-  
-      let tech = await Technician.findOne({ mainTitle: req.params.title })
-  .populate("jobName")
-  .populate({
-    path: "neighborhoodNames",
-     select: "name neighborhoodPhoto" 
-  });
 
+    let tech = await Technician.findOne({ slug: req.params.slug })
+      .populate("jobName")
+      .populate({
+        path: "neighborhoodNames",
+        select: "name neighborhoodPhoto",
+      });
 
     if (!tech) {
       return res.status(404).send("Technician not found");
