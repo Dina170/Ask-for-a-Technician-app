@@ -141,5 +141,30 @@
 
   <!-- footer -->
   <%- include("../layouts/footer") %>
+
+
+  <!-- Floating Contact Buttons -->
+<div
+  class="fixed right-4 bottom-4 flex flex-row sm:flex-col gap-3 z-50 sm:right-6 sm:bottom-6"
+>
+  
+  <!-- Phone -->
+  <a
+    href="tel:<%= mainPhone %>"
+    class="bg-[#2A4759] hover:bg-[#1e3542] text-white p-3 sm:p-4 rounded-full shadow-lg transition transform hover:scale-110 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14"
+  >
+    <i class="fa-solid fa-phone text-base sm:text-lg"></i>
+  </a>
+
+  <!-- WhatsApp -->
+  <a
+    href="https://wa.me/<%= mainPhone %>"
+    target="_blank"
+    class="bg-green-500 hover:bg-green-600 text-white p-3 sm:p-4 rounded-full shadow-lg transition transform hover:scale-110 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14"
+  >
+    <i class="fab fa-whatsapp text-lg sm:text-xl"></i>
+  </a>
+
+</div>
 </body>
 </html>
