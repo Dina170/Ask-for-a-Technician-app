@@ -35,22 +35,6 @@ mongoose
   .then(async () => {
     console.log("✅ Connected to MongoDB");
     await seedAdmin();
-    const technicians = await Technician.find().populate("jobName");
-
-    for (const tech of technicians) {
-      if (tech.jobName && tech.jobName.name) {
-        const newSlug = tech.jobName.name.trim().replace(/\s+/g, "-");
-        tech.slug = newSlug;
-        await tech.save();
-        console.log(`✅ Updated ${tech.mainTitle} → ${newSlug}`);
-      } else {
-        console.log(
-          `⚠️ Skipped technician ${tech.mainTitle} (no job name found)`
-        );
-      }
-    }
-
-    console.log("🎉 All slugs updated successfully!");
   })
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
