@@ -183,48 +183,50 @@ exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
     const searchQuery = req.query.search?.trim().toLowerCase() || "";
 
     // لو فيه searchQuery على حي
-
-    let tech = await Technician.findOne({ slug: req.params.slug })
-      .populate("jobName")
-      .populate({
-        path: "neighborhoodNames",
-        select: "name neighborhoodPhoto",
-      });
-
-    if (!tech) {
-      return res.status(404).send("Technician not found");
-    }
-
-    // فلترة الأحياء
-    let filteredNeighborhoods = tech.neighborhoodNames;
-    if (searchQuery) {
-      filteredNeighborhoods = filteredNeighborhoods.filter(
-        (neigh) => neigh.name && neigh.name.toLowerCase().includes(searchQuery)
-      );
-    }
-
-    const neighborhoodsWithJobs = await Promise.all(
-      filteredNeighborhoods.map(async (neigh) => {
-        const job = await Job.findOne({
-          name: tech.jobName.name,
-          neighborhoodName: neigh._id,
+    if (decodeURIComponent(req.params.section) === "عرض-الاحياء") {
+      let tech = await Technician.findOne({ slug: req.params.slug })
+        .populate("jobName")
+        .populate({
+          path: "neighborhoodNames",
+          select: "name neighborhoodPhoto",
         });
-        return {
-          neighborhood: neigh,
-          job: job || null,
-        };
-      })
-    );
 
-    const common = await getCommonData();
-    res.render("public/seeMoreTechnicianNeighborhoods", {
-      technician: tech,
-      neighborhoodsWithJobs,
-      searchQuery,
-      type: "neighborhoods",
-      searchType: "neighborhood",
-      ...common,
-    });
+      if (!tech) {
+        return res.status(404).send("Technician not found");
+      }
+
+      // فلترة الأحياء
+      let filteredNeighborhoods = tech.neighborhoodNames;
+      if (searchQuery) {
+        filteredNeighborhoods = filteredNeighborhoods.filter(
+          (neigh) =>
+            neigh.name && neigh.name.toLowerCase().includes(searchQuery)
+        );
+      }
+
+      const neighborhoodsWithJobs = await Promise.all(
+        filteredNeighborhoods.map(async (neigh) => {
+          const job = await Job.findOne({
+            name: tech.jobName.name,
+            neighborhoodName: neigh._id,
+          });
+          return {
+            neighborhood: neigh,
+            job: job || null,
+          };
+        })
+      );
+
+      const common = await getCommonData();
+      res.render("public/seeMoreTechnicianNeighborhoods", {
+        technician: tech,
+        neighborhoodsWithJobs,
+        searchQuery,
+        type: "neighborhoods",
+        searchType: "neighborhood",
+        ...common,
+      });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");

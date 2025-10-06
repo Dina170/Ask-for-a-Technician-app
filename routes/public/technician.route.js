@@ -8,11 +8,8 @@ router.use((req, res, next) => {
 });
 
 router.get("/", techController.getAllTechnicians);
-router.get(
-  "/:slug/seeMoreTechnicianNeighborhoods",
-  techController.getSeeMoreTechnicianNeighborhoods
-);
 router.get("/:slug/details", techController.getTechnicianDetails);
 router.get("/:slug", techController.getTechnicianDetails);
+router.get("/:slug/:section", techController.getSeeMoreTechnicianNeighborhoods);
 
 module.exports = router;
