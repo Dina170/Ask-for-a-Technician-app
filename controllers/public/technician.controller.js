@@ -85,23 +85,192 @@ exports.getNeighborhoodDetails = async (req, res) => {
   }
 };
 
+// exports.getTechnicianDetails = async (req, res) => {
+//   try {
+//     const technician = await Technician.findOne({ mainTitle: req.params.title })
+//       .populate("jobName")
+//       .populate("neighborhoodNames");
+
+//     if (!technician) return res.status(404).send("Technician not found");
+
+//     const job = technician.jobName || null;
+
+//     const common = await getCommonData();
+//     res.render("public/technicianDetails", { technician, job,searchType: "technician", ...common });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Internal Server Error");
+//   }
+// };
+
 exports.getTechnicianDetails = async (req, res) => {
   try {
-    const technician = await Technician.findOne({ mainTitle: req.params.title })
+    const jobNameParam = decodeURIComponent(req.params.title || "").trim();
+    const neighborhoodParam = req.query.neighborhood
+      ? decodeURIComponent(req.query.neighborhood.trim())
+      : null;
+
+    // ✅ نضمن وجود المتغيرات دي دايمًا (حتى لو فاضية)
+    let selectedJobId = "";
+    let selectedJobName = "";
+    let selectedNeighborhoodName = "";
+
+    // ✅ دايمًا بنجهز القوائم للسيلكت
+    const jobsList = await Job.find({}).lean();
+    const uniqueTechnicians = await Technician.aggregate([
+      { $group: { _id: "$mainTitle", mainTitle: { $first: "$mainTitle" } } },
+      { $sort: { _id: 1 } },
+    ]);
+    const uniqueNeighborhoods = await Neighborhood.find().select("name").lean();
+
+    // ✅ لو مفيش مهنة في الرابط (الصفحة أول مرة تتفتح)
+    if (!jobNameParam) {
+      const common = await getCommonData();
+      return res.render("landingpage/index", {
+        jobs: jobsList,
+        uniqueTechnicians,
+        uniqueNeighborhoods,
+        technicians: [],
+        technician: "",
+        neighborhood: "",
+        selectedJobId,
+        selectedJobName,
+        selectedNeighborhoodName,
+        searchType: "technician",
+        blogs: common.blogs,
+        getSlug,
+        message: "",
+        ...common,
+      });
+    }
+
+    // ✅ نحاول نلاقي المهنة سواء بالاسم أو الـ id
+    let job =
+      (mongoose.Types.ObjectId.isValid(jobNameParam)
+        ? await Job.findById(jobNameParam)
+        : await Job.findOne({ name: jobNameParam })) || null;
+
+    // لو المهنة مش موجودة
+    if (!job) {
+      const common = await getCommonData();
+      return res.render("landingpage/index", {
+        jobs: jobsList,
+        uniqueTechnicians,
+        uniqueNeighborhoods,
+        technicians: [],
+        technician: "",
+        neighborhood: "",
+        selectedJobId,
+        selectedJobName: jobNameParam,
+        selectedNeighborhoodName: neighborhoodParam || "",
+        searchType: "technician",
+        blogs: common.blogs,
+        getSlug,
+        message: `المهنة "${jobNameParam}" غير موجودة. من فضلك اختر مهنة أخرى.`,
+        ...common,
+      });
+    }
+
+    selectedJobId = job._id.toString();
+    selectedJobName = job.name;
+
+    // ✅ نحاول نجيب الحي لو متبعت
+    let neighborhood = null;
+    if (neighborhoodParam) {
+      neighborhood =
+        (mongoose.Types.ObjectId.isValid(neighborhoodParam)
+          ? await Neighborhood.findById(neighborhoodParam)
+          : await Neighborhood.findOne({ name: neighborhoodParam })) || null;
+
+      if (!neighborhood) {
+        const common = await getCommonData();
+        return res.render("landingpage/index", {
+          jobs: jobsList,
+          uniqueTechnicians,
+          uniqueNeighborhoods,
+          technicians: [],
+          technician: "",
+          neighborhood: neighborhoodParam,
+          selectedJobId,
+          selectedJobName,
+          selectedNeighborhoodName: neighborhoodParam,
+          searchType: "technician",
+          blogs: common.blogs,
+          getSlug,
+          message: `الحي "${neighborhoodParam}" غير موجود. اختر حيًا آخر.`,
+          ...common,
+        });
+      }
+
+      selectedNeighborhoodName = neighborhood.name;
+    }
+
+    // ✅ نجيب الفني بناء على المهنة + الحي (لو موجود)
+    const query = neighborhood
+      ? { jobName: job._id, neighborhoodNames: neighborhood._id }
+      : { jobName: job._id };
+
+    const technician = await Technician.findOne(query)
       .populate("jobName")
       .populate("neighborhoodNames");
 
-    if (!technician) return res.status(404).send("Technician not found");
+    if (!technician) {
+      const hasTechnician = await Technician.findOne({ jobName: job._id });
+      const common = await getCommonData();
 
-    const job = technician.jobName || null;
+      return res.render("landingpage/index", {
+        jobs: jobsList,
+        uniqueTechnicians,
+        uniqueNeighborhoods,
+        technicians: [],
+        technician: "",
+        neighborhood: neighborhood ? neighborhood.name : "",
+        selectedJobId,
+        selectedJobName,
+        selectedNeighborhoodName,
+        searchType: "technician",
+        blogs: common.blogs,
+        getSlug,
+        message: hasTechnician
+          ? `المهنة "${job.name}" غير متوفرة في الحي "${neighborhoodParam || "المحدد"}".`
+          : `لا يوجد أي فنيين حالياً للمهنة "${job.name}".`,
+        ...common,
+      });
+    }
 
+    // ✅ لو لقينا الفني فعلاً
     const common = await getCommonData();
-    res.render("public/technicianDetails", { technician, job,searchType: "technician", ...common });
+    return res.render("public/technicianDetails", {
+      technician,
+      job,
+      searchType: "technician",
+      ...common,
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Internal Server Error");
+    console.error("Error in getTechnicianDetails:", err);
+    const common = await getCommonData();
+    return res.render("landingpage/index", {
+      jobs: await Job.find({}),
+      uniqueTechnicians: [],
+      uniqueNeighborhoods: [],
+      technicians: [],
+      technician: "",
+      neighborhood: "",
+      selectedJobId: "",
+      selectedJobName: "",
+      selectedNeighborhoodName: "",
+      searchType: "technician",
+      blogs: common.blogs,
+      getSlug,
+      message: "حدث خطأ غير متوقع، برجاء المحاولة لاحقًا.",
+      ...common,
+    });
   }
 };
+
+
+
+
 
 exports.getAllTechnicians = async (req, res) => {
   try {

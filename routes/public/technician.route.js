@@ -13,6 +13,7 @@ router.get(
   techController.getSeeMoreTechnicianNeighborhoods
 );
 router.get("/:title/details", techController.getTechnicianDetails);
+
 router.get("/:title", techController.getTechnicianDetails);
 
 module.exports = router;
