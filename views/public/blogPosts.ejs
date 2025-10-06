@@ -95,40 +95,43 @@
           </p>
         </div>
         <% } else { %>
-        <% posts.forEach(post => {
-          const regex = /<img.*?src="(.*?)"/; 
-          const match = regex.exec(post.content || ""); 
-          const descriptionImage = match ? match[1] : '/uploads/posts/default.png'; 
-        %>
-        <div class="card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative flex flex-col">
-         <div class="relative w-full">
-  <img
-    src="<%= descriptionImage %>"
-    alt="<%= post.title || post.name %>"
-    class="w-full h-auto object-cover"
-  />
-</div>
+      <% posts.forEach(post => {
+  const regex = /<img.*?src="(.*?)"/;
+  const match = regex.exec(post.content || "");
+  const descriptionImage = match ? match[1] : '/uploads/posts/default.png';
+  const safeName = (post.name || post.title || "").replace(/"/g, '&quot;');
+%>
+  <div class="card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative flex flex-col"
+       data-permalink="<%= post.permaLink %>"
+       data-name="<%= safeName %>">
+    <div class="relative w-full">
+      <img
+        src="<%= descriptionImage %>"
+        alt="<%= safeName %>"
+        class="w-full h-auto object-cover"
+      />
+    </div>
 
-          <div class="card-body p-4 flex flex-col flex-1">
-            <h3 class="text-[18px] font-bold text-[#222222]">
-              <%= post.name || post.title %>
-            </h3>
-          <p class="text-[#5C5C5C] font-normal text-[14px] leading-[200%] mb-5 break-words whitespace-normal overflow-hidden line-clamp-2 md:text-[16px] md:leading-[140%]">
-  <%- post.content.replace(/<img.*?>/g,"").replace(/<[^>]+>/g,"").substring(0,200) %>...
-</p>
+    <div class="card-body p-4 flex flex-col flex-1">
+      <h3 class="text-[18px] font-bold text-[#222222]">
+        <%= post.name || post.title %>
+      </h3>
+      <p class="text-[#5C5C5C] font-normal text-[14px] leading-[200%] mb-5 break-words whitespace-normal overflow-hidden line-clamp-2 md:text-[16px] md:leading-[140%]">
+        <%- (post.content || "").replace(/<img.*?>/g,"").replace(/<[^>]+>/g,"").substring(0,200) %>...
+      </p>
 
+      <div class="mt-auto flex gap-2">
+        <a
+          href="/posts/<%= post.permaLink %>"
+          class="flex-1 bg-[#2A4759] text-white text-sm text-center h-12 flex items-center justify-center rounded-lg hover:opacity-80 transition-opacity duration-200 mt-2"
+        >
+          عرض المزيد
+        </a>
+      </div>
+    </div>
+  </div>
+<% }) %>
 
-            <div class="mt-auto flex gap-2">
-              <a
-                href="/posts/<%= post.permaLink %>"
-                class="flex-1 bg-[#2A4759] text-white text-sm text-center h-12 flex items-center justify-center rounded-lg hover:opacity-80 transition-opacity duration-200 mt-2"
-              >
-                عرض المزيد
-              </a>
-            </div>
-          </div>
-        </div>
-        <% }) %>
         <% } %>
       </div>
     </div>
@@ -138,78 +141,165 @@
 
     <!-- JS Search Autocomplete -->
     <script>
-      const input = document.getElementById("postSearch");
-      const suggestions = document.getElementById("postSuggestions");
+  const input = document.getElementById("postSearch");
+  const suggestions = document.getElementById("postSuggestions");
+  const cardsContainer = document.getElementById("cards-container");
+  let searchTimeout;
 
-      let searchTimeout;
+  function showAllCards() {
+    cardsContainer.querySelectorAll('.card').forEach(c => c.classList.remove('hidden'));
+  }
 
-      input.addEventListener("input", () => {
-        const query = input.value.trim();
+  input.addEventListener('input', () => {
+    const q = input.value.trim();
+    if (searchTimeout) clearTimeout(searchTimeout);
 
-        if (searchTimeout) clearTimeout(searchTimeout);
+    if (!q) {
+      suggestions.classList.add('hidden');
+      suggestions.innerHTML = '';
+      showAllCards();
+      return;
+    }
 
-        if (!query || query.length < 2) {
-          suggestions.innerHTML = "";
-          suggestions.classList.add("hidden");
+    searchTimeout = setTimeout(async () => {
+      try {
+        const res = await fetch(`/posts/autocomplete?q=${encodeURIComponent(q)}`);
+        if (!res.ok) throw new Error('خطأ في جلب الاقتراحات');
+        const posts = await res.json();
+
+        if (!posts || posts.length === 0) {
+          suggestions.innerHTML = "<li class='px-3 py-2 text-gray-500 text-center'>لا توجد نتائج</li>";
+          suggestions.classList.remove('hidden');
           return;
         }
 
-        searchTimeout = setTimeout(async () => {
-          try {
-            const res = await fetch(`/posts/autocomplete?q=${encodeURIComponent(query)}`);
-            if (!res.ok) throw new Error("خطأ في جلب البيانات");
+        suggestions.innerHTML = posts.map(p => `
+          <li class="px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 transition-colors"
+              data-permalink="${p.permaLink || ''}"
+              data-name="${(p.name || p.title || '').replace(/"/g,'&quot;')}">
+            <span class="font-semibold text-gray-800">${(p.name || p.title || '').trim()}</span>
+          </li>`).join('');
 
-            const posts = await res.json();
+        suggestions.classList.remove('hidden');
 
-            if (posts.length === 0) {
-              suggestions.innerHTML =
-                "<li class='px-3 py-2 text-gray-500 text-center'>لا توجد نتائج</li>";
-              suggestions.classList.remove("hidden");
-              return;
-            }
+        suggestions.querySelectorAll('li[data-permalink]').forEach(li => {
+          li.addEventListener('click', async () => {
+            const perma = li.dataset.permalink;
+            const name = li.dataset.name;
+            input.value = name;
+            suggestions.classList.add('hidden');
 
-            suggestions.innerHTML = posts
-              .map(
-                (p) => `
-                <li class="px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 transition-colors" 
-                    data-link="/posts/${p.permaLink}">
-                  <div class="flex flex-col">
-                    ${
-                      p.title
-                        ? `<span class="font-semibold text-gray-800">${p.title}</span>`
-                        : ""
-                    }
-                    ${
-                      p.name
-                        ? `<span class="text-sm text-gray-600">${p.name}</span>`
-                        : ""
-                    }
-                  </div>
-                </li>`
-              )
-              .join("");
-
-            suggestions.classList.remove("hidden");
-
-            suggestions.querySelectorAll("li[data-link]").forEach((li) => {
-              li.addEventListener("click", () => {
-                window.location.href = li.dataset.link;
-              });
+            const cards = cardsContainer.querySelectorAll('.card');
+            let found = false;
+            cards.forEach(card => {
+              if ((card.dataset.permalink && card.dataset.permalink === perma) ||
+                  (card.dataset.name && card.dataset.name === name) ||
+                  (card.querySelector('h3') && card.querySelector('h3').innerText.trim() === name)
+              ) {
+                card.classList.remove('hidden');
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                found = true;
+              } else {
+                card.classList.add('hidden');
+              }
             });
-          } catch (err) {
-            console.error(err);
-            suggestions.innerHTML =
-              "<li class='px-3 py-2 text-red-500 text-center'>حدث خطأ</li>";
-            suggestions.classList.remove("hidden");
-          }
-        }, 300);
-      });
 
-      document.addEventListener("click", (e) => {
-        if (!e.target.closest("#postSearch") && !e.target.closest("#postSuggestions")) {
-          suggestions.classList.add("hidden");
+            if (!found) {
+              try {
+                const r = await fetch(`/posts/${encodeURIComponent(perma)}/json`);
+                if (r.ok) {
+                  const post = await r.json();
+                  const image = post.image || '/uploads/posts/default.png';
+                  const safeName = (post.name || post.title || '').replace(/"/g,'&quot;');
+                  const snippet = (post.content || '').replace(/<[^>]+>/g,'').substring(0,200);
+                  cardsContainer.innerHTML = `
+                    <div class="card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative flex flex-col"
+                         data-permalink="${post.permaLink}" data-name="${safeName}">
+                      <div class="relative w-full">
+                        <img src="${image}" alt="${safeName}" class="w-full h-auto object-cover"/>
+                      </div>
+                      <div class="card-body p-4 flex flex-col flex-1">
+                        <h3 class="text-[18px] font-bold text-[#222222]">${safeName}</h3>
+                        <p class="text-[#5C5C5C] font-normal text-[14px] leading-[200%] mb-5">${snippet}...</p>
+                        <div class="mt-auto flex gap-2">
+                          <a href="/posts/${post.permaLink}" class="flex-1 bg-[#2A4759] text-white text-sm text-center h-12 flex items-center justify-center rounded-lg mt-2">عرض المزيد</a>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                } else {
+                  cardsContainer.innerHTML = `<div class='col-span-3 text-center text-gray-600 bg-white py-10 rounded-lg shadow'>
+                    <i class='fa-solid fa-triangle-exclamation text-orange-400 text-4xl mb-4'></i>
+                    <p class='text-xl font-semibold mb-2'> لا يوجد مقال بهذا الاسم يمكنك البحث عن مقال اخر</p>
+                  </div>`;
+                }
+              } catch (err) {
+                console.error(err);
+                cardsContainer.innerHTML = `<div class='col-span-3 text-center text-gray-600 bg-white py-10 rounded-lg shadow'>
+                  <i class='fa-solid fa-triangle-exclamation text-orange-400 text-4xl mb-4'></i>
+                  <p class='text-xl font-semibold mb-2'>خطأ أثناء جلب المقال</p>
+                </div>`;
+              }
+            }
+          });
+        });
+      } catch (err) {
+        console.error(err);
+        suggestions.innerHTML = "<li class='px-3 py-2 text-red-500 text-center'>حدث خطأ</li>";
+        suggestions.classList.remove('hidden');
+      }
+    }, 250);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#postSearch') && !e.target.closest('#postSuggestions')) {
+      suggestions.classList.add('hidden');
+    }
+  });
+
+  const desktopForm = document.querySelector("form[action='/posts/search']");
+  if (desktopForm) {
+    desktopForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const q = input.value.trim();
+      if (!q) { showAllCards(); return; }
+      const cards = cardsContainer.querySelectorAll('.card');
+      let foundAny = false;
+      cards.forEach(card => {
+        if ((card.dataset.name && card.dataset.name.includes(q)) ||
+            (card.dataset.permalink && card.dataset.permalink === q) ||
+            (card.querySelector('h3') && card.querySelector('h3').innerText.includes(q))
+        ) {
+          card.classList.remove('hidden');
+          foundAny = true;
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          card.classList.add('hidden');
         }
       });
-    </script>
+      if (!foundAny) {
+  const cards = cardsContainer.querySelectorAll('.card');
+  cards.forEach(c => c.classList.add('hidden'));
+
+  const msg = document.createElement('div');
+  msg.id = "noResultsMsg";
+  msg.className = "col-span-3 text-center text-gray-600 bg-white py-10 animate-fade";
+  msg.innerHTML = `
+      <i class="fa-solid fa-circle-exclamation text-3xl mb-3 text-[#2A4759]"></i>
+    <p class='text-lg font-semibold mb-2'>لا توجد مقالات تطابق "${q}"</p>
+  </div>
+  `;
+  cardsContainer.appendChild(msg);
+
+  setTimeout(() => {
+    msg.remove();
+    showAllCards();
+  }, 2000);
+}
+
+    });
+  }
+</script>
+
   </body>
 </html>

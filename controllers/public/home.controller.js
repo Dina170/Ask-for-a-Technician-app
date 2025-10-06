@@ -114,7 +114,7 @@ exports.autocompleteTechnicians = async (req, res) => {
 
   return res.json(
     neighborhoodResults.map(n => ({
-      name: n._id   // رجع اسم الحي فقط
+      name: n._id   
     }))
   );
 
