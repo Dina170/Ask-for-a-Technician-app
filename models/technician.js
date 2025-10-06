@@ -10,6 +10,7 @@ const TechnicianSchema = new mongoose.Schema({
   ],
   jobTechnicianPhoto: { type: String, required: true },
   mainTitle: { type: String, required: true, unique: true },
+  slug: { type: String, unique: true },
   description: { type: String, required: true },
   phoneNumber: {
     type: String,
@@ -19,4 +20,12 @@ const TechnicianSchema = new mongoose.Schema({
     },
   },
 });
+
+TechnicianSchema.pre("save", function (next) {
+  if (this.isModified("mainTitle")) {
+    this.slug = this.mainTitle.trim().replace(/\s+/g, "-");
+  }
+  next();
+});
+
 module.exports = mongoose.model("Technician", TechnicianSchema);
