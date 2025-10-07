@@ -77,6 +77,7 @@
           <div class="relative h-48">
             <img src="<%= tech.jobTechnicianPhoto %>" 
                  alt="<%= tech.jobName.name %>" 
+                 title="<%= tech.jobName.name %>" 
                  class="w-full h-full object-cover" />
           </div>
           <div class="card-body p-4 flex flex-col flex-1">
@@ -180,6 +181,20 @@
     }
 
     handleSearch("search-desktop");
+
+
+const technicianTitle = '<%= technicians[0] ? technicians[0].mainTitle : "" %>';
+      const allImages = document.querySelectorAll('img');
+      
+      allImages.forEach(function(img) {
+        if (!img.alt || img.alt.trim() === '' || img.alt === 'N/A') {
+          img.alt = technicianTitle;
+        }
+        if (!img.title || img.title.trim() === '' || img.title === 'N/A') {
+          img.title = technicianTitle;
+        }
+      });
+    
   </script>
 
 
