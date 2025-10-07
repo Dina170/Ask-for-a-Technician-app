@@ -109,32 +109,12 @@ exports.getTechnicianDetails = async (req, res) => {
       .populate("jobName")
       .populate("neighborhoodNames");
 
-    if (!technician) {
-      const hasTechnician = await Technician.findOne({ jobName: job._id });
-      const common = await getCommonData();
+    if (!technician) return res.status(404).send("Technician not found");
 
-      return res.render("landingpage/index", {
-        jobs: jobsList,
-        uniqueTechnicians,
-        uniqueNeighborhoods,
-        technicians: [],
-        technician: "",
-        neighborhood: neighborhood ? neighborhood.name : "",
-        selectedJobId,
-        selectedJobName,
-        selectedNeighborhoodName,
-        searchType: "technician",
-        blogs: common.blogs,
-        getSlug,
-        message: hasTechnician
-          ? `المهنة "${job.name}" غير متوفرة في الحي "${neighborhoodParam || "المحدد"}".`
-          : `لا يوجد أي فنيين حالياً للمهنة "${job.name}".`,
-        ...common,
-      });
-    }
+    const job = technician.jobName || null;
 
     const common = await getCommonData();
-    return res.render("public/technicianDetails", {
+    res.render("public/technicianDetails", {
       technician,
       job,
       searchType: "technician",
