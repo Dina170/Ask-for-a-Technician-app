@@ -105,112 +105,7 @@ exports.getNeighborhoodDetails = async (req, res) => {
 
 exports.getTechnicianDetails = async (req, res) => {
   try {
-    const jobNameParam = decodeURIComponent(req.params.title || "").trim();
-    const neighborhoodParam = req.query.neighborhood
-      ? decodeURIComponent(req.query.neighborhood.trim())
-      : null;
-
-    // ✅ نضمن وجود المتغيرات دي دايمًا (حتى لو فاضية)
-    let selectedJobId = "";
-    let selectedJobName = "";
-    let selectedNeighborhoodName = "";
-
-    // ✅ دايمًا بنجهز القوائم للسيلكت
-    const jobsList = await Job.find({}).lean();
-    const uniqueTechnicians = await Technician.aggregate([
-      { $group: { _id: "$mainTitle", mainTitle: { $first: "$mainTitle" } } },
-      { $sort: { _id: 1 } },
-    ]);
-    const uniqueNeighborhoods = await Neighborhood.find().select("name").lean();
-
-    // ✅ لو مفيش مهنة في الرابط (الصفحة أول مرة تتفتح)
-    if (!jobNameParam) {
-      const common = await getCommonData();
-      return res.render("landingpage/index", {
-        jobs: jobsList,
-        uniqueTechnicians,
-        uniqueNeighborhoods,
-        technicians: [],
-        technician: "",
-        neighborhood: "",
-        selectedJobId,
-        selectedJobName,
-        selectedNeighborhoodName,
-        searchType: "technician",
-        blogs: common.blogs,
-        getSlug,
-        message: "",
-        ...common,
-      });
-    }
-
-    // ✅ نحاول نلاقي المهنة سواء بالاسم أو الـ id
-    let job =
-      (mongoose.Types.ObjectId.isValid(jobNameParam)
-        ? await Job.findById(jobNameParam)
-        : await Job.findOne({ name: jobNameParam })) || null;
-
-    // لو المهنة مش موجودة
-    if (!job) {
-      const common = await getCommonData();
-      return res.render("landingpage/index", {
-        jobs: jobsList,
-        uniqueTechnicians,
-        uniqueNeighborhoods,
-        technicians: [],
-        technician: "",
-        neighborhood: "",
-        selectedJobId,
-        selectedJobName: jobNameParam,
-        selectedNeighborhoodName: neighborhoodParam || "",
-        searchType: "technician",
-        blogs: common.blogs,
-        getSlug,
-        message: `المهنة "${jobNameParam}" غير موجودة. من فضلك اختر مهنة أخرى.`,
-        ...common,
-      });
-    }
-
-    selectedJobId = job._id.toString();
-    selectedJobName = job.name;
-
-    // ✅ نحاول نجيب الحي لو متبعت
-    let neighborhood = null;
-    if (neighborhoodParam) {
-      neighborhood =
-        (mongoose.Types.ObjectId.isValid(neighborhoodParam)
-          ? await Neighborhood.findById(neighborhoodParam)
-          : await Neighborhood.findOne({ name: neighborhoodParam })) || null;
-
-      if (!neighborhood) {
-        const common = await getCommonData();
-        return res.render("landingpage/index", {
-          jobs: jobsList,
-          uniqueTechnicians,
-          uniqueNeighborhoods,
-          technicians: [],
-          technician: "",
-          neighborhood: neighborhoodParam,
-          selectedJobId,
-          selectedJobName,
-          selectedNeighborhoodName: neighborhoodParam,
-          searchType: "technician",
-          blogs: common.blogs,
-          getSlug,
-          message: `الحي "${neighborhoodParam}" غير موجود. اختر حيًا آخر.`,
-          ...common,
-        });
-      }
-
-      selectedNeighborhoodName = neighborhood.name;
-    }
-
-    // ✅ نجيب الفني بناء على المهنة + الحي (لو موجود)
-    const query = neighborhood
-      ? { jobName: job._id, neighborhoodNames: neighborhood._id }
-      : { jobName: job._id };
-
-    const technician = await Technician.findOne(query)
+    const technician = await Technician.findOne({ slug: req.params.slug })
       .populate("jobName")
       .populate("neighborhoodNames");
 
@@ -293,17 +188,22 @@ exports.getAllTechnicians = async (req, res) => {
 
     const regex = new RegExp(search, "i");
 
-    const matchingJobs = await Job.find({ name: { $regex: regex } }).select("_id").lean();
-    const jobIds = matchingJobs.map(j => j._id);
+    const matchingJobs = await Job.find({ name: { $regex: regex } })
+      .select("_id")
+      .lean();
+    const jobIds = matchingJobs.map((j) => j._id);
 
-    const matchingNeighborhoods = await Neighborhood.find({ name: { $regex: regex } }).select("_id").lean();
-    const neighborhoodIds = matchingNeighborhoods.map(n => n._id);
+    const matchingNeighborhoods = await Neighborhood.find({
+      name: { $regex: regex },
+    })
+      .select("_id")
+      .lean();
+    const neighborhoodIds = matchingNeighborhoods.map((n) => n._id);
 
-    const orConditions = [
-      { mainTitle: { $regex: regex } } 
-    ];
+    const orConditions = [{ mainTitle: { $regex: regex } }];
     if (jobIds.length) orConditions.push({ jobName: { $in: jobIds } });
-    if (neighborhoodIds.length) orConditions.push({ neighborhoodNames: { $in: neighborhoodIds } });
+    if (neighborhoodIds.length)
+      orConditions.push({ neighborhoodNames: { $in: neighborhoodIds } });
 
     const query = { $or: orConditions };
 
@@ -311,10 +211,13 @@ exports.getAllTechnicians = async (req, res) => {
       .populate("jobName")
       .populate("neighborhoodNames");
 
-    if (req.xhr || (req.headers.accept && req.headers.accept.indexOf("json") > -1)) {
-      const suggestions = technicians.map(t => ({
+    if (
+      req.xhr ||
+      (req.headers.accept && req.headers.accept.indexOf("json") > -1)
+    ) {
+      const suggestions = technicians.map((t) => ({
         id: t._id,
-        display: (t.jobName && t.jobName.name) ? t.jobName.name : t.mainTitle,
+        display: t.jobName && t.jobName.name ? t.jobName.name : t.mainTitle,
       }));
       return res.json(suggestions);
     }
@@ -338,49 +241,50 @@ exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
     const searchQuery = req.query.search?.trim().toLowerCase() || "";
 
     // لو فيه searchQuery على حي
-  
-      let tech = await Technician.findOne({ mainTitle: req.params.title })
-  .populate("jobName")
-  .populate({
-    path: "neighborhoodNames",
-     select: "name neighborhoodPhoto" 
-  });
-
-
-    if (!tech) {
-      return res.status(404).send("Technician not found");
-    }
-
-    // فلترة الأحياء
-    let filteredNeighborhoods = tech.neighborhoodNames;
-    if (searchQuery) {
-      filteredNeighborhoods = filteredNeighborhoods.filter(
-        (neigh) => neigh.name && neigh.name.toLowerCase().includes(searchQuery)
-      );
-    }
-
-    const neighborhoodsWithJobs = await Promise.all(
-      filteredNeighborhoods.map(async (neigh) => {
-        const job = await Job.findOne({
-          name: tech.jobName.name,
-          neighborhoodName: neigh._id,
+    if (decodeURIComponent(req.params.section) === "عرض-الاحياء") {
+      let tech = await Technician.findOne({ slug: req.params.slug })
+        .populate("jobName")
+        .populate({
+          path: "neighborhoodNames",
+          select: "name neighborhoodPhoto",
         });
-        return {
-          neighborhood: neigh,
-          job: job || null,
-        };
-      })
-    );
 
-    const common = await getCommonData();
-    res.render("public/seeMoreTechnicianNeighborhoods", {
-      technician: tech,
-      neighborhoodsWithJobs,
-      searchQuery,
-      type: "neighborhoods",
-      searchType: "neighborhood",
-      ...common,
-    });
+      if (!tech) {
+        return res.status(404).send("Technician not found");
+      }
+
+      // فلترة الأحياء
+      let filteredNeighborhoods = tech.neighborhoodNames;
+      if (searchQuery) {
+        filteredNeighborhoods = filteredNeighborhoods.filter(
+          (neigh) =>
+            neigh.name && neigh.name.toLowerCase().includes(searchQuery)
+        );
+      }
+
+      const neighborhoodsWithJobs = await Promise.all(
+        filteredNeighborhoods.map(async (neigh) => {
+          const job = await Job.findOne({
+            name: tech.jobName.name,
+            neighborhoodName: neigh._id,
+          });
+          return {
+            neighborhood: neigh,
+            job: job || null,
+          };
+        })
+      );
+
+      const common = await getCommonData();
+      res.render("public/seeMoreTechnicianNeighborhoods", {
+        technician: tech,
+        neighborhoodsWithJobs,
+        searchQuery,
+        type: "neighborhoods",
+        searchType: "neighborhood",
+        ...common,
+      });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");

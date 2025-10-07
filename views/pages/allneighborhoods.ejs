@@ -26,7 +26,7 @@
 
         </div>
 
-        <form action="/technicians/<%= technician.mainTitle %>/seeMoreTechnicianNeighborhoods" method="GET"
+        <form action="/technicians/<%= technician.slug %>/seeMoreTechnicianNeighborhoods" method="GET"
           class="flex items-center w-1/3">
           <div class="relative w-full">
             <input type="text" id="search" name="search" value="<%= searchQuery || '' %>" placeholder="ابحث عن حي"

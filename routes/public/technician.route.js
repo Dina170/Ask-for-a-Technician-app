@@ -8,12 +8,7 @@ router.use((req, res, next) => {
 });
 
 router.get("/", techController.getAllTechnicians);
-router.get(
-  "/:title/seeMoreTechnicianNeighborhoods",
-  techController.getSeeMoreTechnicianNeighborhoods
-);
-router.get("/:title/details", techController.getTechnicianDetails);
-
-router.get("/:title", techController.getTechnicianDetails);
+router.get("/:slug", techController.getTechnicianDetails);
+router.get("/:section/:slug", techController.getSeeMoreTechnicianNeighborhoods);
 
 module.exports = router;

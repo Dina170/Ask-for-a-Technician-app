@@ -1,76 +1,71 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>اطلب فني</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      body,
-      p,
-      span,
-      h1,
-      h2,
-      h3,
-      h4,
-      h5,
-      h6,
-      a,
-      button,
-      input,
-      textarea,
-      label,
-      div {
-        font-family: "Cairo", sans-serif !important;
-      }
 
-      .line-clamp-1 {
-        display: -webkit-box;
-        -webkit-line-clamp: 1;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>اطلب فني</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body,
+    p,
+    span,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    a,
+    button,
+    input,
+    textarea,
+    label,
+    div {
+      font-family: "Cairo", sans-serif !important;
+    }
 
-      .line-clamp-3 {
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
+    .line-clamp-1 {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
 
-      select {
-        background-image: none;
-      }
+    .line-clamp-3 {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
 
-      select::-ms-expand {
-        display: none;
-      }
+    select {
+      background-image: none;
+    }
 
-      select:focus {
-        outline: none;
-      }
+    select::-ms-expand {
+      display: none;
+    }
 
-      /* Adjust chevron for RTL */
-      .relative select + .fa-chevron-down {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        pointer-events: none;
-        color: #6b7280;
-      }
+    select:focus {
+      outline: none;
+    }
 
-.relative select + .fa-chevron-down {
-  display: none !important;
-}
+    /* Adjust chevron for RTL */
+    .relative select+.fa-chevron-down {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #6b7280;
+    }
+
+    .relative select+.fa-chevron-down {
+      display: none !important;
+    }
 
 
    @media (max-width: 360px) {
@@ -105,27 +100,29 @@
     </style>
   </head>
 
-  <body class="font-sans text-gray-800 flex flex-col min-h-screen">
-    <%- include("../layouts/header", { searchType: searchType }) %>
+<body class="font-sans text-gray-800 flex flex-col min-h-screen">
+  <%- include("../layouts/header", { searchType: searchType }) %>
 
 
     <main class="flex-1">
       <!-- Hero Section -->
-     <section class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px]">
-  <div class="absolute inset-0 z-0">
-    <img src="/images/hero.png" alt="hero" class="w-full h-full object-cover" />
-    <div class="absolute inset-0 bg-black bg-opacity-30"></div>
-  </div>
+      <section class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px]">
+        <div class="absolute inset-0 z-0">
+          <img src="/images/hero.png" alt="hero" class="w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+        </div>
 
-  <div class="relative z-20 flex flex-col justify-center h-full px-4 lg:px-[104px] w-full">
-    <!-- Hero Content -->
-    <p class="font-[Cairo] font-bold text-[24px] sm:text-[36px] leading-[100%] tracking-[0] text-white text-center sm:text-right mb-6">
-      أعثر علي الفني المناسب لك
-    </p>
+        <div class="relative z-20 flex flex-col justify-center h-full px-4 lg:px-[104px] w-full">
+          <!-- Hero Content -->
+          <p
+            class="font-[Cairo] font-bold text-[24px] sm:text-[36px] leading-[100%] tracking-[0] text-white text-center sm:text-right mb-6">
+            أعثر علي الفني المناسب لك
+          </p>
 
-    <p class="font-[Cairo] font-medium text-[18px] leading-[160%] text-white text-center  sm:text-right mb-6">
-      استكشف أفضل العمال المهرة بسهولة وسرعة، سواء كنت تبحث عن كهربائي، نجار، سباك، أو أي خدمة أخرى — كل ما تحتاجه في مكان واحد
-    </p>
+          <p class="font-[Cairo] font-medium text-[18px] leading-[160%] text-white text-center  sm:text-right mb-6">
+            استكشف أفضل العمال المهرة بسهولة وسرعة، سواء كنت تبحث عن كهربائي، نجار، سباك، أو أي خدمة أخرى — كل ما تحتاجه
+            في مكان واحد
+          </p>
 
     <!-- Action Buttons -->
 <div class="flex flex-row gap-2 sm:gap-4 items-center justify-center md:justify-start mt-6 sm:mt-8 md:mt-10 lg:mt-12 -translate-y-6 sm:translate-y-0 transition-transform duration-300">
@@ -135,15 +132,15 @@
     <span class="whitespace-nowrap">ارسال على واتساب</span>
   </a>
 
-  <a href="tel:<%= mainPhone %>" 
-     class="flex items-center justify-center gap-1.5 border border-white hover:border-[#2A4759] hover:bg-[#2A4759] hover:text-white text-white text-xs sm:text-sm rounded-[10px] sm:rounded-[12px] px-4 sm:px-[30px] py-2 sm:py-3 w-[163px] sm:w-[272.25px] h-[38px] sm:h-[56px] transition-all duration-300">
-    <i class="fa-solid fa-phone text-lg sm:text-xl"></i>
-    <span class="whitespace-nowrap">اتصل الآن</span>
-  </a>
-</div>
+            <a href="tel:<%= mainPhone %>"
+              class="flex items-center justify-center gap-1.5 border border-white hover:border-[#2A4759] hover:bg-[#2A4759] hover:text-white text-white text-xs sm:text-sm rounded-[10px] sm:rounded-[12px] px-4 sm:px-[30px] py-2 sm:py-3 w-[163px] sm:w-[272.25px] h-[38px] sm:h-[56px] transition-all duration-300">
+              <i class="fa-solid fa-phone text-lg sm:text-xl"></i>
+              <span class="whitespace-nowrap">اتصل الآن</span>
+            </a>
+          </div>
 
-  </div>
-</section>
+        </div>
+      </section>
 
 <section class="relative -mt-6 sm:-mt-8 md:-mt-12 lg:-mt-10 z-30 px-0 lg:px-[104px]">
   <div class="max-w-4xl mx-auto">
@@ -216,7 +213,8 @@
       <div id="cards-container" class="mx-4 lg:mx-[104px]">
         <div class="w-full text-right mb-8">
           <p class="text-[#2A4759] font-bold text-[20px] md:text-[24px] mb-2"> الفنيون المتاحون الآن في مدينة الرياض</p>
-          <p class="text-[#2A4759] text-[14px] md:text-[16px]">فنيونا متواجدون حاليًا في مناطق متعددة داخل مدينة الرياض، ونسعد دائمًا بخدمتكم</p>
+          <p class="text-[#2A4759] text-[14px] md:text-[16px]">فنيونا متواجدون حاليًا في مناطق متعددة داخل مدينة الرياض،
+            ونسعد دائمًا بخدمتكم</p>
         </div>
 
         <% if (typeof message !== 'undefined' && message) { %>
@@ -240,7 +238,7 @@
                   <h3 class="tech-name text-[18px] font-bold text-[#222222] mb-2"><%= technician.jobName.name %></h3>
                   <p class="text-[#5C5C5C] font-normal text-[14px] leading-[200%] mb-5 break-words whitespace-normal overflow-hidden line-clamp-2 md:text-[16px] md:leading-[140%]"><%- technician.mainTitle.replace(/<img.*?>/g, "").replace(/<[^>]+>/g, "").substring(0, 200) %>...</p>
                   <div class="mt-auto">
-                    <a href="/technicians/<%= encodeURIComponent(technician.jobName.name) %>/details" class="block w-full bg-[#2A4759] hover:bg-[#1e3542] text-white text-sm sm:text-base text-center py-3 px-4 rounded-lg transition-colors duration-300 font-medium">عرض المزيد</a>
+                    <a href="/technicians/<%= technician.slug %>" class="block w-full bg-[#2A4759] hover:bg-[#1e3542] text-white text-sm sm:text-base text-center py-3 px-4 rounded-lg transition-colors duration-300 font-medium">عرض المزيد</a>
                   </div>
                 </div>
               </div>
@@ -249,7 +247,7 @@
         </div>
       </div>
 
-     
+
 
       <div class="h-8 sm:h-12"></div>
     </main>

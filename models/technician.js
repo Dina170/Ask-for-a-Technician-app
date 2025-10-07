@@ -10,6 +10,7 @@ const TechnicianSchema = new mongoose.Schema({
   ],
   jobTechnicianPhoto: { type: String, required: true },
   mainTitle: { type: String, required: true, unique: true },
+  slug: { type: String, unique: true },
   description: { type: String, required: true },
   phoneNumber: {
     type: String,
@@ -19,4 +20,21 @@ const TechnicianSchema = new mongoose.Schema({
     },
   },
 });
+
+TechnicianSchema.pre("save", async function (next) {
+  if (this.isModified("jobName") || !this.slug) {
+    try {
+      const Job = mongoose.model("Job");
+      const job = await Job.findById(this.jobName);
+
+      if (job && job.name) {
+        this.slug = job.name.trim().replace(/\s+/g, "-");
+      }
+    } catch (err) {
+      console.error("Error generating slug from jobName:", err);
+    }
+  }
+  next();
+});
+
 module.exports = mongoose.model("Technician", TechnicianSchema);

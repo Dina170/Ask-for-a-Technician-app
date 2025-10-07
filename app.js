@@ -26,6 +26,8 @@ const publicTechnicianRouter = require("./routes/public/technician.route");
 const authRouter = require("./routes/auth/auth.route");
 
 const loadBlogs = require("./middlewares/loadBlogs");
+const technician = require("./models/technician");
+const post = require("./models/post");
 
 // Connect to MongoDB
 mongoose
@@ -63,15 +65,14 @@ app.use(
 // Middleware: إضافة رقم أول فني بشكل جلوبال للفيوز
 app.use(async (req, res, next) => {
   try {
-    const technician = await Technician.findOne(); 
-    res.locals.mainPhone = technician ? technician.phoneNumber : "05075813050"; 
+    const technician = await Technician.findOne();
+    res.locals.mainPhone = technician ? technician.phoneNumber : "05075813050";
   } catch (err) {
     console.error("Error fetching technician:", err);
-    res.locals.mainPhone = "05075813050"; 
+    res.locals.mainPhone = "05075813050";
   }
   next();
 });
-
 
 // app.use(
 //   session({
