@@ -93,11 +93,12 @@
       <% if (post.image) { %>
         <div class="mb-6 sm:mb-8 flex justify-center relative group">
           <img
-            src="/uploads/posts/<%= post.image %>"
-            alt="<%= post.title || post.name %>"
-            title="<%= post.title || post.name %>"  
-            class="rounded-[10px] w-[358px] h-[198px] sm:w-[951px] sm:h-[538px] object-cover shadow-lg"
-          />
+          src="/uploads/posts/<%= post.image %>"
+          alt="<%= post.name %>"
+          title="<%= post.name %>"
+          loading="eager"
+          class="rounded-[10px] w-[358px] h-[198px] sm:w-[951px] sm:h-[538px] object-cover shadow-lg"
+        />
         </div>
       <% } %>
 
@@ -142,8 +143,21 @@
         overflow: hidden;
       }
     </style>
-
-    <!-- Floating Contact Buttons -->
+  <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const postTitle = '<%= post.name %>';
+        const allImages = document.querySelectorAll('img');
+        
+        allImages.forEach(function(img) {
+          if (!img.alt || img.alt.trim() === '' || img.alt === 'N/A') {
+            img.alt = postTitle;
+          }
+          if (!img.title || img.title.trim() === '' || img.title === 'N/A') {
+            img.title = postTitle;
+          }
+        });
+      });
+    </script>
 <!-- Floating Contact Buttons -->
 <div
   class="fixed right-4 bottom-4 flex flex-col gap-3 z-50"
