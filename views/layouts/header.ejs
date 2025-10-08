@@ -199,6 +199,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // 🔹 دالة البحث للمقالات
   async function searchAndDisplayPost(query) {
     try {
       const url = `/search/autocomplete?q=${encodeURIComponent(query)}&type=blog`;
@@ -228,6 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  // 🔹 دالة البحث للفنيين
   async function searchAndDisplayTechnician(query) {
     try {
       const url = `/search/autocomplete?q=${encodeURIComponent(query)}&type=technician`;
@@ -248,6 +250,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  // 🔹 دالة البحث للأحياء
   async function searchAndDisplayNeighborhood(query) {
     try {
       const techSlug = searchContainer.dataset.slug || '';
@@ -289,9 +292,17 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!postsContainer) return;
 
     postsContainer.innerHTML = posts.map(post => {
-      const postUrl = post.blogSlug && post.slug 
-        ? `/blogs/${post.blogSlug}/posts/${post.slug}` 
-        : `/posts/${post.slug}`;
+      // 🔹 تحديد الرابط الصحيح حسب نوع المقال
+      let postUrl = '';
+      if (post.slug && post.permaLink) {
+        postUrl = `/posts/${post.slug}`;
+      } else if (post.slug) {
+        postUrl = `/posts/${post.slug}`;
+      } else if (post.permaLink) {
+        postUrl = `/posts/${post.permaLink}`;
+      } else {
+        postUrl = `/posts/${post._id || ''}`;
+      }
       
       const regex = /<img.*?src="(.*?)"/;
       const match = regex.exec(post.content || "");
