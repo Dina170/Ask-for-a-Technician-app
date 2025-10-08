@@ -104,16 +104,20 @@ exports.autocompleteTechnicians = async (req, res) => {
     if (!search) return res.json([]);
 
     if (type === "technician") {
-      const jobResults = await Job.find({
-        name: { $regex: search, $options: "i" },
+      const technicians = await Technician.find({
+        mainTitle: { $regex: search, $options: "i" },
       })
-        .select("name")
+        .populate("jobName")
+        .select("mainTitle slug jobName")
         .limit(10)
         .lean();
 
-      const uniqueJobs = [...new Set(jobResults.map((j) => j.name))];
-
-      return res.json(uniqueJobs.map((name) => ({ jobName: { name } })));
+      return res.json(technicians.map((tech) => ({
+        _id: tech._id,
+        mainTitle: tech.mainTitle,
+        slug: tech.slug,
+        jobName: tech.jobName ? tech.jobName.name : null
+      })));
     } else if (type === "neighborhood") {
       const neighborhoodResults = await Technician.aggregate([
         { $unwind: "$neighborhoodNames" },
@@ -137,7 +141,7 @@ exports.autocompleteTechnicians = async (req, res) => {
 
       return res.json(
         neighborhoodResults.map((n) => ({
-          name: n._id, // رجع اسم الحي فقط
+          name: n._id,
         }))
       );
     } else {
@@ -161,14 +165,16 @@ exports.autocompletePosts = async (req, res) => {
         { name: { $regex: searchRegex } },
       ],
     })
-      .select("title name permaLink content")
+      .populate("blog", "slug")
+      .select("title name slug blog content")
       .limit(10);
 
     const formattedPosts = posts.map((post) => ({
       _id: post._id,
       title: post.title || "",
       name: post.name || "",
-      permaLink: post.permaLink,
+      slug: post.slug,
+      blogSlug: post.blog ? post.blog.slug : null,
       content: post.content || "",
       displayText:
         post.title && post.name
@@ -212,9 +218,8 @@ exports.getAllBlogs = async (req, res) => {
 exports.getBlogPosts = async (req, res) => {
   try {
     const blogs = await Blog.find({});
-   const decodedSlug = decodeURIComponent(req.params.slug);
-const blog = blogs.find((b) => b.slug === decodedSlug);
-
+    const decodedSlug = decodeURIComponent(req.params.slug);
+    const blog = blogs.find((b) => b.slug === decodedSlug);
 
     if (!blog)
       return res
@@ -262,5 +267,32 @@ exports.getPrivacyPolicy = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.getUnifiedAutocomplete = async (req, res) => {
+  try {
+    const type = req.query.type;
+    const q = req.query.q?.trim() || "";
+
+    if (!q) return res.json([]);
+
+    if (type === "technician") {
+      return exports.autocompleteTechnicians(req, res);
+    }
+
+    if (type === "neighborhood") {
+      const techController = require("./technicianController");
+      return techController.autocompleteNeighborhood(req, res);
+    }
+
+    if (type === "blog") {
+      return exports.autocompletePosts(req, res);
+    }
+
+    return res.status(400).json({ error: "Invalid search type" });
+  } catch (err) {
+    console.error("Unified autocomplete error:", err);
+    res.status(500).json({ error: "Server error" });
   }
 };

@@ -12,5 +12,7 @@ router.get("/blogs/:slug", homeController.getBlogPosts);
 router.get("/posts/autocomplete", homeController.autocompletePosts);
 router.get("/posts/:slug", homeController.getPostDetails);
 router.get("/privacy-policy", homeController.getPrivacyPolicy);
+router.get("/search/autocomplete", homeController.getUnifiedAutocomplete);
+
 
 module.exports = router;
