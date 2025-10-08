@@ -75,7 +75,7 @@
         <% if (typeof blogs !== 'undefined' && blogs.length > 0) { %>
           <% blogs.forEach(blog => { %>
             <li>
-             <a href="/blogs/<%= encodeURIComponent(blog.blog) %>"
+             <a href="/blogs/<%= encodeURIComponent(blog.slug) %>"
                  class="block px-3 py-3 hover:bg-[#406A84] rounded">
                 <%= blog.blog %>
               </a>
@@ -119,7 +119,7 @@
           <% if (locals.blogs && blogs.length > 0) { %>
             <% blogs.forEach(blog => { %>
               <li>
-               <a href="/blogs/<%= encodeURIComponent(blog.blog) %>" 
+               <a href="/blogs/<%= encodeURIComponent(blog.slug) %>" 
                    class="block px-4 py-2 hover:bg-[#406A84]">
                   <%= blog.blog %>
                 </a>

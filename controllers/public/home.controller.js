@@ -197,8 +197,8 @@ exports.getAllBlogs = async (req, res) => {
 exports.getBlogPosts = async (req, res) => {
   try {
     const blogs = await Blog.find({});
-   const decodedSlug = decodeURIComponent(req.params.blog);
-const blog = blogs.find((b) => b.blog === decodedSlug);
+   const decodedSlug = decodeURIComponent(req.params.slug);
+const blog = blogs.find((b) => b.slug === decodedSlug);
 
 
     if (!blog)

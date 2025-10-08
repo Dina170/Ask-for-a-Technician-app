@@ -28,6 +28,7 @@ const authRouter = require("./routes/auth/auth.route");
 const loadBlogs = require("./middlewares/loadBlogs");
 const technician = require("./models/technician");
 const post = require("./models/post");
+const blog = require("./models/blog");
 
 // Connect to MongoDB
 mongoose
@@ -35,6 +36,16 @@ mongoose
   .then(async () => {
     console.log("✅ Connected to MongoDB");
     await seedAdmin();
+    const blogs = await blog.find({});
+
+    for (const blog of blogs) {
+      // only set slug if it doesn't exist
+      if (!blog.slug) {
+        blog.slug = blog.blog.trim().replace(/\s+/g, "-");
+        await blog.save();
+        console.log(`Updated slug for: ${blog.blog}`);
+      }
+    }
   })
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
