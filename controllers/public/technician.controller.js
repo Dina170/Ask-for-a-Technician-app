@@ -270,6 +270,59 @@ exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+//
+exports.getSeeMoreTechnicianNeighborhoodSearch = async (req, res) => {
+  try {
+    const { section, slug, neighborhoodSlug } = req.params;
+    if (section !== "عرض-الاحياء") return res.status(404).send("Section not found");
+
+    const searchQuery = neighborhoodSlug ? neighborhoodSlug.replace(/-/g, ' ') : "";
+
+    const tech = await Technician.findOne({ slug })
+      .populate("jobName")
+      .populate({
+        path: "neighborhoodNames",
+        select: "name neighborhoodPhoto",
+      });
+
+    if (!tech) return res.status(404).send("Technician not found");
+
+    let filteredNeighborhoods = tech.neighborhoodNames;
+    if (searchQuery) {
+      filteredNeighborhoods = filteredNeighborhoods.filter(
+        (neigh) =>
+          neigh.name && neigh.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    const neighborhoodsWithJobs = await Promise.all(
+      filteredNeighborhoods.map(async (neigh) => {
+        const job = await Job.findOne({
+          name: tech.jobName.name,
+          neighborhoodName: neigh._id,
+        });
+        return {
+          neighborhood: neigh,
+          job: job || null,
+        };
+      })
+    );
+
+    const common = await getCommonData();
+    res.render("public/seeMoreTechnicianNeighborhoods", {
+      technician: tech,
+      neighborhoodsWithJobs,
+      searchQuery,
+      type: "neighborhoods",
+      searchType: "neighborhood",
+      ...common,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
+};
+
 
 // i used it in search to redirect to tech details page
 exports.getTechnicianSlug = async (req, res) => {
