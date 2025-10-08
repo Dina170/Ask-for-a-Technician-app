@@ -97,6 +97,15 @@
         }
       }
 
+      @keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
     </style>
   </head>
 
@@ -143,9 +152,12 @@
       </section>
 
 <section class="relative -mt-6 sm:-mt-8 md:-mt-12 lg:-mt-10 z-30 px-0 lg:px-[104px]">
-  <div class="max-w-4xl mx-auto">
-    <form method="get" action="/" 
+    <div class="max-w-4xl mx-auto">
+   
+
+    <form id="searchForm" method="get" action="/" 
       class="bg-white shadow-xl rounded-xl p-2 sm:p-3 md:p-4 mx-4 sm:mx-0">
+
       <div class="flex flex-row items-stretch gap-2 sm:gap-3 md:gap-4 w-full">
   <!-- Technician Select -->
   <div class="flex-1">
@@ -201,7 +213,11 @@
 </div>
 
     </form>
+
+    
   </div>
+   <!-- حتة لعرض رسالة لو مفيش فني -->
+    <div id="searchMessageContainer" class="max-w-lg mx-auto mt-4 text-center"></div>
 </section>
 
 
@@ -300,29 +316,116 @@
     });
 
     // Redirect to technician details after search
-    const searchForm = document.querySelector("form[action='/']");
-searchForm.addEventListener("submit", function (e) {
-  e.preventDefault();
+   // Redirect to technician details after search
+   const searchForm = document.getElementById("searchForm");
+  const messageContainer = document.getElementById("searchMessageContainer");
 
-  const jobSelect = document.getElementById("technicianSelect");
-  const neighborhoodSelect = document.getElementById("neighborhoodSelect");
+  searchForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
 
- const selectedJob = jobSelect.value;
+    // مسح أي رسالة قديمة
+    messageContainer.innerHTML = "";
 
-  const selectedNeighborhood = neighborhoodSelect.value;
+    const jobSelect = document.getElementById("technicianSelect");
+    const neighborhoodSelect = document.getElementById("neighborhoodSelect");
 
-  if (selectedJob) {
-    let url = `/technicians/${encodeURIComponent(selectedJob)}/details`;
-    if (selectedNeighborhood) {
-      url += `?neighborhood=${encodeURIComponent(selectedNeighborhood)}`;
-    }
-    window.location.href = url;
-  } else {
-    this.submit();
+    const selectedJobId = jobSelect.value;
+    const selectedNeighborhood = neighborhoodSelect.value;
+
+    // لو مفيش مهنة مختارة نخلي الفورم يعمل submit عادي (أو تنبيه)
+     if (!selectedJobId) {
+    const warnDiv = document.createElement("div");
+    warnDiv.className =
+      "bg-yellow-50 border border-yellow-300 text-gray-700 px-6 py-5 rounded-xl shadow-md max-w-lg mx-auto animate-fade-in";
+    warnDiv.innerHTML = `
+      <div class="flex flex-col items-center text-center">
+        <i class="fa-solid fa-circle-exclamation text-orange-500 text-3xl mb-2"></i>
+        <p class="font-semibold mb-1">من فضلك اختر المهنة أولاً</p>
+        <p class="text-sm text-gray-600">حدد المهنة قبل البدء في البحث.</p>
+      </div>`;
+    messageContainer.appendChild(warnDiv);
+
+    // تختفي بعد 4 ثواني
+    setTimeout(() => {
+      warnDiv.classList.add("opacity-0", "transition-opacity", "duration-500");
+      setTimeout(() => warnDiv.remove(), 500);
+    }, 4000);
+    return;
   }
-});
+
+    try {
+  const resp = await fetch(
+    `/technicians/api/get-technician-slug?jobId=${encodeURIComponent(selectedJobId)}&neighborhood=${encodeURIComponent(selectedNeighborhood || "")}`
+  );
+
+  const data = await resp.json();
+
+  // لو وجدنا فني
+  if (data.slug) {
+    window.location.href = `/technicians/${encodeURIComponent(data.slug)}`;
+    return;
+  }
+
+  // تحديد نوع الرسالة بناءً على البيانات الراجعة من السيرفر
+  let messageHTML = "";
+  let icon = "";
+  let bgColor = "";
+  let borderColor = "";
+
+  if (data.jobExists && !data.neighborhoodExists) {
+    // مهنة موجودة لكن الحي مش متاح
+    icon = `<i class="fa-solid fa-location-dot text-orange-500 text-3xl mb-2"></i>`;
+    messageHTML = `
+      <p class="font-semibold mb-1">لا يوجد فني في هذا الحي حالياً</p>
+      <p class="text-sm text-gray-600">جرب حي آخر لهذه المهنة.</p>
+    `;
+    bgColor = "bg-yellow-50";
+    borderColor = "border-yellow-300";
+  } else if(!data.jobExists) {
+    // لا يوجد فنيون نهائياً لهذه المهنة
+    icon = `<i class="fa-solid fa-triangle-exclamation text-orange-500 text-3xl mb-2"></i>`;
+    messageHTML = `
+      <p class="font-semibold mb-1">عذراً، لا يوجد فنيون متاحون لهذه المهنة حالياً</p>
+      <p class="text-sm text-gray-600">يمكنك اختيار مهنة مختلفة من القائمة أعلاه.</p>
+    `;
+    bgColor = "bg-yellow-50";
+    borderColor = "border-orange-300";
+  }
+
+  // إنشاء الرسالة
+  const noResultDiv = document.createElement("div");
+noResultDiv.className = `${bgColor} ${borderColor} border text-gray-700 px-6 py-5 rounded-xl shadow-md max-w-lg mx-auto animate-fade-in mx-5 sm:mx-auto`;
+  noResultDiv.innerHTML = `<div class="flex flex-col items-center text-center">${icon}${messageHTML}</div>`;
+  messageContainer.appendChild(noResultDiv);
+
+  // اختفاء تلقائي بعد 5 ثواني
+  setTimeout(() => {
+    noResultDiv.classList.add("opacity-0", "transition-opacity", "duration-500");
+    setTimeout(() => noResultDiv.remove(), 500);
+  }, 4000);
+
+} catch (err) {
+  console.error("Error fetching slug:", err);
+
+  const errDiv = document.createElement("div");
+  errDiv.className =
+    "bg-red-50 border border-red-300 text-red-700 px-6 py-5 rounded-xl shadow-md max-w-lg mx-auto animate-fade-in";
+  errDiv.innerHTML = `
+    <div class="flex flex-col items-center text-center">
+      <i class="fa-solid fa-circle-xmark text-red-500 text-3xl mb-2"></i>
+      <p class="font-semibold mb-1">حدث خطأ أثناء البحث</p>
+      <p class="text-sm text-gray-600">يرجى المحاولة لاحقاً.</p>
+    </div>`;
+  messageContainer.appendChild(errDiv);
+
+  setTimeout(() => {
+    errDiv.classList.add("opacity-0", "transition-opacity", "duration-500");
+    setTimeout(() => errDiv.remove(), 500);
+  }, 4000);
+}
 
   });
+});
 </script>
 
 

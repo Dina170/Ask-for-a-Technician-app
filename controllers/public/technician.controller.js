@@ -270,3 +270,67 @@ exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+
+// i used it in search to redirect to tech details page
+exports.getTechnicianSlug = async (req, res) => {
+  try {
+    const { jobId, neighborhood } = req.query;
+    if (!jobId) return res.status(400).json({ error: "jobId required" });
+
+    const jobExists = await Job.findById(jobId).lean();
+    if (!jobExists) {
+      return res.json({
+        slug: null,
+        jobExists: false,
+        neighborhoodExists: false,
+      });
+    }
+
+    const anyTechnician = await Technician.findOne({ jobName: jobId }).lean();
+    if (!anyTechnician) {
+      return res.json({
+        slug: null,
+        jobExists: false,
+        neighborhoodExists: false,
+      });
+    }
+
+    if (neighborhood && neighborhood.trim()) {
+      const neighDoc = await Neighborhood.findOne({ name: neighborhood.trim() })
+        .select("_id")
+        .lean();
+
+      if (neighDoc) {
+        const technicianInNeighborhood = await Technician.findOne({
+          jobName: jobId,
+          neighborhoodNames: neighDoc._id,
+        })
+          .select("slug")
+          .lean();
+
+        if (technicianInNeighborhood) {
+          return res.json({
+            slug: technicianInNeighborhood.slug,
+            jobExists: true,
+            neighborhoodExists: true,
+          });
+        } else {
+          return res.json({
+            slug: null,
+            jobExists: true,
+            neighborhoodExists: false,
+          });
+        }
+      }
+    }
+
+    return res.json({
+      slug: anyTechnician.slug,
+      jobExists: true,
+      neighborhoodExists: true,
+    });
+  } catch (err) {
+    console.error("Error in getTechnicianSlug:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};

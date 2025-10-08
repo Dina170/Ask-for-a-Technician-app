@@ -45,21 +45,35 @@ exports.getHomePage = async (req, res) => {
     const jobId = req.query.jobId || "";
     const technician = req.query.technician || "";
     const neighborhood = req.query.neighborhood || "";
+    const showMessage = req.query.message === "1";
 
     const query = {};
-    if (jobId) query.jobName = jobId;
-    if (technician.trim())
-      query.mainTitle = { $regex: technician.trim(), $options: "i" };
+    let technicians = [];
+    let message = "";
 
-    const techniciansRaw = await Technician.find(query)
-      .populate("jobName")
-      .populate("neighborhoodNames");
+    if (jobId || neighborhood) {
+      if (jobId) {
+        query.jobName = jobId;
+      }
 
-    const technicians = neighborhood.trim()
-      ? techniciansRaw.filter((t) =>
-          t.neighborhoodNames.some((n) => n.name === neighborhood.trim())
-        )
-      : techniciansRaw;
+      const techniciansRaw = await Technician.find(query)
+        .populate("jobName")
+        .populate("neighborhoodNames");
+
+      technicians = neighborhood.trim()
+        ? techniciansRaw.filter((t) =>
+            t.neighborhoodNames.some((n) => n.name === neighborhood.trim())
+          )
+        : techniciansRaw;
+
+      if (technicians.length === 0 || showMessage) {
+        message = "عذراً، لا يوجد فنيون متاحون لهذا البحث حالياً";
+      }
+    } else {
+      technicians = await Technician.find({})
+        .populate("jobName")
+        .populate("neighborhoodNames");
+    }
 
     const blogs = await Blog.find({});
 
@@ -74,6 +88,7 @@ exports.getHomePage = async (req, res) => {
       searchType: "technician",
       blogs,
       getSlug,
+      message: message || undefined,
     });
   } catch (err) {
     console.error(err);
