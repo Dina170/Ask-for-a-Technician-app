@@ -72,19 +72,21 @@
         </div>
 
         <!-- Desktop Search -->
-        <form action="/technicians/<%= encodeURIComponent(technician.slug) %>/seeMoreTechnicianNeighborhoods"
-          method="GET" class="hidden lg:flex items-center w-full lg:w-1/3">
-          <div class="relative w-full">
-            <input type="text" id="search-desktop" name="search" value="<%= searchQuery || '' %>"
-              placeholder="ابحث عن حي"
-              class="w-full border border-gray-300 rounded-[12px] py-2 pr-8 pl-4 focus:outline-none focus:ring-2 focus:ring-[#2A4759]" />
-            <ul id="autocomplete-list-desktop" class="absolute z-50 bg-[#FAFAFA] w-full mt-1 rounded-lg"></ul>
-            <button type="submit"
-              class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 hover:text-[#2A4759]">
-              <i class="fa-solid fa-magnifying-glass"></i>
-            </button>
-          </div>
-        </form>
+      <form id="search-form" class="hidden lg:flex items-center w-full lg:w-1/3">
+  <div class="relative w-full">
+    <input type="text" id="search-desktop" placeholder="ابحث عن حي"
+      class="w-full border border-gray-300 rounded-[12px] py-2 pr-8 pl-4 focus:outline-none focus:ring-2 focus:ring-[#2A4759]" />
+    <button type="submit"
+      class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 hover:text-[#2A4759]">
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+      <ul
+      id="autocomplete-list-desktop"
+      class="absolute z-10 bg-white border border-gray-200 rounded-lg shadow-md w-full mt-1 max-h-60 overflow-y-auto hidden"
+    ></ul>
+  </div>
+</form>
+
       </div>
     </div>
 
@@ -108,44 +110,49 @@
 
       <script>
         // Autocomplete function
-        function setupAutocomplete(inputId, listId, data) {
-          const searchInput = document.getElementById(inputId);
-          const suggestionBox = document.getElementById(listId);
+       function setupAutocomplete(inputId, listId, data) {
+  const searchInput = document.getElementById(inputId);
+  const suggestionBox = document.getElementById(listId);
 
-          if (searchInput) {
-            searchInput.addEventListener('input', () => {
-              const val = searchInput.value.toLowerCase();
-              suggestionBox.innerHTML = '';
-              if (!val) return;
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      const val = searchInput.value.toLowerCase();
+      suggestionBox.innerHTML = '';
+      suggestionBox.classList.add("hidden"); 
+      if (!val) return;
 
-              const matches = data.filter(name => name.toLowerCase().includes(val));
+      const matches = data.filter(name => name.toLowerCase().includes(val));
 
-              matches.forEach(name => {
-                const li = document.createElement('li');
-                li.textContent = name;
-                li.className = "px-4 py-2 cursor-pointer hover:bg-gray-100";
-                li.addEventListener('click', () => {
-                  searchInput.value = name;
-                  suggestionBox.innerHTML = '';
-                });
-                suggestionBox.appendChild(li);
-              });
-            });
+      if (matches.length > 0) {
+        suggestionBox.classList.remove("hidden"); 
+        matches.forEach(name => {
+          const li = document.createElement('li');
+          li.textContent = name;
+          li.className = "px-4 py-2 cursor-pointer hover:bg-gray-100";
+          li.addEventListener('click', () => {
+            searchInput.value = name;
+            suggestionBox.innerHTML = '';
+            suggestionBox.classList.add("hidden");
+          });
+          suggestionBox.appendChild(li);
+        });
+      }
+    });
 
-            document.addEventListener('click', (e) => {
-              if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
-                suggestionBox.innerHTML = '';
-              }
-            });
-          }
-        }
+    document.addEventListener('click', (e) => {
+      if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+        suggestionBox.innerHTML = '';
+        suggestionBox.classList.add("hidden");
+      }
+    });
+  }
+}
 
         const neighborhoods = JSON.parse('<%- JSON.stringify(neighborhoodsWithJobs.map(n => n.neighborhood.name)) %>');
 
         // Desktop search
         setupAutocomplete('search-desktop', 'autocomplete-list-desktop', neighborhoods);
 
-        // فلترة الكروت + no results
         function handleSearch(inputId) {
           const searchInput = document.getElementById(inputId);
           const noResults = document.getElementById("no-results");
@@ -173,10 +180,22 @@
           });
         }
 
-    // فعل السيرش
     handleSearch("search-desktop");
+
+     const form = document.getElementById("search-form");
+  const input = document.getElementById("search-desktop");
+  const technicianSlug = "<%= encodeURIComponent(technician.slug) %>";
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const value = input.value.trim();
+    if (!value) return;
+
+    const neighborhoodSlug = encodeURIComponent(value.replace(/\s+/g, "-"));
+    window.location.href = `/technicians/عرض-الاحياء/${technicianSlug}/${neighborhoodSlug}`;
+  });
   </script>
-  <!-- Floating Contact Buttons -->
+
 <!-- Floating Contact Buttons -->
 <div
   class="fixed right-4 bottom-4 flex flex-col gap-3 z-50"
