@@ -1,9 +1,9 @@
 const Technician = require("../../models/technician");
 const Neighborhood = require("../../models/neighborhood");
 const Job = require("../../models/job");
-const Blog = require("../../models/blog"); // استدعاء موديل البلوج
+const Blog = require("../../models/blog"); 
 const mongoose = require("mongoose");
-const getSlug = require("speakingurl"); // مكتبة السلاج
+const getSlug = require("speakingurl"); 
 
 // --------------------- Helper ---------------------
 async function getCommonData() {
@@ -85,23 +85,6 @@ exports.getNeighborhoodDetails = async (req, res) => {
   }
 };
 
-// exports.getTechnicianDetails = async (req, res) => {
-//   try {
-//     const technician = await Technician.findOne({ mainTitle: req.params.title })
-//       .populate("jobName")
-//       .populate("neighborhoodNames");
-
-//     if (!technician) return res.status(404).send("Technician not found");
-
-//     const job = technician.jobName || null;
-
-//     const common = await getCommonData();
-//     res.render("public/technicianDetails", { technician, job,searchType: "technician", ...common });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send("Internal Server Error");
-//   }
-// };
 
 exports.getTechnicianDetails = async (req, res) => {
   try {
@@ -220,7 +203,6 @@ exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
   try {
     const searchQuery = req.query.search?.trim().toLowerCase() || "";
 
-    // لو فيه searchQuery على حي
     if (decodeURIComponent(req.params.section) === "عرض-الاحياء") {
       let tech = await Technician.findOne({ slug: req.params.slug })
         .populate("jobName")
@@ -385,5 +367,52 @@ exports.getTechnicianSlug = async (req, res) => {
   } catch (err) {
     console.error("Error in getTechnicianSlug:", err);
     return res.status(500).json({ error: "Server error" });
+  }
+};
+
+
+
+
+exports.autocompleteNeighborhood = async (req, res) => {
+  try {
+    const search = req.query.q?.trim() || "";
+    const techSlug = req.params.slug;
+
+    console.log("Neighborhood Autocomplete:", { search, techSlug })
+
+    if (!search) return res.json([]);
+
+    let neighborhoods = [];
+
+    if (techSlug && techSlug !== 'all') {
+      const tech = await Technician.findOne({ slug: techSlug })
+        .populate({
+          path: "neighborhoodNames",
+          select: "name _id",
+        })
+        .lean();
+
+      if (!tech || !tech.neighborhoodNames) {
+        console.log("No technician or neighborhoods found");
+        return res.json([]);
+      }
+
+      neighborhoods = tech.neighborhoodNames.filter(n => 
+        n.name && n.name.toLowerCase().includes(search.toLowerCase())
+      );
+    } else {
+      neighborhoods = await Neighborhood.find({
+        name: { $regex: search, $options: "i" },
+      })
+        .select("name _id")
+        .limit(10)
+        .lean();
+    }
+
+    console.log("Found neighborhoods:", neighborhoods.length); 
+    return res.json(neighborhoods);
+  } catch (err) {
+    console.error("Autocomplete neighborhood error:", err);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
