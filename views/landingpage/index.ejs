@@ -426,7 +426,7 @@ noResultDiv.className = `${bgColor} ${borderColor} border text-gray-700 px-6 py-
 
   });
 
-  const technicianTitle = '<%= technicians[0] ? technicians[0].mainTitle : "" %>';
+let technicianTitle = '<%= technicians[0] ? technicians[0].mainTitle : "" %>';
       const allImages = document.querySelectorAll('img');
       
       allImages.forEach(function(img) {
