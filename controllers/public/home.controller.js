@@ -104,47 +104,45 @@ exports.autocompleteTechnicians = async (req, res) => {
     if (!search) return res.json([]);
 
     if (type === "technician") {
-      const technicians = await Technician.find({
-        mainTitle: { $regex: search, $options: "i" },
-      })
-        .populate("jobName")
-        .select("mainTitle slug jobName")
-        .limit(10)
-        .lean();
+  const technicians = await Technician.aggregate([
+    {
+      $lookup: {
+        from: "jobs",
+        localField: "jobName",
+        foreignField: "_id",
+        as: "jobInfo"
+      }
+    },
+    { $unwind: { path: "$jobInfo", preserveNullAndEmptyArrays: true } },
+    {
+      $match: {
+        $or: [
+          { mainTitle: { $regex: search, $options: "i" } },
+          { "jobInfo.name": { $regex: search, $options: "i" } }
+        ]
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        mainTitle: 1,
+        slug: 1,
+        "jobName": "$jobInfo.name"
+      }
+    },
+    { $limit: 10 }
+  ]);
 
-      return res.json(technicians.map((tech) => ({
-        _id: tech._id,
-        mainTitle: tech.mainTitle,
-        slug: tech.slug,
-        jobName: tech.jobName ? tech.jobName.name : null
-      })));
-    } else if (type === "neighborhood") {
-      const neighborhoodResults = await Technician.aggregate([
-        { $unwind: "$neighborhoodNames" },
-        {
-          $lookup: {
-            from: "neighborhoods",
-            localField: "neighborhoodNames",
-            foreignField: "_id",
-            as: "neighborhoodInfo",
-          },
-        },
-        { $unwind: "$neighborhoodInfo" },
-        {
-          $match: {
-            "neighborhoodInfo.name": { $regex: search, $options: "i" },
-          },
-        },
-        { $group: { _id: "$neighborhoodInfo.name" } },
-        { $limit: 10 },
-      ]);
-
-      return res.json(
-        neighborhoodResults.map((n) => ({
-          name: n._id,
-        }))
-      );
-    } else {
+  return res.json(
+    technicians.map(tech => ({
+      _id: tech._id,
+      mainTitle: tech.mainTitle,
+      slug: tech.slug,
+      jobName: tech.jobName || null
+    }))
+  );
+}
+ else {
       return res.status(400).json({ error: "Invalid type parameter" });
     }
   } catch (err) {

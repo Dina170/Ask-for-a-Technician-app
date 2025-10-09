@@ -233,25 +233,28 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // 🔹 دالة البحث للفنيين
-  async function searchAndDisplayTechnician(query) {
-    try {
-      const url = `/search/autocomplete?q=${encodeURIComponent(query)}&type=technician`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Network response was not ok');
-      
-      const items = await res.json();
-      console.log('Technician Search Results:', items);
+async function searchAndDisplayTechnician(query) {
+  try {
+    const url = `/search/autocomplete?q=${encodeURIComponent(query)}&type=technician`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Network response was not ok');
+    
+    const items = await res.json();
+    console.log('Technician Search Results:', items);
 
-      if (items.length === 0) {
-        displayNoResults(query, 'technician');
-      } else if (items.length === 1) {
-        window.location.href = `/technicians/${items[0].slug || items[0]._id}`;
-      }
-    } catch(err) {
-      console.error("Technician search error:", err);
-      displayError();
+    // ✅ لو مفيش نتائج → نحوله لصفحة عرض الفنيين مع البحث
+    if (items.length === 0) {
+      window.location.href = `/showMoreTechnicians?search=${encodeURIComponent(query)}`;
+    } else {
+      // ✅ لو فيه نتائج → برضو نروح لصفحة الفنيين (زي ما طلبتي قبل)
+      window.location.href = `/showMoreTechnicians?search=${encodeURIComponent(query)}`;
     }
+  } catch (err) {
+    console.error("Technician search error:", err);
+    displayError();
   }
+}
+
 
   // 🔹 دالة البحث للأحياء
   async function searchAndDisplayNeighborhood(query) {
@@ -473,9 +476,10 @@ document.addEventListener('DOMContentLoaded', function () {
                            data-post='${JSON.stringify(item)}'>${display}</li>`;
               
               case "technician":
-                display = item.mainTitle || item.jobName || "فني غير معروف";
-                link = `/technicians/${item.slug || item._id}`;
-                break;
+  display = item.jobName || item.mainTitle || "فني غير معروف";
+  link = `/technicians/${item.slug || item._id}`;
+  break;
+
               
               case "neighborhood":
                 display = item.name || "حي غير معروف";
@@ -490,22 +494,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
           list.classList.remove("hidden");
 
-          if (searchType === "blog") {
-            list.querySelectorAll("li[data-post]").forEach(li => {
-              li.addEventListener("click", () => {
-                const post = JSON.parse(li.dataset.post);
-                selectedPost = post; 
-                mobileSearchInput.value = post.name || post.title;
-                list.innerHTML = "";
-                list.classList.add("hidden");
-              });
-            });
-          } else {
-            list.querySelectorAll("li[data-link]").forEach(li => {
-              li.addEventListener("click", () => {
-                window.location.href = li.dataset.link;
-              });
-            });
+         if (searchType === "blog") {
+  list.querySelectorAll("li[data-post]").forEach(li => {
+    li.addEventListener("click", () => {
+      const post = JSON.parse(li.dataset.post);
+      selectedPost = post;
+      mobileSearchInput.value = post.name || post.title;
+      list.innerHTML = "";
+      list.classList.add("hidden");
+
+      searchAndDisplayPost(post.name || post.title);
+    });
+  });
+}
+ else {
+           list.querySelectorAll("li[data-link]").forEach(li => {
+  li.addEventListener("click", () => {
+    const selectedText = li.textContent.trim();
+
+    if (searchType === "technician") {
+      window.location.href = `/showMoreTechnicians?search=${encodeURIComponent(selectedText)}`;
+    } 
+    else {
+      window.location.href = li.dataset.link;
+    }
+  });
+});
+
           }
 
         } catch(err) {
@@ -625,8 +640,56 @@ document.addEventListener('DOMContentLoaded', function () {
       document.body.appendChild(backup);
     }
   }
+
+
+
+  
 });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  // 🟢 لو احنا في صفحة عرض الفنيين
+  if (window.location.pathname.includes("/showMoreTechnicians")) {
+    const params = new URLSearchParams(window.location.search);
+    const searchQuery = params.get("search");
+    if (!searchQuery) return;
+
+    try {
+      // جرب تجيب الفنيين اللي بيطابقوا البحث
+      const res = await fetch(`/search/autocomplete?q=${encodeURIComponent(searchQuery)}&type=technician`);
+      const items = await res.json();
+
+      if (items.length === 0) {
+        const container = document.getElementById("techniciansContainer") ||
+                          document.querySelector(".grid") ||
+                          document.body;
+        if (container) {
+          container.innerHTML = `
+           <div class="text-center text-gray-600 bg-white py-10 rounded-lg shadow mx-auto w-[90%] sm:w-[80%] md:max-w-lg">
+  <i class="fa-solid fa-circle-exclamation text-3xl mb-3 text-[#2A4759]"></i>
+  <p class="text-lg font-semibold mb-2">
+    لا يوجد فني يطابق "<span class='font-bold text-[#2A4759]'>${searchQuery}</span>"
+  </p>
+  <button
+    onclick="window.location.href='/showMoreTechnicians'"
+    class="bg-[#2A4759] text-white px-6 py-2 rounded-lg hover:opacity-80 transition-opacity"
+  >
+    <i class="fa-solid fa-rotate-right ml-2"></i>
+    عرض جميع الفنيين
+  </button>
+</div>
+
+          `;
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching technicians:", err);
+    }
+  }
+});
+</script>
+
 
  <style>
     img[alt="logo"] {
