@@ -426,17 +426,18 @@ noResultDiv.className = `${bgColor} ${borderColor} border text-gray-700 px-6 py-
 
   });
 
-let technicianTitle = '<%= technicians[0] ? technicians[0].mainTitle : "" %>';
+const firstTechnicianTitle = '<%= technicians[0] ? technicians[0].mainTitle : "" %>';
       const allImages = document.querySelectorAll('img');
       
-      allImages.forEach(function(img) {
-        if (!img.alt || img.alt.trim() === '' || img.alt === 'N/A') {
-          img.alt = technicianTitle;
-        }
-        if (!img.title || img.title.trim() === '' || img.title === 'N/A') {
-          img.title = technicianTitle;
-        }
-      });
+     allImages.forEach(function(img) {
+  if (!img.alt || img.alt.trim() === '' || img.alt === 'N/A') {
+    img.alt = firstTechnicianTitle;
+  }
+  if (!img.title || img.title.trim() === '' || img.title === 'N/A') {
+    img.title = firstTechnicianTitle;
+  }
+});
+
 
 
 const technicianTitle = '<%= technicians[0] ? technicians[0].mainTitle : "" %>';
