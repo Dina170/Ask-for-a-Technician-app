@@ -1,76 +1,71 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>اطلب فني</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      body,
-      p,
-      span,
-      h1,
-      h2,
-      h3,
-      h4,
-      h5,
-      h6,
-      a,
-      button,
-      input,
-      textarea,
-      label,
-      div {
-        font-family: "Cairo", sans-serif !important;
-      }
 
-      .line-clamp-1 {
-        display: -webkit-box;
-        -webkit-line-clamp: 1;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>اطلب فني</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body,
+    p,
+    span,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    a,
+    button,
+    input,
+    textarea,
+    label,
+    div {
+      font-family: "Cairo", sans-serif !important;
+    }
 
-      .line-clamp-3 {
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
+    .line-clamp-1 {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
 
-      select {
-        background-image: none;
-      }
+    .line-clamp-3 {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
 
-      select::-ms-expand {
-        display: none;
-      }
+    select {
+      background-image: none;
+    }
 
-      select:focus {
-        outline: none;
-      }
+    select::-ms-expand {
+      display: none;
+    }
 
-      /* Adjust chevron for RTL */
-      .relative select + .fa-chevron-down {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        pointer-events: none;
-        color: #6b7280;
-      }
+    select:focus {
+      outline: none;
+    }
 
-.relative select + .fa-chevron-down {
-  display: none !important;
-}
+    /* Adjust chevron for RTL */
+    .relative select+.fa-chevron-down {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #6b7280;
+    }
+
+    .relative select+.fa-chevron-down {
+      display: none !important;
+    }
 
 
    @media (max-width: 360px) {
@@ -102,30 +97,41 @@
         }
       }
 
+      @keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
     </style>
   </head>
 
-  <body class="font-sans text-gray-800 flex flex-col min-h-screen">
-    <%- include("../layouts/header", { searchType: searchType }) %>
+<body class="font-sans text-gray-800 flex flex-col min-h-screen">
+  <%- include("../layouts/header", { searchType: searchType }) %>
 
 
     <main class="flex-1">
       <!-- Hero Section -->
-     <section class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px]">
-  <div class="absolute inset-0 z-0">
-    <img src="/images/hero.png" alt="hero" class="w-full h-full object-cover" />
-    <div class="absolute inset-0 bg-black bg-opacity-30"></div>
-  </div>
+      <section class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px]">
+        <div class="absolute inset-0 z-0">
+          <img src="/images/hero.png" alt="hero" class="w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+        </div>
 
-  <div class="relative z-20 flex flex-col justify-center h-full px-4 lg:px-[104px] w-full">
-    <!-- Hero Content -->
-    <p class="font-[Cairo] font-bold text-[24px] sm:text-[36px] leading-[100%] tracking-[0] text-white text-center sm:text-right mb-6">
-      أعثر علي الفني المناسب لك
-    </p>
+        <div class="relative z-20 flex flex-col justify-center h-full px-4 lg:px-[104px] w-full">
+          <!-- Hero Content -->
+          <p
+            class="font-[Cairo] font-bold text-[24px] sm:text-[36px] leading-[100%] tracking-[0] text-white text-center sm:text-right mb-6">
+            أعثر علي الفني المناسب لك
+          </p>
 
-    <p class="font-[Cairo] font-medium text-[18px] leading-[160%] text-white text-center  sm:text-right mb-6">
-      استكشف أفضل العمال المهرة بسهولة وسرعة، سواء كنت تبحث عن كهربائي، نجار، سباك، أو أي خدمة أخرى — كل ما تحتاجه في مكان واحد
-    </p>
+          <p class="font-[Cairo] font-medium text-[18px] leading-[160%] text-white text-center  sm:text-right mb-6">
+            استكشف أفضل العمال المهرة بسهولة وسرعة، سواء كنت تبحث عن كهربائي، نجار، سباك، أو أي خدمة أخرى — كل ما تحتاجه
+            في مكان واحد
+          </p>
 
     <!-- Action Buttons -->
 <div class="flex flex-row gap-2 sm:gap-4 items-center justify-center md:justify-start mt-6 sm:mt-8 md:mt-10 lg:mt-12 -translate-y-6 sm:translate-y-0 transition-transform duration-300">
@@ -135,20 +141,23 @@
     <span class="whitespace-nowrap">ارسال على واتساب</span>
   </a>
 
-  <a href="tel:<%= mainPhone %>" 
-     class="flex items-center justify-center gap-1.5 border border-white hover:border-[#2A4759] hover:bg-[#2A4759] hover:text-white text-white text-xs sm:text-sm rounded-[10px] sm:rounded-[12px] px-4 sm:px-[30px] py-2 sm:py-3 w-[163px] sm:w-[272.25px] h-[38px] sm:h-[56px] transition-all duration-300">
-    <i class="fa-solid fa-phone text-lg sm:text-xl"></i>
-    <span class="whitespace-nowrap">اتصل الآن</span>
-  </a>
-</div>
+            <a href="tel:<%= mainPhone %>"
+              class="flex items-center justify-center gap-1.5 border border-white hover:border-[#2A4759] hover:bg-[#2A4759] hover:text-white text-white text-xs sm:text-sm rounded-[10px] sm:rounded-[12px] px-4 sm:px-[30px] py-2 sm:py-3 w-[163px] sm:w-[272.25px] h-[38px] sm:h-[56px] transition-all duration-300">
+              <i class="fa-solid fa-phone text-lg sm:text-xl"></i>
+              <span class="whitespace-nowrap">اتصل الآن</span>
+            </a>
+          </div>
 
-  </div>
-</section>
+        </div>
+      </section>
 
 <section class="relative -mt-6 sm:-mt-8 md:-mt-12 lg:-mt-10 z-30 px-0 lg:px-[104px]">
-  <div class="max-w-4xl mx-auto">
-    <form method="get" action="/" 
+    <div class="max-w-4xl mx-auto">
+   
+
+    <form id="searchForm" method="get" action="/" 
       class="bg-white shadow-xl rounded-xl p-2 sm:p-3 md:p-4 mx-4 sm:mx-0">
+
       <div class="flex flex-row items-stretch gap-2 sm:gap-3 md:gap-4 w-full">
   <!-- Technician Select -->
   <div class="flex-1">
@@ -204,7 +213,11 @@
 </div>
 
     </form>
+
+    
   </div>
+   <!-- حتة لعرض رسالة لو مفيش فني -->
+    <div id="searchMessageContainer" class="max-w-lg mx-auto mt-4 text-center"></div>
 </section>
 
 
@@ -216,7 +229,8 @@
       <div id="cards-container" class="mx-4 lg:mx-[104px]">
         <div class="w-full text-right mb-8">
           <p class="text-[#2A4759] font-bold text-[20px] md:text-[24px] mb-2"> الفنيون المتاحون الآن في مدينة الرياض</p>
-          <p class="text-[#2A4759] text-[14px] md:text-[16px]">فنيونا متواجدون حاليًا في مناطق متعددة داخل مدينة الرياض، ونسعد دائمًا بخدمتكم</p>
+          <p class="text-[#2A4759] text-[14px] md:text-[16px]">فنيونا متواجدون حاليًا في مناطق متعددة داخل مدينة الرياض،
+            ونسعد دائمًا بخدمتكم</p>
         </div>
 
         <% if (typeof message !== 'undefined' && message) { %>
@@ -240,7 +254,7 @@
                   <h3 class="tech-name text-[18px] font-bold text-[#222222] mb-2"><%= technician.jobName.name %></h3>
                   <p class="text-[#5C5C5C] font-normal text-[14px] leading-[200%] mb-5 break-words whitespace-normal overflow-hidden line-clamp-2 md:text-[16px] md:leading-[140%]"><%- technician.mainTitle.replace(/<img.*?>/g, "").replace(/<[^>]+>/g, "").substring(0, 200) %>...</p>
                   <div class="mt-auto">
-                    <a href="/technicians/<%= encodeURIComponent(technician.jobName.name) %>/details" class="block w-full bg-[#2A4759] hover:bg-[#1e3542] text-white text-sm sm:text-base text-center py-3 px-4 rounded-lg transition-colors duration-300 font-medium">عرض المزيد</a>
+                    <a href="/technicians/<%= technician.slug %>" class="block w-full bg-[#2A4759] hover:bg-[#1e3542] text-white text-sm sm:text-base text-center py-3 px-4 rounded-lg transition-colors duration-300 font-medium">عرض المزيد</a>
                   </div>
                 </div>
               </div>
@@ -249,7 +263,7 @@
         </div>
       </div>
 
-     
+
 
       <div class="h-8 sm:h-12"></div>
     </main>
@@ -302,27 +316,127 @@
     });
 
     // Redirect to technician details after search
-    const searchForm = document.querySelector("form[action='/']");
-searchForm.addEventListener("submit", function (e) {
-  e.preventDefault();
+   // Redirect to technician details after search
+   const searchForm = document.getElementById("searchForm");
+  const messageContainer = document.getElementById("searchMessageContainer");
 
-  const jobSelect = document.getElementById("technicianSelect");
-  const neighborhoodSelect = document.getElementById("neighborhoodSelect");
+  searchForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
 
- const selectedJob = jobSelect.value;
+    // مسح أي رسالة قديمة
+    messageContainer.innerHTML = "";
 
-  const selectedNeighborhood = neighborhoodSelect.value;
+    const jobSelect = document.getElementById("technicianSelect");
+    const neighborhoodSelect = document.getElementById("neighborhoodSelect");
 
-  if (selectedJob) {
-    let url = `/technicians/${encodeURIComponent(selectedJob)}/details`;
-    if (selectedNeighborhood) {
-      url += `?neighborhood=${encodeURIComponent(selectedNeighborhood)}`;
-    }
-    window.location.href = url;
-  } else {
-    this.submit();
+    const selectedJobId = jobSelect.value;
+    const selectedNeighborhood = neighborhoodSelect.value;
+
+    // لو مفيش مهنة مختارة نخلي الفورم يعمل submit عادي (أو تنبيه)
+     if (!selectedJobId) {
+    const warnDiv = document.createElement("div");
+    warnDiv.className =
+      "bg-yellow-50 border border-yellow-300 text-gray-700 px-6 py-5 rounded-xl shadow-md max-w-lg mx-auto animate-fade-in";
+    warnDiv.innerHTML = `
+      <div class="flex flex-col items-center text-center">
+        <i class="fa-solid fa-circle-exclamation text-orange-500 text-3xl mb-2"></i>
+        <p class="font-semibold mb-1">من فضلك اختر المهنة أولاً</p>
+        <p class="text-sm text-gray-600">حدد المهنة قبل البدء في البحث.</p>
+      </div>`;
+    messageContainer.appendChild(warnDiv);
+
+    // تختفي بعد 4 ثواني
+    setTimeout(() => {
+      warnDiv.classList.add("opacity-0", "transition-opacity", "duration-500");
+      setTimeout(() => warnDiv.remove(), 500);
+    }, 4000);
+    return;
   }
-});
+
+    try {
+  const resp = await fetch(
+    `/technicians/api/get-technician-slug?jobId=${encodeURIComponent(selectedJobId)}&neighborhood=${encodeURIComponent(selectedNeighborhood || "")}`
+  );
+
+  const data = await resp.json();
+
+  // لو وجدنا فني
+  if (data.slug) {
+    window.location.href = `/technicians/${encodeURIComponent(data.slug)}`;
+    return;
+  }
+
+  // تحديد نوع الرسالة بناءً على البيانات الراجعة من السيرفر
+  let messageHTML = "";
+  let icon = "";
+  let bgColor = "";
+  let borderColor = "";
+
+  if (data.jobExists && !data.neighborhoodExists) {
+    // مهنة موجودة لكن الحي مش متاح
+    icon = `<i class="fa-solid fa-location-dot text-orange-500 text-3xl mb-2"></i>`;
+    messageHTML = `
+      <p class="font-semibold mb-1">لا يوجد فني في هذا الحي حالياً</p>
+      <p class="text-sm text-gray-600">جرب حي آخر لهذه المهنة.</p>
+    `;
+    bgColor = "bg-yellow-50";
+    borderColor = "border-yellow-300";
+  } else if(!data.jobExists) {
+    // لا يوجد فنيون نهائياً لهذه المهنة
+    icon = `<i class="fa-solid fa-triangle-exclamation text-orange-500 text-3xl mb-2"></i>`;
+    messageHTML = `
+      <p class="font-semibold mb-1">عذراً، لا يوجد فنيون متاحون لهذه المهنة حالياً</p>
+      <p class="text-sm text-gray-600">يمكنك اختيار مهنة مختلفة من القائمة أعلاه.</p>
+    `;
+    bgColor = "bg-yellow-50";
+    borderColor = "border-orange-300";
+  }
+
+  // إنشاء الرسالة
+  const noResultDiv = document.createElement("div");
+noResultDiv.className = `${bgColor} ${borderColor} border text-gray-700 px-6 py-5 rounded-xl shadow-md max-w-lg mx-auto animate-fade-in mx-5 sm:mx-auto`;
+  noResultDiv.innerHTML = `<div class="flex flex-col items-center text-center">${icon}${messageHTML}</div>`;
+  messageContainer.appendChild(noResultDiv);
+
+  // اختفاء تلقائي بعد 5 ثواني
+  setTimeout(() => {
+    noResultDiv.classList.add("opacity-0", "transition-opacity", "duration-500");
+    setTimeout(() => noResultDiv.remove(), 500);
+  }, 4000);
+
+} catch (err) {
+  console.error("Error fetching slug:", err);
+
+  const errDiv = document.createElement("div");
+  errDiv.className =
+    "bg-red-50 border border-red-300 text-red-700 px-6 py-5 rounded-xl shadow-md max-w-lg mx-auto animate-fade-in";
+  errDiv.innerHTML = `
+    <div class="flex flex-col items-center text-center">
+      <i class="fa-solid fa-circle-xmark text-red-500 text-3xl mb-2"></i>
+      <p class="font-semibold mb-1">حدث خطأ أثناء البحث</p>
+      <p class="text-sm text-gray-600">يرجى المحاولة لاحقاً.</p>
+    </div>`;
+  messageContainer.appendChild(errDiv);
+
+  setTimeout(() => {
+    errDiv.classList.add("opacity-0", "transition-opacity", "duration-500");
+    setTimeout(() => errDiv.remove(), 500);
+  }, 4000);
+}
+
+  });
+
+  const technicianTitle = '<%= technicians[0] ? technicians[0].mainTitle : "" %>';
+      const allImages = document.querySelectorAll('img');
+      
+      allImages.forEach(function(img) {
+        if (!img.alt || img.alt.trim() === '' || img.alt === 'N/A') {
+          img.alt = technicianTitle;
+        }
+        if (!img.title || img.title.trim() === '' || img.title === 'N/A') {
+          img.title = technicianTitle;
+        }
+      });
 
 
 const technicianTitle = '<%= technicians[0] ? technicians[0].mainTitle : "" %>';

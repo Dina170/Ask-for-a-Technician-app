@@ -7,13 +7,12 @@ router.use((req, res, next) => {
   next();
 });
 
-router.get("/", techController.getAllTechnicians);
-router.get(
-  "/:title/seeMoreTechnicianNeighborhoods",
-  techController.getSeeMoreTechnicianNeighborhoods
-);
-router.get("/:title/details", techController.getTechnicianDetails);
+router.get("/:slug/neighborhoods/autocomplete", techController.autocompleteNeighborhood);
 
-router.get("/:title", techController.getTechnicianDetails);
+router.get("/api/get-technician-slug", techController.getTechnicianSlug);
+router.get("/", techController.getAllTechnicians);
+router.get("/:slug", techController.getTechnicianDetails);
+router.get("/:section/:slug", techController.getSeeMoreTechnicianNeighborhoods);
+router.get("/:section/:slug/:neighborhoodSlug", techController.getSeeMoreTechnicianNeighborhoodSearch);
 
 module.exports = router;

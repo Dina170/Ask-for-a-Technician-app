@@ -19,7 +19,7 @@ exports.getHomePage = async (req, res) => {
 
     const uniqueTechnicians = await Technician.aggregate([
       { $group: { _id: "$mainTitle", mainTitle: { $first: "$mainTitle" } } },
-      { $sort: { _id: 1 } }
+      { $sort: { _id: 1 } },
     ]);
 
     const uniqueNeighborhoods = await Technician.aggregate([
@@ -33,27 +33,47 @@ exports.getHomePage = async (req, res) => {
         },
       },
       { $unwind: "$neighborhoodInfo" },
-      { $group: { _id: "$neighborhoodInfo.name", name: { $first: "$neighborhoodInfo.name" } } },
-      { $sort: { name: 1 } }
+      {
+        $group: {
+          _id: "$neighborhoodInfo.name",
+          name: { $first: "$neighborhoodInfo.name" },
+        },
+      },
+      { $sort: { name: 1 } },
     ]);
 
     const jobId = req.query.jobId || "";
     const technician = req.query.technician || "";
     const neighborhood = req.query.neighborhood || "";
+    const showMessage = req.query.message === "1";
 
     const query = {};
-    if (jobId) query.jobName = jobId;
-    if (technician.trim()) query.mainTitle = { $regex: technician.trim(), $options: "i" };
+    let technicians = [];
+    let message = "";
 
-    const techniciansRaw = await Technician.find(query)
-      .populate("jobName")
-      .populate("neighborhoodNames");
+    if (jobId || neighborhood) {
+      if (jobId) {
+        query.jobName = jobId;
+      }
 
-    const technicians = neighborhood.trim()
-      ? techniciansRaw.filter((t) =>
-          t.neighborhoodNames.some((n) => n.name === neighborhood.trim())
-        )
-      : techniciansRaw;
+      const techniciansRaw = await Technician.find(query)
+        .populate("jobName")
+        .populate("neighborhoodNames");
+
+      technicians = neighborhood.trim()
+        ? techniciansRaw.filter((t) =>
+            t.neighborhoodNames.some((n) => n.name === neighborhood.trim())
+          )
+        : techniciansRaw;
+
+      if (technicians.length === 0 || showMessage) {
+        message = "عذراً، لا يوجد فنيون متاحون لهذا البحث حالياً";
+      }
+    } else {
+      technicians = await Technician.find({})
+        .populate("jobName")
+        .populate("neighborhoodNames");
+    }
 
     const blogs = await Blog.find({});
 
@@ -67,14 +87,14 @@ exports.getHomePage = async (req, res) => {
       selectedJobId: jobId || "",
       searchType: "technician",
       blogs,
-      getSlug
+      getSlug,
+      message: message || undefined,
     });
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
   }
 };
-
 
 exports.autocompleteTechnicians = async (req, res) => {
   try {
@@ -84,50 +104,54 @@ exports.autocompleteTechnicians = async (req, res) => {
     if (!search) return res.json([]);
 
     if (type === "technician") {
-      const jobResults = await Job.find({
-        name: { $regex: search, $options: "i" }
+      const technicians = await Technician.find({
+        mainTitle: { $regex: search, $options: "i" },
       })
-        .select("name")
+        .populate("jobName")
+        .select("mainTitle slug jobName")
         .limit(10)
         .lean();
 
-      const uniqueJobs = [...new Set(jobResults.map(j => j.name))];
-
-      return res.json(uniqueJobs.map(name => ({ jobName: { name } })));
-
+      return res.json(technicians.map((tech) => ({
+        _id: tech._id,
+        mainTitle: tech.mainTitle,
+        slug: tech.slug,
+        jobName: tech.jobName ? tech.jobName.name : null
+      })));
     } else if (type === "neighborhood") {
-  const neighborhoodResults = await Technician.aggregate([
-    { $unwind: "$neighborhoodNames" },
-    {
-      $lookup: {
-        from: "neighborhoods",
-        localField: "neighborhoodNames",
-        foreignField: "_id",
-        as: "neighborhoodInfo",
-      },
-    },
-    { $unwind: "$neighborhoodInfo" },
-    { $match: { "neighborhoodInfo.name": { $regex: search, $options: "i" } } },
-    { $group: { _id: "$neighborhoodInfo.name" } },
-    { $limit: 10 },
-  ]);
+      const neighborhoodResults = await Technician.aggregate([
+        { $unwind: "$neighborhoodNames" },
+        {
+          $lookup: {
+            from: "neighborhoods",
+            localField: "neighborhoodNames",
+            foreignField: "_id",
+            as: "neighborhoodInfo",
+          },
+        },
+        { $unwind: "$neighborhoodInfo" },
+        {
+          $match: {
+            "neighborhoodInfo.name": { $regex: search, $options: "i" },
+          },
+        },
+        { $group: { _id: "$neighborhoodInfo.name" } },
+        { $limit: 10 },
+      ]);
 
-  return res.json(
-    neighborhoodResults.map(n => ({
-      name: n._id   
-    }))
-  );
-
+      return res.json(
+        neighborhoodResults.map((n) => ({
+          name: n._id,
+        }))
+      );
     } else {
       return res.status(400).json({ error: "Invalid type parameter" });
     }
-
   } catch (err) {
     console.error("Autocomplete error:", err);
     res.status(500).send("Internal Server Error");
   }
 };
-
 
 exports.autocompletePosts = async (req, res) => {
   try {
@@ -136,42 +160,55 @@ exports.autocompletePosts = async (req, res) => {
 
     const searchRegex = new RegExp(search.split(" ").join("|"), "i");
     const posts = await Post.find({
-      $or: [{ title: { $regex: searchRegex } }, { name: { $regex: searchRegex } }],
+      $or: [
+        { title: { $regex: searchRegex } },
+        { name: { $regex: searchRegex } },
+      ],
     })
-    .select("title name permaLink content") 
-    .limit(10);
+      .populate("blog", "slug")
+      .select("title name slug blog content")
+      .limit(10);
 
     const formattedPosts = posts.map((post) => ({
       _id: post._id,
       title: post.title || "",
       name: post.name || "",
-      permaLink: post.permaLink,
+      slug: post.slug,
+      blogSlug: post.blog ? post.blog.slug : null,
       content: post.content || "",
-      displayText: post.title && post.name 
-        ? `${post.title} - ${post.name}`
-        : post.title || post.name || "بدون عنوان"
+      displayText:
+        post.title && post.name
+          ? `${post.title} - ${post.name}`
+          : post.title || post.name || "بدون عنوان",
     }));
 
     return res.json(formattedPosts);
-    
   } catch (err) {
     console.error("Autocomplete error:", err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-
 exports.getAllBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find({});
     if (!blogs.length) {
-      return res.render("public/blogPosts", { posts: [], blog: { blog: "لا توجد مدونات" }, getSlug });
+      return res.render("public/blogPosts", {
+        posts: [],
+        blog: { blog: "لا توجد مدونات" },
+        getSlug,
+      });
     }
 
-    const blog = blogs[0]; 
+    const blog = blogs[0];
     const posts = await Post.find({ blog: blog._id }).sort({ createdAt: -1 });
 
-    res.render("public/blogPosts", { posts, blog,searchType: "blog", getSlug });
+    res.render("public/blogPosts", {
+      posts,
+      blog,
+      searchType: "blog",
+      getSlug,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send("حدث خطأ في جلب المقالات");
@@ -181,14 +218,21 @@ exports.getAllBlogs = async (req, res) => {
 exports.getBlogPosts = async (req, res) => {
   try {
     const blogs = await Blog.find({});
-   const decodedSlug = decodeURIComponent(req.params.blog);
-const blog = blogs.find((b) => b.blog === decodedSlug);
+    const decodedSlug = decodeURIComponent(req.params.slug);
+    const blog = blogs.find((b) => b.slug === decodedSlug);
 
-
-    if (!blog) return res.status(404).render("public/404", { message: "Blog not found" });
+    if (!blog)
+      return res
+        .status(404)
+        .render("public/404", { message: "Blog not found" });
 
     const posts = await Post.find({ blog: blog._id }).sort({ createdAt: -1 });
-    res.render("public/blogPosts", { blog, posts, searchType: "blog", getSlug });
+    res.render("public/blogPosts", {
+      blog,
+      posts,
+      searchType: "blog",
+      getSlug,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error");
@@ -197,18 +241,18 @@ const blog = blogs.find((b) => b.blog === decodedSlug);
 
 exports.getPostDetails = async (req, res) => {
   try {
-    const permaLink = req.params.slug;
+    const slug = req.params.slug;
 
-    const post = await Post.findOne({ permaLink }).populate("blog");
+    const post = await Post.findOne({ slug }).populate("blog");
     if (!post) return res.status(404).send("Post not found");
 
     const blogs = await Blog.find({});
 
-    res.render("public/postDetails", { 
-      post, 
-      blog: post.blog,
+    res.render("public/postDetails", {
+      post,
+      blogs,
       searchType: "blog",
-      getSlug 
+      getSlug,
     });
   } catch (err) {
     console.error(err);
@@ -216,13 +260,39 @@ exports.getPostDetails = async (req, res) => {
   }
 };
 
-
 exports.getPrivacyPolicy = async (req, res) => {
   try {
     const blogs = await Blog.find({});
-    res.render("public/privacyPolicy", { blogs,searchType: "blog", getSlug });
+    res.render("public/privacyPolicy", { blogs, searchType: "blog", getSlug });
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.getUnifiedAutocomplete = async (req, res) => {
+  try {
+    const type = req.query.type;
+    const q = req.query.q?.trim() || "";
+
+    if (!q) return res.json([]);
+
+    if (type === "technician") {
+      return exports.autocompleteTechnicians(req, res);
+    }
+
+    if (type === "neighborhood") {
+      const techController = require("./technicianController");
+      return techController.autocompleteNeighborhood(req, res);
+    }
+
+    if (type === "blog") {
+      return exports.autocompletePosts(req, res);
+    }
+
+    return res.status(400).json({ error: "Invalid search type" });
+  } catch (err) {
+    console.error("Unified autocomplete error:", err);
+    res.status(500).json({ error: "Server error" });
   }
 };

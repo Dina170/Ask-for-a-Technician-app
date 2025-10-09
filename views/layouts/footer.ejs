@@ -4,10 +4,14 @@
     <!-- Mobile Layout (matches the image) -->
     <div class="block md:hidden">
       <!-- Logo + Description centered -->
-      <div class=" mb-8">
+    <div class="mb-8">
         <div class="flex justify-start mb-4">
-          <img src="/images/logo.png" alt="logo" class="h-12 w-auto rounded-md" />
+          <a href="/" class="cursor-pointer">
+            <img src="/images/logo.png" alt="logo" class="h-12 w-auto rounded-md mb-4" />
+          </a>
         </div>
+
+        
         <p class="text-sm leading-relaxed text-gray-300">
           منصة أفضل الفنيين والحرفيين<br />
           في جميع التخصصات التخصصات<br />
@@ -75,7 +79,7 @@
         <% if (typeof blogs !== 'undefined' && blogs.length > 0) { %>
           <% blogs.forEach(blog => { %>
             <li>
-             <a href="/blogs/<%= encodeURIComponent(blog.blog) %>"
+             <a href="/blogs/<%= encodeURIComponent(blog.slug) %>"
                  class="block px-3 py-3 hover:bg-[#406A84] rounded">
                 <%= blog.blog %>
               </a>
@@ -90,17 +94,18 @@
 
     
 
-    <!-- Desktop Layout (equal spacing between columns) -->
-<div class="hidden md:grid md:grid-cols-3 gap-8 items-start">
-        <div class="text-right">
-        <img src="/images/logo.png" alt="logo" class="h-12 w-auto rounded-md mb-4" />
+  <!-- Desktop Layout (equal spacing between columns) -->
+    <div class="hidden md:grid md:grid-cols-3 gap-8 items-start">
+      <div class="text-right">
+        <a href="/" class="inline-block cursor-pointer">
+          <img src="/images/logo.png" alt="logo" class="h-12 w-auto rounded-md mb-4" />
+        </a>
         <p class="leading-relaxed">
           منصة أفضل الفنيين والحرفيين<br />
           في جميع التخصصات<br />
           عملية البحث مباشرة
         </p>
       </div>
-
       <!-- Quick Links Column -->
       <div class="text-right">
         <h3 class="font-bold text-xl mb-4 mt-3">روابط سريعة</h3>
@@ -119,7 +124,7 @@
           <% if (locals.blogs && blogs.length > 0) { %>
             <% blogs.forEach(blog => { %>
               <li>
-               <a href="/blogs/<%= encodeURIComponent(blog.blog) %>" 
+               <a href="/blogs/<%= encodeURIComponent(blog.slug) %>" 
                    class="block px-4 py-2 hover:bg-[#406A84]">
                   <%= blog.blog %>
                 </a>
@@ -229,4 +234,12 @@
     }
   });
   </script>
+
+  <style>
+    /* img[alt="logo"] {
+  pointer-events: none;
+} */
+
+
+  </style>
 </footer>

@@ -1,13 +1,10 @@
 <header class="bg-[#2A4759] shadow-md p-4 lg:px-20 px-4 flex justify-between items-center z-50 relative">
-  <div class="flex items-center ">
-
-    <!-- <button onclick="window.history.back()" 
-            class="lg:hidden text-white text-xl hover:text-[#FC8500]">
-      <i class="fa-solid fa-arrow-right"></i> 
-    </button> -->
-
+ <div class="flex items-center">
+  <a href="/">
     <img src="/images/logo.png" alt="logo" class="h-8 lg:h-10 w-auto rounded-md" />
-  </div>
+  </a>
+</div>
+
 
   <nav class="hidden lg:block">
     <ul class="flex gap-8 text-white font-medium items-center">
@@ -22,8 +19,8 @@
           <% if (locals.blogs && blogs.length > 0) { %>
             <% blogs.forEach(blog => { %>
               <li>
-                <a href="/blogs/<%= encodeURIComponent(blog.blog) %>"
- class="block px-4 py-3 hover:bg-[#2A4759] hover:text-white">
+                <a href="/blogs/<%= encodeURIComponent(blog.slug) %>"
+                   class="block px-4 py-3 hover:bg-[#2A4759] hover:text-white">
                   <%= blog.blog %>
                 </a>
               </li>
@@ -51,17 +48,19 @@
   </div>
 
   <div class="flex lg:hidden items-center gap-4">
-    <div class="relative" data-search-type="<%= searchType %>" 
-         data-title="<%= typeof technician !== 'undefined' && technician ? encodeURIComponent(technician.mainTitle) : '' %>">
+    <!-- 🔹 تعديل: إضافة data-slug -->
+    <div class="relative" 
+         data-search-type="<%= searchType %>" 
+         data-slug="<%= typeof technician !== 'undefined' && technician && technician.slug ? technician.slug : '' %>">
       <button id="mobileSearchBtn" class="text-white text-md">
         <i class="fa-solid fa-magnifying-glass"></i>
       </button>
       <div id="mobileSearchWrapper" class="absolute top-0 left-6 hidden">
-        <form action="/" method="GET" class="flex items-center" id="mobileSearchForm">
+        <form method="GET" class="flex items-center" id="mobileSearchForm">
           <div class="relative w-full">
             <input type="text" id="search-mobile" name="search" placeholder="ابحث..." 
               class="w-0 max-w-[90px] text-[12px] transition-all duration-200 border border-gray-300 rounded-[12px] py-1 pl-3 pr-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2A4759]" />
-            <ul id="autocomplete-list-mobile" class="absolute z-50 bg-[#FAFAFA] w-full mt-1 rounded-lg"></ul>
+            <ul id="autocomplete-list-mobile" class="absolute z-50 bg-[#FAFAFA] w-full mt-1 rounded-lg shadow-lg max-h-60 overflow-y-auto"></ul>
           </div>
         </form>
       </div>
@@ -110,8 +109,7 @@
             <% if (locals.blogs && blogs.length > 0) { %>
               <% blogs.forEach(blog => { %>
                 <li class="pr-12" >
-                 <a href="/blogs/<%= encodeURIComponent(blog.blog) %>"
-
+                 <a href="/blogs/<%= encodeURIComponent(blog.slug) %>"
                      class="block px-4 py-3 hover:bg-[#406A84] hover:text-white">
                     <%= blog.blog %>
                   </a>
@@ -133,18 +131,18 @@
       </ul>
     </nav>
   </div>
-
 </header>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const mobileSearchWrapper = document.getElementById('mobileSearchWrapper');
   const mobileSearchInput = document.getElementById('search-mobile');
   const mobileSearchForm = document.getElementById('mobileSearchForm');
-  const searchContainer = mobileSearchWrapper.parentElement;
-  const searchType = searchContainer.dataset.searchType; // "technician" | "neighborhood" | "blog"
-  const techTitle = searchContainer.dataset.title;
+  const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+  const searchContainer = mobileSearchWrapper?.parentElement;
+  const searchType = searchContainer?.dataset.searchType;
 
-  // إعداد الـ form و placeholder حسب النوع
+  let selectedPost = null;
+
   if (searchType && mobileSearchInput && mobileSearchForm) {
     switch(searchType) {
       case "technician":
@@ -153,91 +151,409 @@ document.addEventListener('DOMContentLoaded', function () {
         break;
       case "neighborhood":
         mobileSearchInput.placeholder = "ابحث عن حي";
-        mobileSearchForm.action = techTitle ? `/technicians/${techTitle}/seeMoreTechnicianNeighborhoods` : "/showMoreTechnicians";
+        const techSlug = searchContainer.dataset.slug || '';
+        mobileSearchForm.action = techSlug 
+          ? `/technicians/عرض-الاحياء/${techSlug}` 
+          : "/showMoreTechnicians";
         break;
       case "blog":
         mobileSearchInput.placeholder = "ابحث عن مقال";
-        mobileSearchForm.action = "/posts";
+        mobileSearchForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const query = mobileSearchInput.value.trim();
+          if (query && searchType === "blog") {
+            searchAndDisplayPost(query);
+          }
+        });
         break;
     }
   }
 
-  // فتح وغلق البحث على الموبايل
-  const mobileSearchBtn = document.getElementById('mobileSearchBtn');
-  if (mobileSearchBtn) {
+  if (mobileSearchBtn && mobileSearchWrapper && mobileSearchInput) {
     mobileSearchBtn.addEventListener('click', () => {
-      if (!mobileSearchWrapper) return;
-      mobileSearchWrapper.classList.toggle('hidden');
-      if (!mobileSearchWrapper.classList.contains('hidden')) {
+      const isHidden = mobileSearchWrapper.classList.contains('hidden');
+      
+      if (isHidden) {
+        mobileSearchWrapper.classList.remove('hidden');
         mobileSearchInput.classList.remove('w-0');
         mobileSearchInput.classList.add('w-48','px-3');
         mobileSearchInput.focus();
       } else {
-        mobileSearchInput.classList.remove('w-48','px-3');
-        mobileSearchInput.classList.add('w-0');
+        const query = mobileSearchInput.value.trim();
+        
+        if (query) {
+          switch(searchType) {
+            case "blog":
+              searchAndDisplayPost(query);
+              break;
+            case "technician":
+              searchAndDisplayTechnician(query);
+              break;
+            case "neighborhood":
+              searchAndDisplayNeighborhood(query);
+              break;
+          }
+        } else {
+          mobileSearchWrapper.classList.add('hidden');
+          mobileSearchInput.classList.remove('w-48','px-3');
+          mobileSearchInput.classList.add('w-0');
+        }
       }
     });
   }
 
-  // إعداد autocomplete لكل نوع
-  if (mobileSearchInput && searchType) {
-    mobileSearchInput.addEventListener("input", async () => {
-      const query = mobileSearchInput.value.trim();
-      const list = document.getElementById("autocomplete-list-mobile");
+  // 🔹 دالة البحث للمقالات
+  async function searchAndDisplayPost(query) {
+    try {
+      const url = `/search/autocomplete?q=${encodeURIComponent(query)}&type=blog`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Network response was not ok');
+      
+      const items = await res.json();
+      console.log('Blog Search Results:', items);
 
-      if (!query) {
-        list.innerHTML = "";
-        list.classList.add("hidden");
-        return;
+      const list = document.getElementById("autocomplete-list-mobile");
+      list.innerHTML = "";
+      list.classList.add("hidden");
+
+      const postToDisplay = selectedPost || (items.length === 1 ? items[0] : null);
+      
+      if (postToDisplay) {
+        displaySinglePostCard(postToDisplay);
+        selectedPost = null;
+      } else if (items.length > 1) {
+        displayMultiplePostsCards(items);
+      } else {
+        displayNoResults(query, 'blog');
+      }
+    } catch(err) {
+      console.error("Blog search error:", err);
+      displayError();
+    }
+  }
+
+  // 🔹 دالة البحث للفنيين
+  async function searchAndDisplayTechnician(query) {
+    try {
+      const url = `/search/autocomplete?q=${encodeURIComponent(query)}&type=technician`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Network response was not ok');
+      
+      const items = await res.json();
+      console.log('Technician Search Results:', items);
+
+      if (items.length === 0) {
+        displayNoResults(query, 'technician');
+      } else if (items.length === 1) {
+        window.location.href = `/technicians/${items[0].slug || items[0]._id}`;
+      }
+    } catch(err) {
+      console.error("Technician search error:", err);
+      displayError();
+    }
+  }
+
+  // 🔹 دالة البحث للأحياء
+  async function searchAndDisplayNeighborhood(query) {
+    try {
+      const techSlug = searchContainer.dataset.slug || '';
+      let url = "";
+      
+      if (techSlug) {
+        url = `/technicians/${techSlug}/neighborhoods/autocomplete?q=${encodeURIComponent(query)}`;
+      } else {
+        url = `/search/autocomplete?q=${encodeURIComponent(query)}&type=neighborhood`;
       }
 
-      try {
-        let url = "";
-        switch(searchType) {
-          case "blog":
-            url = `/posts/autocomplete?q=${encodeURIComponent(query)}`;
-            break;
-          case "neighborhood":
-            if(!techTitle) {
-              console.warn("techTitle فارغ، البحث عن الأحياء سيتم بدون فلتر فني");
-              url = `/technicians/autocompleteNeighborhood?q=${encodeURIComponent(query)}`;
-            } else {
-              url = `/technicians/${techTitle}/autocompleteNeighborhood?q=${encodeURIComponent(query)}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Network response was not ok');
+      
+      const items = await res.json();
+      console.log('Neighborhood Search Results:', items);
+
+      if (items.length === 0) {
+        displayNoResults(query, 'neighborhood');
+      } else if (items.length === 1) {
+        const neighSlug = items[0].name.replace(/\s+/g, '-');
+        window.location.href = `/technicians/عرض-الاحياء/${techSlug}/${neighSlug}`;
+      }
+    } catch(err) {
+      console.error("Neighborhood search error:", err);
+      displayError();
+    }
+  }
+
+  function displaySinglePostCard(post) {
+    displayMultiplePostsCards([post]);
+  }
+
+  function displayMultiplePostsCards(posts) {
+    const postsContainer = document.getElementById('posts-container') || 
+                          document.getElementById('cards-container') ||
+                          document.querySelector('.grid');
+    
+    if (!postsContainer) return;
+
+    postsContainer.innerHTML = posts.map(post => {
+      // 🔹 تحديد الرابط الصحيح حسب نوع المقال
+      let postUrl = '';
+      if (post.slug && post.permaLink) {
+        postUrl = `/posts/${post.slug}`;
+      } else if (post.slug) {
+        postUrl = `/posts/${post.slug}`;
+      } else if (post.permaLink) {
+        postUrl = `/posts/${post.permaLink}`;
+      } else {
+        postUrl = `/posts/${post._id || ''}`;
+      }
+      
+      const regex = /<img.*?src="(.*?)"/;
+      const match = regex.exec(post.content || "");
+      const descriptionImage = match ? match[1] : '/uploads/posts/default.png';
+      
+      const safeName = (post.name || post.title || "").replace(/"/g, '&quot;');
+      const snippet = (post.content || '').replace(/<img.*?>/g,'').replace(/<[^>]+>/g,'').substring(0, 200);
+
+      return `
+        <div class="card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm relative flex flex-col"
+             data-permalink="${post.permaLink || post.slug}"
+             data-name="${safeName}">
+          <div class="relative w-full">
+            <img src="${descriptionImage}" 
+                 alt="${post.name || post.title}" 
+                 title="${post.name || post.title}"
+                 class="w-full h-auto object-cover" />
+          </div>
+          <div class="card-body p-4 flex flex-col flex-1">
+            <h3 class="text-[18px] font-bold text-[#222222]">
+              ${post.name || post.title}
+            </h3>
+            <p class="text-[#5C5C5C] font-normal text-[14px] leading-[200%] mb-5 break-words whitespace-normal overflow-hidden line-clamp-2 md:text-[16px] md:leading-[140%]">
+              ${snippet}...
+            </p>
+            <div class="mt-auto flex gap-2">
+              <a href="${postUrl}"
+                 class="flex-1 bg-[#2A4759] text-white text-sm text-center h-12 flex items-center justify-center rounded-lg hover:opacity-80 transition-opacity duration-200 mt-2">
+                عرض المزيد
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function displayNoResults(query, type = 'blog') {
+    const postsContainer = document.getElementById('posts-container') || 
+                          document.getElementById('cards-container') ||
+                          document.querySelector('.grid');
+    
+    if (!postsContainer) return;
+
+    let message = '';
+    let buttonText = '';
+    
+    switch(type) {
+      case 'blog':
+        message = `لا توجد مقالات تطابق "<span class='font-bold text-[#2A4759]'>${query}</span>"`;
+        buttonText = 'عرض جميع المقالات';
+        break;
+      case 'technician':
+        message = `لا يوجد فني يطابق "<span class='font-bold text-[#2A4759]'>${query}</span>"`;
+        buttonText = 'عرض جميع الفنيين';
+        break;
+      case 'neighborhood':
+        message = `لا يوجد حي يطابق "<span class='font-bold text-[#2A4759]'>${query}</span>"`;
+        buttonText = 'عرض جميع الأحياء';
+        break;
+    }
+
+    postsContainer.innerHTML = `
+      <div class="col-span-1 sm:col-span-2 lg:col-span-3 text-center text-gray-600 bg-white py-10 rounded-lg shadow">
+        <i class="fa-solid fa-circle-exclamation text-3xl mb-3 text-[#2A4759]"></i>
+        <p class="text-lg font-semibold mb-2">${message}</p>
+        <button onclick="location.reload()" 
+                class="bg-[#2A4759] text-white px-6 py-2 rounded-lg hover:opacity-80 transition-opacity">
+          <i class="fa-solid fa-rotate-right ml-2"></i>
+          ${buttonText}
+        </button>
+      </div>
+    `;
+  }
+
+  function displayError() {
+    const postsContainer = document.getElementById('posts-container') || 
+                          document.getElementById('cards-container') ||
+                          document.querySelector('.grid');
+    
+    if (!postsContainer) return;
+
+    postsContainer.innerHTML = `
+      <div class="col-span-1 sm:col-span-2 lg:col-span-3 text-center text-gray-600 bg-white py-10 rounded-lg shadow">
+        <i class="fa-solid fa-triangle-exclamation text-orange-400 text-4xl mb-4"></i>
+        <p class="text-xl font-semibold mb-2">حدث خطأ في البحث</p>
+        <p class="text-sm text-gray-500 mb-4">
+          عذراً، حدثت مشكلة أثناء البحث. يرجى المحاولة مرة أخرى.
+        </p>
+        <button onclick="location.reload()" 
+                class="bg-[#2A4759] text-white px-6 py-2 rounded-lg hover:opacity-80 transition-opacity">
+          <i class="fa-solid fa-rotate-right ml-2"></i>
+          إعادة تحميل الصفحة
+        </button>
+      </div>
+    `;
+  }
+
+  // Autocomplete
+  if (mobileSearchInput && searchType) {
+    let debounceTimer;
+    
+    mobileSearchInput.addEventListener("input", async () => {
+      clearTimeout(debounceTimer);
+      
+      debounceTimer = setTimeout(async () => {
+        const query = mobileSearchInput.value.trim();
+        const list = document.getElementById("autocomplete-list-mobile");
+
+        if (!query) {
+          list.innerHTML = "";
+          list.classList.add("hidden");
+          selectedPost = null;
+          
+          if (searchType === "blog") {
+            const originalCards = document.querySelector('[data-original-posts]');
+            if (originalCards) {
+              const postsContainer = document.getElementById('posts-container') || 
+                                    document.getElementById('cards-container') ||
+                                    document.querySelector('.grid');
+              if (postsContainer) {
+                postsContainer.innerHTML = originalCards.innerHTML;
+              }
             }
-            break;
-          case "technician":
-            url = `/autocompleteTechnicians?q=${encodeURIComponent(query)}`;
-            break;
-          default:
-            return;
-        }
-
-        const res = await fetch(url);
-        const items = await res.json();
-
-        if (!items.length) {
-          list.innerHTML = "<li class='px-3 py-2 text-gray-500 text-center'>لا توجد نتائج</li>";
-          list.classList.remove("hidden");
+          }
           return;
         }
 
-        list.innerHTML = items.map(item => {
-          let display = item.title || item.name || item.neighborhood || item.mainTitle;
-          let link = "#";
-          if(searchType === "blog") link = "/posts/" + item.permaLink;
-          else if(searchType === "neighborhood") link = `/technicians/${techTitle || "all"}/neighborhoods/${item.id}`;
-          else if(searchType === "technician") link = `/technicians/${item.id}`;
-          return `<li class="px-3 py-2 hover:bg-blue-50 cursor-pointer" data-link="${link}">${display}</li>`;
-        }).join("");
+        try {
+          let url = "";
+          
+          if (searchType === "neighborhood") {
+            const techSlug = searchContainer.dataset.slug || '';
+            if (techSlug) {
+              url = `/technicians/${techSlug}/neighborhoods/autocomplete?q=${encodeURIComponent(query)}`;
+            } else {
+              url = `/search/autocomplete?q=${encodeURIComponent(query)}&type=neighborhood`;
+            }
+          } else {
+            url = `/search/autocomplete?q=${encodeURIComponent(query)}&type=${searchType}`;
+          }
 
-        list.classList.remove("hidden");
+          console.log("Fetching from URL:", url);
 
-        list.querySelectorAll("li[data-link]").forEach(li => {
-          li.addEventListener("click", () => window.location.href = li.dataset.link);
-        });
+          const res = await fetch(url);
+          if (!res.ok) throw new Error('Network response was not ok');
+          
+          const items = await res.json();
+          console.log(`${searchType} Autocomplete Results:`, items);
 
-      } catch(err) {
-        console.error("Autocomplete error:", err);
+          if (!items.length) {
+            list.innerHTML = "<li class='px-3 py-2 text-gray-500 text-center text-sm'>لا توجد نتائج</li>";
+            list.classList.remove("hidden");
+            return;
+          }
+
+          list.innerHTML = items.map(item => {
+            let display = "";
+            let link = "#";
+
+            switch(searchType) {
+              case "blog":
+                display = item.name || item.title || "بدون عنوان";
+                return `<li class="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm border-b last:border-b-0" 
+                           data-post='${JSON.stringify(item)}'>${display}</li>`;
+              
+              case "technician":
+                display = item.mainTitle || item.jobName || "فني غير معروف";
+                link = `/technicians/${item.slug || item._id}`;
+                break;
+              
+              case "neighborhood":
+                display = item.name || "حي غير معروف";
+                const techSlug = searchContainer.dataset.slug || '';
+                const neighSlug = item.name.replace(/\s+/g, '-');
+                link = `/technicians/عرض-الاحياء/${techSlug}/${neighSlug}`;
+                break;
+            }
+
+            return `<li class="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm border-b last:border-b-0" data-link="${link}">${display}</li>`;
+          }).join("");
+
+          list.classList.remove("hidden");
+
+          if (searchType === "blog") {
+            list.querySelectorAll("li[data-post]").forEach(li => {
+              li.addEventListener("click", () => {
+                const post = JSON.parse(li.dataset.post);
+                selectedPost = post; 
+                mobileSearchInput.value = post.name || post.title;
+                list.innerHTML = "";
+                list.classList.add("hidden");
+              });
+            });
+          } else {
+            list.querySelectorAll("li[data-link]").forEach(li => {
+              li.addEventListener("click", () => {
+                window.location.href = li.dataset.link;
+              });
+            });
+          }
+
+        } catch(err) {
+          console.error("Autocomplete error:", err);
+          const list = document.getElementById("autocomplete-list-mobile");
+          list.innerHTML = "<li class='px-3 py-2 text-red-500 text-center text-sm'>حدث خطأ في البحث</li>";
+          list.classList.remove("hidden");
+        }
+      }, 300);
+    });
+
+    if (searchType === "blog") {
+      mobileSearchInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          const query = mobileSearchInput.value.trim();
+          if (query) {
+            searchAndDisplayPost(query);
+          }
+        }
+      });
+    } else if (searchType === "technician") {
+      mobileSearchInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          const query = mobileSearchInput.value.trim();
+          if (query) {
+            searchAndDisplayTechnician(query);
+          }
+        }
+      });
+    } else if (searchType === "neighborhood") {
+      mobileSearchInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          const query = mobileSearchInput.value.trim();
+          if (query) {
+            searchAndDisplayNeighborhood(query);
+          }
+        }
+      });
+    }
+
+    document.addEventListener('click', (e) => {
+      const list = document.getElementById("autocomplete-list-mobile");
+      if (!mobileSearchWrapper.contains(e.target) && e.target !== mobileSearchBtn) {
+        list.innerHTML = "";
+        list.classList.add("hidden");
       }
     });
   }
@@ -296,5 +612,25 @@ document.addEventListener('DOMContentLoaded', function () {
       if (mobileBlogIcon) mobileBlogIcon.classList.toggle('rotate-180');
     });
   }
+
+  if (searchType === "blog") {
+    const postsContainer = document.getElementById('posts-container') || 
+                          document.getElementById('cards-container') ||
+                          document.querySelector('.grid');
+    if (postsContainer && !document.querySelector('[data-original-posts]')) {
+      const backup = document.createElement('div');
+      backup.setAttribute('data-original-posts', 'true');
+      backup.style.display = 'none';
+      backup.innerHTML = postsContainer.innerHTML;
+      document.body.appendChild(backup);
+    }
+  }
 });
 </script>
+
+ <style>
+    img[alt="logo"] {
+  pointer-events: none;
+}
+
+  </style>

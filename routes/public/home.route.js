@@ -8,10 +8,11 @@ router.get("/", homeController.getHomePage);
 router.get("/showMoreTechnicians", technicianController.getAllTechnicians);
 router.get("/autocomplete", homeController.autocompleteTechnicians);
 router.get("/blogs", homeController.getAllBlogs);
-router.get("/blogs/:blog", homeController.getBlogPosts);
+router.get("/blogs/:slug", homeController.getBlogPosts);
 router.get("/posts/autocomplete", homeController.autocompletePosts);
 router.get("/posts/:slug", homeController.getPostDetails);
 router.get("/privacy-policy", homeController.getPrivacyPolicy);
+router.get("/search/autocomplete", homeController.getUnifiedAutocomplete);
 
 
 module.exports = router;

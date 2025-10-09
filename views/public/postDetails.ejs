@@ -72,7 +72,7 @@
             <i class="fa-solid fa-home text-lg sm:text-2xl ml-2 sm:ml-3"></i>
           </a>
           <i class="fa-solid fa-chevron-left mx-2 text-gray-400"></i>
-           <a href="/blogs/<%= encodeURIComponent(blog.blog) %>"
+           <a href="/blogs/<%= encodeURIComponent(post.blog.slug) %>"
              class="font-semibold text-gray-600 hover:text-[#2A4759]">
             <%= post.blog.blog %>
           </a>
@@ -90,7 +90,7 @@
         <%= post.name %>
       </h1>
 
-      <% if (post.image) { %>
+       <% if (post.image) { %>
         <div class="mb-6 sm:mb-8 flex justify-center relative group">
           <img
           src="/uploads/posts/<%= post.image %>"
@@ -143,7 +143,9 @@
         overflow: hidden;
       }
     </style>
-  <script>
+
+
+ <script>
       document.addEventListener('DOMContentLoaded', function() {
         const postTitle = '<%= post.name %>';
         const allImages = document.querySelectorAll('img');
