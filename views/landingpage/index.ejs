@@ -277,7 +277,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const messageContainer = document.getElementById("searchMessageContainer");
 
   searchForm.addEventListener("submit", async function (e) {
-    console.log("🔍 Form submitted!");
+    // console.log("🔍 Form submitted!");
     e.preventDefault();
     e.stopPropagation();
 
@@ -290,10 +290,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const selectedJobId = jobSelect.value;
     const selectedNeighborhood = neighborhoodSelect.value;
 
-    console.log("📋 Selected values:", {
-      jobId: selectedJobId,
-      neighborhood: selectedNeighborhood
-    });
+    // console.log("📋 Selected values:", {
+    //   jobId: selectedJobId,
+    //   neighborhood: selectedNeighborhood
+    // });
 
     // لو مفيش مهنة مختارة
     if (!selectedJobId) {
@@ -317,18 +317,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     try {
-      console.log("🌐 Fetching technician slug...");
+      // console.log("🌐 Fetching technician slug...");
       
       const url = `/technicians/api/get-technician-slug?jobId=${encodeURIComponent(selectedJobId)}&neighborhood=${encodeURIComponent(selectedNeighborhood || "")}`;
-      console.log("📍 Request URL:", url);
+      // console.log("📍 Request URL:", url);
       
       const resp = await fetch(url);
 
-      console.log("📡 Response status:", resp.status);
-      console.log("📡 Response ok:", resp.ok);
+      // console.log("📡 Response status:", resp.status);
+      // console.log("📡 Response ok:", resp.ok);
       
       const data = await resp.json();
-      console.log("📦 Response data:", data);
+      // console.log("📦 Response data:", data);
 
       // لو وجدنا فني
       if (data.slug) {
@@ -338,7 +338,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      console.log("❌ No technician found. Showing message...");
+      // console.log("❌ No technician found. Showing message...");
 
       // تحديد نوع الرسالة
       let messageHTML = "";
