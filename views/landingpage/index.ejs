@@ -272,56 +272,14 @@
 
  <script>
   // Job filter buttons
-  document.querySelectorAll(".job-filter-btn").forEach(button => {
-    button.addEventListener("click", async function () {
-      const technicianId = this.dataset.technicianId;
-      try {
-        const response = await fetch(`/technicians/${technicianId}/neighborhoods`);
-        const html = await response.text();
-        document.getElementById("cards-container").innerHTML = html;
-
-        const loadMoreContainer = document.querySelector(".text-center.mt-8");
-        if (loadMoreContainer) {
-          loadMoreContainer.innerHTML = `<a href="/technicians/${technicianId}/seeMoreTechnicianNeighborhoods" class="inline-block bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] border-2 border-[#2A4759] px-6 sm:px-8 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium">عرض المزيد <i class="fa-solid fa-chevron-left mr-2"></i></a>`;
-        }
-      } catch (err) {
-        console.error("Error loading neighborhoods:", err);
-      }
-    });
-  });
-
-  // Smooth scroll for anchors
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener("click", function (e) {
-      e.preventDefault();
-      const target = document.querySelector(this.getAttribute("href"));
-      if (target) {
-        target.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    });
-  });
-
-  // Custom select styling + redirect logic
-  document.addEventListener("DOMContentLoaded", function () {
-    const selectElements = document.querySelectorAll("select");
-    selectElements.forEach(select => {
-      select.addEventListener("focus", function () {
-        this.parentElement.style.borderColor = "#2A4759";
-        this.parentElement.style.boxShadow = "0 0 0 3px rgba(42, 71, 89, 0.1)";
-      });
-      select.addEventListener("blur", function () {
-        this.parentElement.style.borderColor = "#d1d5db";
-        this.parentElement.style.boxShadow = "none";
-      });
-    });
-
-    // Redirect to technician details after search
-   // Redirect to technician details after search
-   const searchForm = document.getElementById("searchForm");
+document.addEventListener("DOMContentLoaded", function () {
+  const searchForm = document.getElementById("searchForm");
   const messageContainer = document.getElementById("searchMessageContainer");
 
   searchForm.addEventListener("submit", async function (e) {
+    console.log("🔍 Form submitted!");
     e.preventDefault();
+    e.stopPropagation();
 
     // مسح أي رسالة قديمة
     messageContainer.innerHTML = "";
@@ -332,98 +290,113 @@
     const selectedJobId = jobSelect.value;
     const selectedNeighborhood = neighborhoodSelect.value;
 
-    // لو مفيش مهنة مختارة نخلي الفورم يعمل submit عادي (أو تنبيه)
-     if (!selectedJobId) {
-    const warnDiv = document.createElement("div");
-    warnDiv.className =
-      "bg-yellow-50 border border-yellow-300 text-gray-700 px-6 py-5 rounded-xl shadow-md max-w-lg mx-auto animate-fade-in";
-    warnDiv.innerHTML = `
-      <div class="flex flex-col items-center text-center">
-        <i class="fa-solid fa-circle-exclamation text-orange-500 text-3xl mb-2"></i>
-        <p class="font-semibold mb-1">من فضلك اختر المهنة أولاً</p>
-        <p class="text-sm text-gray-600">حدد المهنة قبل البدء في البحث.</p>
-      </div>`;
-    messageContainer.appendChild(warnDiv);
+    console.log("📋 Selected values:", {
+      jobId: selectedJobId,
+      neighborhood: selectedNeighborhood
+    });
 
-    // تختفي بعد 4 ثواني
-    setTimeout(() => {
-      warnDiv.classList.add("opacity-0", "transition-opacity", "duration-500");
-      setTimeout(() => warnDiv.remove(), 500);
-    }, 4000);
-    return;
-  }
+    // لو مفيش مهنة مختارة
+    if (!selectedJobId) {
+      console.log("⚠️ No job selected!");
+      const warnDiv = document.createElement("div");
+      warnDiv.className =
+        "bg-yellow-50 border border-yellow-300 text-gray-700 px-6 py-5 rounded-xl shadow-md max-w-lg mx-auto animate-fade-in";
+      warnDiv.innerHTML = `
+        <div class="flex flex-col items-center text-center">
+          <i class="fa-solid fa-circle-exclamation text-orange-500 text-3xl mb-2"></i>
+          <p class="font-semibold mb-1">من فضلك اختر المهنة أولاً</p>
+          <p class="text-sm text-gray-600">حدد المهنة قبل البدء في البحث.</p>
+        </div>`;
+      messageContainer.appendChild(warnDiv);
+
+      setTimeout(() => {
+        warnDiv.classList.add("opacity-0", "transition-opacity", "duration-500");
+        setTimeout(() => warnDiv.remove(), 500);
+      }, 4000);
+      return;
+    }
 
     try {
-  const resp = await fetch(
-    `/technicians/api/get-technician-slug?jobId=${encodeURIComponent(selectedJobId)}&neighborhood=${encodeURIComponent(selectedNeighborhood || "")}`
-  );
+      console.log("🌐 Fetching technician slug...");
+      
+      const url = `/technicians/api/get-technician-slug?jobId=${encodeURIComponent(selectedJobId)}&neighborhood=${encodeURIComponent(selectedNeighborhood || "")}`;
+      console.log("📍 Request URL:", url);
+      
+      const resp = await fetch(url);
 
-  const data = await resp.json();
+      console.log("📡 Response status:", resp.status);
+      console.log("📡 Response ok:", resp.ok);
+      
+      const data = await resp.json();
+      console.log("📦 Response data:", data);
 
-  // لو وجدنا فني
-  if (data.slug) {
-    window.location.href = `/technicians/${encodeURIComponent(data.slug)}`;
-    return;
-  }
+      // لو وجدنا فني
+      if (data.slug) {
+        const redirectUrl = `/technicians/${encodeURIComponent(data.slug)}`;
+        console.log("✅ Found technician! Redirecting to:", redirectUrl);
+        window.location.href = redirectUrl;
+        return;
+      }
 
-  // تحديد نوع الرسالة بناءً على البيانات الراجعة من السيرفر
-  let messageHTML = "";
-  let icon = "";
-  let bgColor = "";
-  let borderColor = "";
+      console.log("❌ No technician found. Showing message...");
 
-  if (data.jobExists && !data.neighborhoodExists) {
-    // مهنة موجودة لكن الحي مش متاح
-    icon = `<i class="fa-solid fa-location-dot text-orange-500 text-3xl mb-2"></i>`;
-    messageHTML = `
-      <p class="font-semibold mb-1">لا يوجد فني في هذا الحي حالياً</p>
-      <p class="text-sm text-gray-600">جرب حي آخر لهذه المهنة.</p>
-    `;
-    bgColor = "bg-yellow-50";
-    borderColor = "border-yellow-300";
-  } else if(!data.jobExists) {
-    // لا يوجد فنيون نهائياً لهذه المهنة
-    icon = `<i class="fa-solid fa-triangle-exclamation text-orange-500 text-3xl mb-2"></i>`;
-    messageHTML = `
-      <p class="font-semibold mb-1">عذراً، لا يوجد فنيون متاحون لهذه المهنة حالياً</p>
-      <p class="text-sm text-gray-600">يمكنك اختيار مهنة مختلفة من القائمة أعلاه.</p>
-    `;
-    bgColor = "bg-yellow-50";
-    borderColor = "border-orange-300";
-  }
+      // تحديد نوع الرسالة
+      let messageHTML = "";
+      let icon = "";
+      let bgColor = "";
+      let borderColor = "";
 
-  // إنشاء الرسالة
-  const noResultDiv = document.createElement("div");
-noResultDiv.className = `${bgColor} ${borderColor} border text-gray-700 px-6 py-5 rounded-xl shadow-md max-w-lg mx-auto animate-fade-in mx-5 sm:mx-auto`;
-  noResultDiv.innerHTML = `<div class="flex flex-col items-center text-center">${icon}${messageHTML}</div>`;
-  messageContainer.appendChild(noResultDiv);
+      if (data.jobExists && !data.neighborhoodExists) {
+        icon = `<i class="fa-solid fa-location-dot text-orange-500 text-3xl mb-2"></i>`;
+        messageHTML = `
+          <p class="font-semibold mb-1">لا يوجد فني في هذا الحي حالياً</p>
+          <p class="text-sm text-gray-600">جرب حي آخر لهذه المهنة.</p>
+        `;
+        bgColor = "bg-yellow-50";
+        borderColor = "border-yellow-300";
+      } else if(!data.jobExists) {
+        icon = `<i class="fa-solid fa-triangle-exclamation text-orange-500 text-3xl mb-2"></i>`;
+        messageHTML = `
+          <p class="font-semibold mb-1">عذراً، لا يوجد فنيون متاحون لهذه المهنة حالياً</p>
+          <p class="text-sm text-gray-600">يمكنك اختيار مهنة مختلفة من القائمة أعلاه.</p>
+        `;
+        bgColor = "bg-yellow-50";
+        borderColor = "border-orange-300";
+      }
 
-  // اختفاء تلقائي بعد 5 ثواني
-  setTimeout(() => {
-    noResultDiv.classList.add("opacity-0", "transition-opacity", "duration-500");
-    setTimeout(() => noResultDiv.remove(), 500);
-  }, 4000);
+      const noResultDiv = document.createElement("div");
+      noResultDiv.className = `${bgColor} ${borderColor} border text-gray-700 px-6 py-5 rounded-xl shadow-md max-w-lg mx-auto animate-fade-in mx-5 sm:mx-auto`;
+      noResultDiv.innerHTML = `<div class="flex flex-col items-center text-center">${icon}${messageHTML}</div>`;
+      messageContainer.appendChild(noResultDiv);
 
-} catch (err) {
-  console.error("Error fetching slug:", err);
+      setTimeout(() => {
+        noResultDiv.classList.add("opacity-0", "transition-opacity", "duration-500");
+        setTimeout(() => noResultDiv.remove(), 500);
+      }, 4000);
 
-  const errDiv = document.createElement("div");
-  errDiv.className =
-    "bg-red-50 border border-red-300 text-red-700 px-6 py-5 rounded-xl shadow-md max-w-lg mx-auto animate-fade-in";
-  errDiv.innerHTML = `
-    <div class="flex flex-col items-center text-center">
-      <i class="fa-solid fa-circle-xmark text-red-500 text-3xl mb-2"></i>
-      <p class="font-semibold mb-1">حدث خطأ أثناء البحث</p>
-      <p class="text-sm text-gray-600">يرجى المحاولة لاحقاً.</p>
-    </div>`;
-  messageContainer.appendChild(errDiv);
+    } catch (err) {
+      console.error("❗ Error fetching slug:", err);
+      console.error("Error details:", {
+        message: err.message,
+        stack: err.stack
+      });
 
-  setTimeout(() => {
-    errDiv.classList.add("opacity-0", "transition-opacity", "duration-500");
-    setTimeout(() => errDiv.remove(), 500);
-  }, 4000);
-}
+      const errDiv = document.createElement("div");
+      errDiv.className =
+        "bg-red-50 border border-red-300 text-red-700 px-6 py-5 rounded-xl shadow-md max-w-lg mx-auto animate-fade-in";
+      errDiv.innerHTML = `
+        <div class="flex flex-col items-center text-center">
+          <i class="fa-solid fa-circle-xmark text-red-500 text-3xl mb-2"></i>
+          <p class="font-semibold mb-1">حدث خطأ أثناء البحث</p>
+          <p class="text-sm text-gray-600">يرجى المحاولة لاحقاً.</p>
+        </div>`;
+      messageContainer.appendChild(errDiv);
 
+      setTimeout(() => {
+        errDiv.classList.add("opacity-0", "transition-opacity", "duration-500");
+        setTimeout(() => errDiv.remove(), 500);
+      }, 4000);
+    }
   });
 
 const firstTechnicianTitle = '<%= technicians[0] ? technicians[0].mainTitle : "" %>';
