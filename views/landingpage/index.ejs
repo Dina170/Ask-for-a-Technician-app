@@ -155,7 +155,7 @@
     <div class="max-w-4xl mx-auto">
    
 
-    <form id="searchForm" method="get" action="/" 
+    <form id="searchForm" onsubmit="return false;" method="get" action="/" 
       class="bg-white shadow-xl rounded-xl p-2 sm:p-3 md:p-4 mx-4 sm:mx-0">
 
       <div class="flex flex-row items-stretch gap-2 sm:gap-3 md:gap-4 w-full">
@@ -322,6 +322,7 @@
 
   searchForm.addEventListener("submit", async function (e) {
     e.preventDefault();
+     e.stopPropagation();
 
     // مسح أي رسالة قديمة
     messageContainer.innerHTML = "";
