@@ -331,7 +331,11 @@ exports.getTechnicianSlug = async (req, res) => {
     }
 
     if (neighborhood && neighborhood.trim()) {
-      const neighDoc = await Neighborhood.findOne({ name: neighborhood.trim() })
+      const normalizedNeighborhood = decodeURIComponent(neighborhood).trim();
+
+      const neighDoc = await Neighborhood.findOne({
+        name: { $regex: `^${normalizedNeighborhood}$`, $options: "i" },
+      })
         .select("_id")
         .lean();
 
@@ -369,6 +373,7 @@ exports.getTechnicianSlug = async (req, res) => {
     return res.status(500).json({ error: "Server error" });
   }
 };
+
 
 
 
