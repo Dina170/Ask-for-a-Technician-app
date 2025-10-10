@@ -400,9 +400,9 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
 const firstTechnicianTitle = '<%= technicians[0] ? technicians[0].mainTitle : "" %>';
-      const allImages = document.querySelectorAll('img');
+      const allImagess = document.querySelectorAll('img');
       
-     allImages.forEach(function(img) {
+     allImagess.forEach(function(img) {
   if (!img.alt || img.alt.trim() === '' || img.alt === 'N/A') {
     img.alt = firstTechnicianTitle;
   }
