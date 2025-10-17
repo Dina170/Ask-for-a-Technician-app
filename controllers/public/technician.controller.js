@@ -215,7 +215,6 @@ exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
         return res.status(404).send("Technician not found");
       }
 
-      // فلترة الأحياء
       let filteredNeighborhoods = tech.neighborhoodNames;
       if (searchQuery) {
         filteredNeighborhoods = filteredNeighborhoods.filter(
