@@ -9,7 +9,7 @@
   <nav class="hidden lg:block">
     <ul class="flex gap-8 text-white font-medium items-center">
       <li><a href="/" class="hover:underline hover:text-[#FC8500]">الرئيسية</a></li>
-      <li><a href="/showMoreTechnicians" class="hover:underline hover:text-[#FC8500]">الفنيين</a></li>
+      <li><a href="/technicians" class="hover:underline hover:text-[#FC8500]">الفنيين</a></li>
       <li class="relative group">
         <button class="hover:text-[#FC8500] flex items-center gap-1">
           المدونة
@@ -90,7 +90,7 @@
           </a>
         </li>
         <li>
-          <a href="/showMoreTechnicians" class="flex items-center gap-3 px-6 py-3 text-white hover:bg-[#406A84]">
+          <a href="/technicians" class="flex items-center gap-3 px-6 py-3 text-white hover:bg-[#406A84]">
             <i class="fa-solid fa-screwdriver-wrench text-sm"></i>
             الفنيين
           </a>
@@ -147,14 +147,14 @@ document.addEventListener('DOMContentLoaded', function () {
     switch(searchType) {
       case "technician":
         mobileSearchInput.placeholder = "ابحث عن فني";
-        mobileSearchForm.action = "/showMoreTechnicians";
+        mobileSearchForm.action = "/technicians";
         break;
       case "neighborhood":
         mobileSearchInput.placeholder = "ابحث عن حي";
         const techSlug = searchContainer.dataset.slug || '';
         mobileSearchForm.action = techSlug 
           ? `/technicians/عرض-الاحياء/${techSlug}` 
-          : "/showMoreTechnicians";
+          : "/technicians";
         break;
       case "blog":
         mobileSearchInput.placeholder = "ابحث عن مقال";
@@ -244,10 +244,10 @@ async function searchAndDisplayTechnician(query) {
 
     // ✅ لو مفيش نتائج → نحوله لصفحة عرض الفنيين مع البحث
     if (items.length === 0) {
-      window.location.href = `/showMoreTechnicians?search=${encodeURIComponent(query)}`;
+      window.location.href = `/technicians?search=${encodeURIComponent(query)}`;
     } else {
       // ✅ لو فيه نتائج → برضو نروح لصفحة الفنيين (زي ما طلبتي قبل)
-      window.location.href = `/showMoreTechnicians?search=${encodeURIComponent(query)}`;
+      window.location.href = `/technicians?search=${encodeURIComponent(query)}`;
     }
   } catch (err) {
     console.error("Technician search error:", err);
@@ -513,7 +513,7 @@ async function searchAndDisplayTechnician(query) {
     const selectedText = li.textContent.trim();
 
     if (searchType === "technician") {
-      window.location.href = `/showMoreTechnicians?search=${encodeURIComponent(selectedText)}`;
+      window.location.href = `/technicians?search=${encodeURIComponent(selectedText)}`;
     } 
     else {
       window.location.href = li.dataset.link;
@@ -649,14 +649,12 @@ async function searchAndDisplayTechnician(query) {
 
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
-  // 🟢 لو احنا في صفحة عرض الفنيين
-  if (window.location.pathname.includes("/showMoreTechnicians")) {
+  if (window.location.pathname.includes("/technicians")) {
     const params = new URLSearchParams(window.location.search);
     const searchQuery = params.get("search");
     if (!searchQuery) return;
 
     try {
-      // جرب تجيب الفنيين اللي بيطابقوا البحث
       const res = await fetch(`/search/autocomplete?q=${encodeURIComponent(searchQuery)}&type=technician`);
       const items = await res.json();
 
@@ -672,7 +670,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     لا يوجد فني يطابق "<span class='font-bold text-[#2A4759]'>${searchQuery}</span>"
   </p>
   <button
-    onclick="window.location.href='/showMoreTechnicians'"
+    onclick="window.location.href='/technicians'"
     class="bg-[#2A4759] text-white px-6 py-2 rounded-lg hover:opacity-80 transition-opacity"
   >
     <i class="fa-solid fa-rotate-right ml-2"></i>
