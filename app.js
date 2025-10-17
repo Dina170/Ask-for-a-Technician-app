@@ -10,6 +10,7 @@ const seedAdmin = require("./utils/seedAdmin");
 const MongoStore = require("connect-mongo");
 
 const app = express();
+app.disable("x-powered-by");
 
 // Routers
 const neighborhoodRouter = require("./routes/dashboard/neighborhood.route");
