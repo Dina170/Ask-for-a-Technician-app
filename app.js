@@ -94,6 +94,20 @@ app.use(async (req, res, next) => {
 // );
 
 app.use(express.static("public"));
+// cashing static files
+app.use(express.static("public", {
+  maxAge: "30d", 
+  etag: true,
+  lastModified: true
+}));
+
+// chache control for all routes
+app.use((req, res, next) => {
+  res.set("Cache-Control", "public, max-age=31536000"); // 1 year
+  next();
+});
+
+
 app.use("/uploads", express.static("uploads"));
 app.use("/uploads/posts", express.static("uploads/posts"));
 app.use("/static", express.static("public"));
