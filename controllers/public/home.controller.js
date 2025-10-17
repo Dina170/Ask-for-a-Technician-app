@@ -92,7 +92,7 @@ exports.getHomePage = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Internal Server Error");
+     res.status(500).render("public/404", { message: "حدث خطأ في الخادم." });
   }
 };
 
@@ -147,7 +147,7 @@ exports.autocompleteTechnicians = async (req, res) => {
     }
   } catch (err) {
     console.error("Autocomplete error:", err);
-    res.status(500).send("Internal Server Error");
+     res.status(500).render("public/404", { message: "حدث خطأ في الخادم." });
   }
 };
 
@@ -183,7 +183,7 @@ exports.autocompletePosts = async (req, res) => {
     return res.json(formattedPosts);
   } catch (err) {
     console.error("Autocomplete error:", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).render("public/404", { message: "حدث خطأ في الخادم." });
   }
 };
 
@@ -220,10 +220,8 @@ exports.getBlogPosts = async (req, res) => {
     const blog = blogs.find((b) => b.slug === decodedSlug);
 
     if (!blog)
-      return res
-        .status(404)
-        .render("public/404", { message: "Blog not found" });
-
+      return res.status(404).render("public/404", { message: "المدونة غير موجودة." });
+    
     const posts = await Post.find({ blog: blog._id }).sort({ createdAt: -1 });
     res.render("public/blogPosts", {
       blog,
@@ -242,7 +240,7 @@ exports.getPostDetails = async (req, res) => {
     const slug = req.params.slug;
 
     const post = await Post.findOne({ slug }).populate("blog");
-    if (!post) return res.status(404).send("Post not found");
+    if (!post)  return res.status(404).render("public/404", { message: "المقال غير موجود." });
 
     const blogs = await Blog.find({});
 
@@ -254,7 +252,7 @@ exports.getPostDetails = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Internal Server Error");
+    res.status(500).render("public/404", { message: "حدث خطأ في الخادم." });
   }
 };
 
@@ -264,7 +262,7 @@ exports.getPrivacyPolicy = async (req, res) => {
     res.render("public/privacyPolicy", { blogs, searchType: "technician", getSlug });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Internal Server Error");
+    res.status(500).render("public/404", { message: "حدث خطأ في الخادم." });
   }
 };
 
@@ -291,6 +289,6 @@ exports.getUnifiedAutocomplete = async (req, res) => {
     return res.status(400).json({ error: "Invalid search type" });
   } catch (err) {
     console.error("Unified autocomplete error:", err);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).render("public/404", { message: "حدث خطأ في الخادم." });
   }
 };

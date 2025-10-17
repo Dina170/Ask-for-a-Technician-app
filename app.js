@@ -170,6 +170,12 @@ app.use("/", publicHomeRouter); //landing page
 app.use("/technicians", publicTechnicianRouter);
 app.use("/auth", authRouter);
 
+// Custom 404 Page
+app.use((req, res) => {
+  res.status(404).render("public/404", { message: "الصفحة غير موجودة." });
+});
+
+
 // ---------------- Error Handling ----------------
 
 app.use((req, res, next) => {
