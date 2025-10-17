@@ -137,13 +137,13 @@
 
     <!-- Action Buttons -->
 <div class="flex flex-row gap-2 sm:gap-4 items-center justify-center md:justify-start mt-6 sm:mt-8 md:mt-10 lg:mt-12 -translate-y-6 sm:translate-y-0 transition-transform duration-300">
-  <a href="https://wa.me/<%= mainPhone %>" target="_blank" 
+  <a href="https://wa.me/<%= mainPhone %>" target="_blank"   rel="nofollow noopener noreferrer"
      class="flex items-center justify-center gap-1.5 bg-white hover:bg-[#2A4759] hover:text-white text-[#2A4759] text-xs sm:text-sm rounded-[10px] sm:rounded-[12px] px-4 sm:px-[30px] py-2 sm:py-3 w-[163px] sm:w-[272.25px] h-[38px] sm:h-[56px] transition-all duration-300 shadow-md">
     <i class="fab fa-whatsapp text-lg sm:text-xl"></i>
     <span class="whitespace-nowrap">ارسال على واتساب</span>
   </a>
 
-            <a href="tel:<%= mainPhone %>"
+            <a href="tel:<%= mainPhone %>"   rel="nofollow noopener noreferrer"
               class="flex items-center justify-center gap-1.5 border border-white hover:border-[#2A4759] hover:bg-[#2A4759] hover:text-white text-white text-xs sm:text-sm rounded-[10px] sm:rounded-[12px] px-4 sm:px-[30px] py-2 sm:py-3 w-[163px] sm:w-[272.25px] h-[38px] sm:h-[56px] transition-all duration-300">
               <i class="fa-solid fa-phone text-lg sm:text-xl"></i>
               <span class="whitespace-nowrap">اتصل الآن</span>
@@ -440,7 +440,8 @@ const technicianTitle = '<%= technicians[0] ? technicians[0].mainTitle : "" %>';
 >
   <!-- Phone -->
   <a
-    href="tel:<%= mainPhone %>"
+    href="tel:<%= mainPhone %>" 
+     rel="nofollow noopener noreferrer"
     class="bg-[#2A4759] hover:bg-[#1e3542] text-white p-3 sm:p-4 rounded-full shadow-md shadow-white/30 transition transform hover:scale-110 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14"
   >
     <i class="fa-solid fa-phone text-base sm:text-lg"></i>
@@ -450,6 +451,7 @@ const technicianTitle = '<%= technicians[0] ? technicians[0].mainTitle : "" %>';
   <a
     href="https://wa.me/<%= mainPhone %>"
     target="_blank"
+     rel="nofollow noopener noreferrer"
     class="bg-green-500 hover:bg-green-600 text-white p-3 sm:p-4 rounded-full  transition transform hover:scale-110 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14"
   >
     <i class="fab fa-whatsapp text-lg sm:text-xl"></i>
