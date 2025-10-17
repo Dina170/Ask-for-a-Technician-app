@@ -19,7 +19,8 @@ exports.getTechnicianNeighborhoods = async (req, res) => {
       .populate("jobName")
       .populate("neighborhoodNames");
 
-    if (!tech) return res.status(404).send("Technician not found");
+    if (!tech) return res.status(404).render("public/404", { message: "الفني غير موجود." });
+
 
     const neighborhoodsWithJobs = await Promise.all(
       tech.neighborhoodNames.map(async (neigh) => {
@@ -42,7 +43,8 @@ exports.getTechnicianNeighborhoods = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error");
+   res.status(500).render("public/404", { message: "حدث خطأ في الخادم." });
+
   }
 };
 
@@ -58,10 +60,12 @@ exports.getNeighborhoodDetails = async (req, res) => {
     }
 
     const technician = await Technician.findById(techId).populate("jobName");
-    if (!technician) return res.status(404).send("Technician not found");
+    if (!technician) return res.status(404).render("public/404", { message: "الفني غير موجود." });
+
 
     const neighborhood = await Neighborhood.findById(neighId);
-    if (!neighborhood) return res.status(404).send("Neighborhood not found");
+    if (!neighborhood) return res.status(404).render("public/404", { message: "الحي غير موجود." });
+
 
     const job = await Job.findOne({
       name: technician.jobName.name,
@@ -81,7 +85,7 @@ exports.getNeighborhoodDetails = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error");
+   res.status(500).render("public/404", { message: "حدث خطأ في الخادم." });
   }
 };
 
@@ -92,7 +96,8 @@ exports.getTechnicianDetails = async (req, res) => {
       .populate("jobName")
       .populate("neighborhoodNames");
 
-    if (!technician) return res.status(404).send("Technician not found");
+    if (!technician) return res.status(404).render("public/404", { message: "الفني غير موجود." });
+
 
     const job = technician.jobName || null;
 
@@ -195,7 +200,8 @@ exports.getAllTechnicians = async (req, res) => {
     });
   } catch (err) {
     console.error("Error fetching technicians:", err);
-    res.status(500).send("Internal Server Error");
+   res.status(500).render("public/404", { message: "حدث خطأ في الخادم." });
+
   }
 };
 
@@ -212,7 +218,8 @@ exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
         });
 
       if (!tech) {
-        return res.status(404).send("Technician not found");
+       return res.status(404).render("public/404", { message: "الفني غير موجود." });
+
       }
 
       let filteredNeighborhoods = tech.neighborhoodNames;
@@ -248,7 +255,8 @@ exports.getSeeMoreTechnicianNeighborhoods = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error");
+   res.status(500).render("public/404", { message: "حدث خطأ في الخادم." });
+
   }
 };
 //
@@ -266,7 +274,8 @@ exports.getSeeMoreTechnicianNeighborhoodSearch = async (req, res) => {
         select: "name neighborhoodPhoto",
       });
 
-    if (!tech) return res.status(404).send("Technician not found");
+    if (!tech) return res.status(404).render("public/404", { message: "الفني غير موجود." });
+
 
     let filteredNeighborhoods = tech.neighborhoodNames;
     if (searchQuery) {
@@ -300,7 +309,8 @@ exports.getSeeMoreTechnicianNeighborhoodSearch = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error");
+  res.status(500).render("public/404", { message: "حدث خطأ في الخادم." });
+
   }
 };
 
@@ -369,7 +379,8 @@ exports.getTechnicianSlug = async (req, res) => {
     });
   } catch (err) {
     console.error("Error in getTechnicianSlug:", err);
-    return res.status(500).json({ error: "Server error" });
+   res.status(500).render("public/404", { message: "حدث خطأ في الخادم." });
+
   }
 };
 
@@ -417,6 +428,7 @@ exports.autocompleteNeighborhood = async (req, res) => {
     return res.json(neighborhoods);
   } catch (err) {
     console.error("Autocomplete neighborhood error:", err);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).render("public/404", { message: "حدث خطأ في الخادم." });
+
   }
 };
