@@ -115,7 +115,7 @@
 
             <div class="flex flex-row justify-center mx-auto gap-2 sm:gap-4 w-full max-w-[604px] mt-6 sm:mt-8 md:mt-12">
               <% if (technician.phoneNumber) { %>
-                <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank" rel="noopener noreferrer"
+                <a href="https://wa.me/<%= technician.phoneNumber %>" target="_blank" rel="nofollow noopener noreferrer"
                   class="flex-1 max-w-[163px] sm:max-w-[272.25px]">
                   <button
                     class="bg-[#2A4759] flex items-center justify-center gap-1.5 text-white rounded-[10px] sm:rounded-[12px] w-full h-[38px] sm:h-[56px] px-4 py-2 sm:px-[30px] sm:py-3 border border-[#2A4759] hover:bg-[#1e3442] transition duration-300 text-xs sm:text-base">
@@ -143,11 +143,11 @@
           class="font-[Cairo] text-[#222222] leading-[140%] font-normal text-[20px] sm:font-medium sm:text-[30px] mb-4">
           اتصل الآن نصلك اينما كنت بالرياض
         </p>
-        <a href="tel:<%= technician.phoneNumber %>" target="_blank"
+        <a href="tel:<%= technician.phoneNumber %>" target="_blank" rel="nofollow noopener noreferrer"
           class="block text-center font-[Cairo] font-bold text-[20px] leading-[140%] tracking-normal text-[#2A4759] underline decoration-solid decoration-1">
           <%= technician.phoneNumber %>
         </a>
-        <a href="tel:<%= technician.phoneNumber %>" target="_blank"
+        <a href="tel:<%= technician.phoneNumber %>" target="_blank" rel="nofollow noopener noreferrer"
           class="mt-4 mx-auto w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center rounded-full border-2 border-[#2A4759]">
           <div class="bg-[#2A4759] w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center">
             <i class="fa-solid fa-phone text-2xl sm:text-3xl text-white"></i>
@@ -193,7 +193,7 @@
 >
   <!-- Phone -->
   <a
-    href="tel:<%= mainPhone %>"
+    href="tel:<%= mainPhone %>" rel="nofollow noopener noreferrer"
     class="bg-[#2A4759] hover:bg-[#1e3542] text-white p-3 sm:p-4 rounded-full shadow-md shadow-white/30 transition transform hover:scale-110 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14"
   >
     <i class="fa-solid fa-phone text-base sm:text-lg"></i>
@@ -203,6 +203,7 @@
   <a
     href="https://wa.me/<%= mainPhone %>"
     target="_blank"
+    rel="nofollow noopener noreferrer"
     class="bg-green-500 hover:bg-green-600 text-white p-3 sm:p-4 rounded-full  transition transform hover:scale-110 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14"
   >
     <i class="fab fa-whatsapp text-lg sm:text-xl"></i>
