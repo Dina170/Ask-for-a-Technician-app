@@ -5,6 +5,8 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js"
+    "sitemap": "node scripts/generate-sitemap.mjs"
+
   },
   "keywords": [],
   "author": "",
