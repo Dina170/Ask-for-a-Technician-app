@@ -197,3 +197,81 @@ app.use((err, req, res, next) => {
 // ---------------- Server ----------------
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Running @ http://localhost:${PORT}`));
+
+// === SIMPLE SITEMAP FROM EXPRESS ROUTES (auto + file in /public) ===
+const fs = require('fs');
+const path = require('path');
+
+const BASE_URL = process.env.SITE_URL || 'https://www.imadaldin.com'; // عدّل الدومين لو مختلف
+const EXCLUDE_PREFIXES = ['/dashboard','/admin','/api','/user','/account','/login','/register','/cgi-bin'];
+
+function collectGetPaths(app) {
+  const paths = new Set(['/']); // ضمّن الهوم
+  function walk(stack) {
+    for (const layer of stack) {
+      if (layer.route && layer.route.methods && layer.route.methods.get) {
+        const p = layer.route.path;
+        if (typeof p === 'string'
+            && !p.includes(':')                       // استبعد المسارات الباراميترية /:id
+            && !EXCLUDE_PREFIXES.some(pr => p.startsWith(pr))) {
+          paths.add(p === '/' ? '/' : p.replace(/\/+$/,''));
+        }
+      } else if (layer.name === 'router' && layer.handle?.stack) {
+        walk(layer.handle.stack);
+      }
+    }
+  }
+  if (app && app._router && app._router.stack) walk(app._router.stack);
+  return Array.from(paths).sort();
+}
+
+function toXml(urlList) {
+  const lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+                 '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'];
+  for (const u of urlList) {
+    const depth = u.pathname === '/' ? 0 : u.pathname.split('/').filter(Boolean).length;
+    const changefreq = depth === 0 ? 'weekly' : 'monthly';
+    const priority   = depth === 0 ? '0.9'    : (depth === 1 ? '0.7' : '0.5');
+    lines.push('  <url>');
+    lines.push(`    <loc>${u.loc}</loc>`);
+    lines.push(`    <lastmod>${new Date().toISOString()}</lastmod>`);
+    lines.push(`    <changefreq>${changefreq}</changefreq>`);
+    lines.push(`    <priority>${priority}</priority>`);
+    lines.push('  </url>');
+  }
+  lines.push('</urlset>');
+  return lines.join('\n');
+}
+
+// مسار يقدّم السايت ماب مباشرة (بدون حفظ)
+app.get('/sitemap.xml', (req, res) => {
+  const paths = collectGetPaths(app);
+  const urls = paths.map(p => {
+    const url = new URL(p, BASE_URL);
+    return { loc: url.toString(), pathname: url.pathname };
+  });
+  res.type('application/xml').send(toXml(urls));
+});
+
+// (اختياري لكن مفيد) اكتب نسخة فعلية داخل public عند الإقلاع، ومرّة كل 6 ساعات
+function writePhysicalSitemap() {
+  try {
+    const paths = collectGetPaths(app);
+    const urls = paths.map(p => {
+      const url = new URL(p, BASE_URL);
+      return { loc: url.toString(), pathname: url.pathname };
+    });
+    const xml = toXml(urls);
+    const out = path.join(__dirname, 'public', 'sitemap.xml');
+    fs.writeFileSync(out, xml, 'utf8');
+    console.log('[sitemap] wrote', out, '(', urls.length, 'URLs )');
+  } catch (e) {
+    console.error('[sitemap] error:', e.message);
+  }
+}
+
+// اكتب مرة بعد 10 ثواني من تشغيل السيرفر + حدّث كل 6 ساعات تلقائيًا
+setTimeout(writePhysicalSitemap, 10_000);
+setInterval(writePhysicalSitemap, 6 * 60 * 60 * 1000);
+// === END SIMPLE SITEMAP ===
+
