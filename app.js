@@ -10,6 +10,7 @@ const seedAdmin = require("./utils/seedAdmin");
 const MongoStore = require("connect-mongo");
 
 const app = express();
+app.use(express.static('public'));
 app.disable("x-powered-by");   // Remove X-Powered-By header for security
 
 // Routers
