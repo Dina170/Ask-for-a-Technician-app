@@ -130,60 +130,6 @@
     el.classList.add('hidden');
   }
 
-  // form.onsubmit = (e) => {
-  //   let isValid = true;
-
-  //   // Reset errors
-  //   ['blogError', 'nameError', 'permaLinkError', 'titleError', 'contentError'].forEach(hideError);
-
-  //   // Blog
-  //   if (!document.getElementById('blogSelect').value) {
-  //     showError('blogError', 'يجب اختيار مدونة.');
-  //     isValid = false;
-  //   }
-
-  //   // Name
-  //   const name = document.getElementById('nameInput').value.trim();
-  //   if (!name) {
-  //     showError('nameError', 'الاسم مطلوب.');
-  //     isValid = false;
-  //   } else if (name.length < 3) {
-  //     showError('nameError', 'الاسم يجب أن يكون على الأقل 3 أحرف.');
-  //     isValid = false;
-  //   }
-
-  //   // permaLink
-  //   const permaLink = document.getElementById('permaLinkInput').value.trim();
-  //   if (!permaLink) {
-  //     showError('permaLinkError', 'الرابط الدائم مطلوب.');
-  //     isValid = false;
-  //   }
-  //   // Title
-  //   const title = document.getElementById('titleInput').value.trim();
-  //   if (!title) {
-  //     showError('titleError', 'العنوان مطلوب.');
-  //     isValid = false;
-  //   } else if (title.length < 3) {
-  //     showError('titleError', 'العنوان يجب أن يكون على الأقل 3 أحرف.');
-  //     isValid = false;
-  //   }
-
-  //   // Content
-  //   const content = editor.root.innerHTML.trim();
-  //   const plainText = editor.getText().trim();
-  //   document.querySelector('#content').value = content;
-  //   if (!plainText) {
-  //     showError('contentError', 'الوصف مطلوب.');
-  //     isValid = false;
-  //   } else if (plainText.length < 5) {
-  //     showError('contentError', 'الوصف يجب أن يكون على الأقل 5 حرفاً.');
-  //     isValid = false;
-  //   }
-
-  //   if (!isValid) {
-  //     e.preventDefault();
-  //   }
-  // };
   form.onsubmit = (e) => {
     let isValid = true;
 
@@ -212,7 +158,6 @@
       showError('permaLinkError', 'الرابط الدائم مطلوب.');
       isValid = false;
     }
-
     // Title
     const title = document.getElementById('titleInput').value.trim();
     if (!title) {
@@ -223,48 +168,10 @@
       isValid = false;
     }
 
-   // ============ Content validation + Cleaning ============
-    let content = editor.root.innerHTML.trim();
-        const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = content;
-    
-    // إزالة الـ strong/em/u من داخل العناوين بس، مع الاحتفاظ بالـ styles
-    tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(heading => {
-      // البحث عن strong, em, u, s, span داخل العنوان
-      heading.querySelectorAll('strong, em, u, s').forEach(tag => {
-        if (tag.hasAttribute('style')) {
-          const tagStyle = tag.getAttribute('style');
-          const headingStyle = heading.getAttribute('style') || '';
-          heading.setAttribute('style', headingStyle + '; ' + tagStyle);
-        }
-        
-        const parent = tag.parentNode;
-        while (tag.firstChild) {
-          parent.insertBefore(tag.firstChild, tag);
-        }
-        parent.removeChild(tag);
-      });
-      
-      heading.querySelectorAll('span').forEach(span => {
-        if (span.hasAttribute('style')) {
-          const spanStyle = span.getAttribute('style');
-          const headingStyle = heading.getAttribute('style') || '';
-          heading.setAttribute('style', headingStyle + '; ' + spanStyle);
-        }
-        
-        const parent = span.parentNode;
-        while (span.firstChild) {
-          parent.insertBefore(span.firstChild, span);
-        }
-        parent.removeChild(span);
-      });
-    });
-    
-    content = tempDiv.innerHTML;
-    
+    // Content
+    const content = editor.root.innerHTML.trim();
     const plainText = editor.getText().trim();
     document.querySelector('#content').value = content;
-    
     if (!plainText) {
       showError('contentError', 'الوصف مطلوب.');
       isValid = false;
@@ -277,6 +184,100 @@
       e.preventDefault();
     }
   };
+
+  // form.onsubmit = (e) => {
+  //   let isValid = true;
+
+  //   // Reset errors
+  //   ['blogError', 'nameError', 'permaLinkError', 'titleError', 'contentError'].forEach(hideError);
+
+  //   // Blog
+  //   if (!document.getElementById('blogSelect').value) {
+  //     showError('blogError', 'يجب اختيار مدونة.');
+  //     isValid = false;
+  //   }
+
+  //   // Name
+  //   const name = document.getElementById('nameInput').value.trim();
+  //   if (!name) {
+  //     showError('nameError', 'الاسم مطلوب.');
+  //     isValid = false;
+  //   } else if (name.length < 3) {
+  //     showError('nameError', 'الاسم يجب أن يكون على الأقل 3 أحرف.');
+  //     isValid = false;
+  //   }
+
+  //   // permaLink
+  //   const permaLink = document.getElementById('permaLinkInput').value.trim();
+  //   if (!permaLink) {
+  //     showError('permaLinkError', 'الرابط الدائم مطلوب.');
+  //     isValid = false;
+  //   }
+
+  //   // Title
+  //   const title = document.getElementById('titleInput').value.trim();
+  //   if (!title) {
+  //     showError('titleError', 'العنوان مطلوب.');
+  //     isValid = false;
+  //   } else if (title.length < 3) {
+  //     showError('titleError', 'العنوان يجب أن يكون على الأقل 3 أحرف.');
+  //     isValid = false;
+  //   }
+
+  //  // ============ Content validation + Cleaning ============
+  //   let content = editor.root.innerHTML.trim();
+  //       const tempDiv = document.createElement('div');
+  //   tempDiv.innerHTML = content;
+    
+  //   // إزالة الـ strong/em/u من داخل العناوين بس، مع الاحتفاظ بالـ styles
+  //   tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(heading => {
+  //     // البحث عن strong, em, u, s, span داخل العنوان
+  //     heading.querySelectorAll('strong, em, u, s').forEach(tag => {
+  //       if (tag.hasAttribute('style')) {
+  //         const tagStyle = tag.getAttribute('style');
+  //         const headingStyle = heading.getAttribute('style') || '';
+  //         heading.setAttribute('style', headingStyle + '; ' + tagStyle);
+  //       }
+        
+  //       const parent = tag.parentNode;
+  //       while (tag.firstChild) {
+  //         parent.insertBefore(tag.firstChild, tag);
+  //       }
+  //       parent.removeChild(tag);
+  //     });
+      
+  //     heading.querySelectorAll('span').forEach(span => {
+  //       if (span.hasAttribute('style')) {
+  //         const spanStyle = span.getAttribute('style');
+  //         const headingStyle = heading.getAttribute('style') || '';
+  //         heading.setAttribute('style', headingStyle + '; ' + spanStyle);
+  //       }
+        
+  //       const parent = span.parentNode;
+  //       while (span.firstChild) {
+  //         parent.insertBefore(span.firstChild, span);
+  //       }
+  //       parent.removeChild(span);
+  //     });
+  //   });
+    
+  //   content = tempDiv.innerHTML;
+    
+  //   const plainText = editor.getText().trim();
+  //   document.querySelector('#content').value = content;
+    
+  //   if (!plainText) {
+  //     showError('contentError', 'الوصف مطلوب.');
+  //     isValid = false;
+  //   } else if (plainText.length < 5) {
+  //     showError('contentError', 'الوصف يجب أن يكون على الأقل 5 حرفاً.');
+  //     isValid = false;
+  //   }
+
+  //   if (!isValid) {
+  //     e.preventDefault();
+  //   }
+  // };
 
 </script>
 
