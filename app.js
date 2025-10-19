@@ -275,3 +275,10 @@ setTimeout(writePhysicalSitemap, 10_000);
 setInterval(writePhysicalSitemap, 6 * 60 * 60 * 1000);
 // === END SIMPLE SITEMAP ===
 
+app.get('/sitemap.xml', function (req, res) {
+  res.sendFile(__dirname + '/public/sitemap.xml');
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
