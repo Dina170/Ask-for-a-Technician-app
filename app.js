@@ -34,21 +34,22 @@ app.use((req, res, next) => {
 });
 
 
-// ===================== SITEMAP PRO v2 (Index + Groups + Images + HTML) =====================
+// ===================== SITEMAP PRO v3 (No 404s) =====================
 const fs   = require('fs');
 const path = require('path');
 
-const BASE_URL      = process.env.SITE_URL || 'https://imadaldin.com';
-const PUBLIC_DIR    = path.join(__dirname, 'public');
-const WRITE_FILES   = true;                     // اكتب نسخ XML فعلية داخل public
-const CACHE_TTL_MS  = 6 * 60 * 60 * 1000;       // 6 ساعات
-const CHUNK_SIZE    = 49000;                    // تحت حد 50k
+const BASE_URL        = process.env.SITE_URL || 'https://imadaldin.com';
+const PUBLIC_DIR      = path.join(__dirname, 'public');
+const WRITE_FILES     = true;                      // اكتب نسخ داخل public
+const CACHE_TTL_MS    = 6 * 60 * 60 * 1000;       // 6 ساعات
+const CHUNK_SIZE      = 49000;
+const GROUPS          = ['pages','technicians','posts'];
+const VERIFY_HTTP_200 = true;                      // ✅ تأكيد أن اللينك شغال
+const VERIFY_CONC     = 3;                         // أقصى توازي للتحقق
+const VERIFY_TIMEOUT  = 3500;                      // ms
 
-// المجموعات المفعّلة (غيّر الترتيب أو أضف/احذف بحرية)
-const CHILD_GROUPS = ['pages','technicians','posts','neighborhoods','jobs','blog-categories'];
-
-// صفحات ثابتة (زود اللي عندك)
-const STATIC_PAGES = ['/', '/about', '/contact', '/privacy-policy', '/services'];
+// صفحات ثابتة — زوّد/عدّل عندك
+const STATIC_PAGES = ['/', '/about', '/contact', '/privacy-policy'];
 
 // Helpers
 const nowISO = () => new Date().toISOString();
@@ -56,118 +57,62 @@ const toAbs  = (p) => new URL(p, BASE_URL).toString();
 const unique = (a) => Array.from(new Set(a));
 const chunk  = (a,n)=>Array.from({length:Math.ceil(a.length/n)},(_,i)=>a.slice(i*n,(i+1)*n));
 const xmlEsc = (s)=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const safeSlug = (s)=> String(s||'').trim().toLowerCase()
-                    .replace(/[^\w\s-]+/g,'').replace(/\s+/g,'-');
 
-// مسارات كل جروب
-const PATHS = {
-  pages:          (slug)=> slug,                             // جاهزة
-  technicians:    (slug)=> `/technicians/${slug}`,
-  posts:          (slug)=> `/blog/${slug}`,
-  neighborhoods:  (slug)=> `/neighborhoods/${slug}`,
-  jobs:           (slug)=> `/jobs/${slug}`,
-  'blog-categories': (slug)=> `/blog/category/${slug}`,
-};
-
-// محاولة ذكية لالتقاط صورة من الدوكيومنت (لو فيه URL)
-function pickImagesFromDoc(doc) {
-  const urls = [];
-  const pushIfUrl = (v) => {
-    if (typeof v === 'string' && /^https?:\/\//i.test(v)) urls.push(v);
-  };
-  // حقول شائعة
-  ['image','photo','thumbnail','avatar','cover','mainImage','featuredImage','hero','img','url']
-    .forEach(k => pushIfUrl(doc[k]));
-  // لو عندك media داخل مصفوفة
-  Object.values(doc).forEach(v=>{
-    if (Array.isArray(v)) v.forEach(x=>{
-      if (typeof x === 'string') pushIfUrl(x);
-      else if (x && typeof x === 'object') Object.values(x).forEach(pushIfUrl);
-    });
-  });
-  // رجّع حتى 5 صور بحد أقصى
-  return Array.from(new Set(urls)).slice(0,5);
-}
-
-// ـــــ جلب البيانات من موديولات مونجوز (بدون API) ـــــ //
+// ========== جلب البيانات من الداتابيز (بدون أي Collections مش موجودة) ==========
 async function fetchTechnicians() {
   try {
     const Technician = require('./models/technician');
-    const docs = await Technician.find({}, { slug:1, name:1, updatedAt:1, image:1 }).lean();
-    return docs.map(d => ({
-      path: PATHS.technicians((d.slug && String(d.slug)) || safeSlug(d.name)),
-      lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO(),
-      images: pickImagesFromDoc(d)
-    }));
+    // فقط اللي عنده slug فعلي
+    const docs = await Technician.find({ slug: { $exists:true, $ne:'' } }, { slug:1, updatedAt:1 }).lean();
+    return docs.map(d => ({ path: `/technicians/${String(d.slug)}`, lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO() }));
   } catch { return []; }
 }
 
 async function fetchPosts() {
   try {
     const Post = require('./models/post');
-    const docs = await Post.find({}, { slug:1, title:1, updatedAt:1, image:1 }).lean();
-    return docs.map(d => ({
-      path: PATHS.posts((d.slug && String(d.slug)) || safeSlug(d.title)),
-      lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO(),
-      images: pickImagesFromDoc(d)
-    }));
+    // فقط اللي عنده slug فعلي (لو عندك published=true ضيفها هنا)
+    const docs = await Post.find({ slug: { $exists:true, $ne:'' } }, { slug:1, updatedAt:1 }).lean();
+    return docs.map(d => ({ path: `/blog/${String(d.slug)}`, lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO() }));
   } catch { return []; }
 }
 
-async function fetchNeighborhoods() {
-  try {
-    const Neighborhood = require('./models/neighborhood');
-    const docs = await Neighborhood.find({}, { slug:1, name:1, updatedAt:1 }).lean();
-    return docs.map(d => ({
-      path: PATHS.neighborhoods((d.slug && String(d.slug)) || safeSlug(d.name)),
-      lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO(),
-      images: pickImagesFromDoc(d)
-    }));
-  } catch { return []; }
+// ========== التحقق أن الرابط شغال ==========
+async function verifyUrls(items){
+  if (!VERIFY_HTTP_200 || typeof fetch !== 'function') return items;
+
+  const out = [];
+  let idx = 0;
+  async function worker(){
+    while (idx < items.length){
+      const i = idx++;
+      const it = items[i];
+      try {
+        const ctl = new AbortController();
+        const t = setTimeout(()=>ctl.abort(), VERIFY_TIMEOUT);
+        const res = await fetch(it.loc, { method:'HEAD', redirect:'follow', signal: ctl.signal });
+        clearTimeout(t);
+        if (res.ok) out.push(it); // 2xx
+      } catch {/* تجاهل الروابط المعطوبة */}
+    }
+  }
+  await Promise.all(Array.from({length:VERIFY_CONC}, worker));
+  // حافظ على نفس الترتيب الأصلي
+  const set = new Set(out.map(x=>x.loc));
+  return items.filter(x=>set.has(x.loc));
 }
 
-async function fetchJobs() {
-  try {
-    const Job = require('./models/job');
-    const docs = await Job.find({}, { slug:1, title:1, updatedAt:1 }).lean();
-    return docs.map(d => ({
-      path: PATHS.jobs((d.slug && String(d.slug)) || safeSlug(d.title)),
-      lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO(),
-      images: pickImagesFromDoc(d)
-    }));
-  } catch { return []; }
-}
-
-async function fetchBlogCategories() {
-  try {
-    const Blog = require('./models/blog'); // لاحظ: عندك موديل اسمه blog
-    const docs = await Blog.find({}, { slug:1, blog:1, updatedAt:1 }).lean();
-    return docs.map(d => ({
-      path: PATHS['blog-categories']((d.slug && String(d.slug)) || safeSlug(d.blog)),
-      lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO(),
-      images: pickImagesFromDoc(d)
-    }));
-  } catch { return []; }
-}
-
-// كتابة XML (مع XSL) + صور
+// ========== كتابة XML (مع XSL) ==========
 function urlsToXml(items){
   const L = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>',
-    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">'
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
   ];
-  for (const it of items){
+  for (const {loc,lastmod} of items){
     L.push('  <url>');
-    L.push(`    <loc>${xmlEsc(it.loc)}</loc>`);
-    L.push(`    <lastmod>${xmlEsc(it.lastmod)}</lastmod>`);
-    if (Array.isArray(it.images)) {
-      for (const img of it.images) {
-        L.push('    <image:image>');
-        L.push(`      <image:loc>${xmlEsc(img)}</image:loc>`);
-        L.push('    </image:image>');
-      }
-    }
+    L.push(`    <loc>${xmlEsc(loc)}</loc>`);
+    L.push(`    <lastmod>${xmlEsc(lastmod)}</lastmod>`);
     L.push('  </url>');
   }
   L.push('</urlset>');
@@ -189,29 +134,42 @@ function indexToXml(sitemaps){
   return L.join('\n');
 }
 
-// البناء والكاش
-let CACHE = { builtAt:0, groups:{} };  // groups[g] = [chunk[], chunk[]...]
+// ========== البناء والكاش ==========
+let CACHE = { builtAt:0, groups:{} }; // groups[g] = [ [items], [items] ...]
 
 async function buildGroup(name){
   if (name === 'pages') {
-    const items = unique(STATIC_PAGES.map(p => p === '/' ? '/' : String(p).replace(/\/+$/,'').trim()))
-      .map(p => ({ loc: toAbs(p), lastmod: nowISO(), images: [] }));
+    let items = unique(STATIC_PAGES.map(p => p === '/' ? '/' : String(p).replace(/\/+$/,'').trim()))
+      .map(p => ({ loc: toAbs(p), lastmod: nowISO() }));
+    items = await verifyUrls(items);
     return chunk(items, CHUNK_SIZE);
   }
-  if (name === 'technicians')   return chunk((await fetchTechnicians()).map(x=>({loc:toAbs(x.path),lastmod:x.lastmod,images:x.images})), CHUNK_SIZE);
-  if (name === 'posts')         return chunk((await fetchPosts()).map(x=>({loc:toAbs(x.path),lastmod:x.lastmod,images:x.images})), CHUNK_SIZE);
-  if (name === 'neighborhoods') return chunk((await fetchNeighborhoods()).map(x=>({loc:toAbs(x.path),lastmod:x.lastmod,images:x.images})), CHUNK_SIZE);
-  if (name === 'blog-categories')return chunk((await fetchBlogCategories()).map(x=>({loc:toAbs(x.path),lastmod:x.lastmod,images:x.images})), CHUNK_SIZE);
+
+  if (name === 'technicians') {
+    let raw   = await fetchTechnicians();
+    let items = raw.map(x => ({ loc: toAbs(x.path), lastmod: x.lastmod }));
+    items = await verifyUrls(items);
+    return chunk(items, CHUNK_SIZE);
+  }
+
+  if (name === 'posts') {
+    let raw   = await fetchPosts();
+    let items = raw.map(x => ({ loc: toAbs(x.path), lastmod: x.lastmod }));
+    items = await verifyUrls(items);
+    return chunk(items, CHUNK_SIZE);
+  }
+
   return [];
 }
 
 async function buildAll(){
   const groups = {};
-  for (const g of CHILD_GROUPS) groups[g] = await buildGroup(g);
+  for (const g of GROUPS) groups[g] = await buildGroup(g);
   CACHE = { builtAt: Date.now(), groups };
 
   if (WRITE_FILES){
     fs.mkdirSync(PUBLIC_DIR, { recursive:true });
+
     // children
     for (const g of Object.keys(groups)){
       const chunks = groups[g];
@@ -221,6 +179,7 @@ async function buildAll(){
         fs.writeFileSync(path.join(PUBLIC_DIR, fname), urlsToXml(chunks[i]), 'utf8');
       }
     }
+
     // index
     const entries = [];
     for (const g of Object.keys(groups)){
@@ -234,7 +193,6 @@ async function buildAll(){
   }
 }
 
-// جدولة + Lazy trigger
 const due = () => (Date.now() - CACHE.builtAt) > CACHE_TTL_MS;
 let building = false;
 async function ensureBuilt(){
@@ -248,7 +206,7 @@ setTimeout(ensureBuilt, 10_000);
 setInterval(ensureBuilt, CACHE_TTL_MS);
 app.use((req,res,next)=>{ ensureBuilt().catch(()=>{}); next(); });
 
-// Routes: index + children
+// Routes
 app.get(['/sitemap.xml','/sitemap_index.xml'], async (req,res)=>{
   await ensureBuilt();
   const maps = [];
@@ -270,7 +228,7 @@ app.get(['/sitemap-:g.xml','/sitemap-:g-:n.xml'], async (req,res)=>{
   res.type('application/xml').send(urlsToXml(chunks[n]));
 });
 
-// صفحة بشرية بسيطة للمراجعة اليدوية
+// صفحة بشرية اختيارية (لو عاجبك تحتفظ بيها)
 app.get('/sitemap', async (req,res)=>{
   await ensureBuilt();
   const groups = CACHE.groups;
@@ -288,46 +246,26 @@ app.get('/sitemap', async (req,res)=>{
     }
     rows.push({ group:g, total, links });
   }
-
-  const html = `<!doctype html>
-<html lang="ar" dir="rtl"><head><meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>خريطة الموقع – ${xmlEsc(new URL(BASE_URL).host)}</title>
-<style>
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#0f172a;color:#e5e7eb;margin:0}
-  .wrap{max-width:1000px;margin:40px auto;padding:0 16px}
-  .card{background:#111827;border:1px solid #1f2937;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+  const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1"><title>خريطة الموقع</title>
+  <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0f172a;color:#e5e7eb;margin:0}
+  .wrap{max-width:1000px;margin:40px auto;padding:0 16px}.card{background:#111827;border:1px solid #1f2937;border-radius:14px}
   .hdr{background:linear-gradient(90deg,#3b82f6,#22d3ee);padding:18px 20px;color:#081425;font-weight:800}
-  .box{padding:18px 20px}
-  table{width:100%;border-collapse:collapse}
-  th,td{padding:12px 10px;border-bottom:1px solid #1f2937;text-align:right}
-  th{color:#bfdbfe}
-  a{color:#93c5fd;text-decoration:none}
-  a:hover{text-decoration:underline}
+  .box{padding:18px 20px}table{width:100%;border-collapse:collapse}th,td{padding:12px 10px;border-bottom:1px solid #1f2937;text-align:right}
+  th{color:#bfdbfe}a{color:#93c5fd;text-decoration:none}a:hover{text-decoration:underline}
   .badge{display:inline-block;background:#0ea5e9;color:#031318;border-radius:999px;padding:2px 8px;font-size:12px;margin-inline-start:6px}
-  .muted{color:#94a3b8;font-size:14px}
-</style></head><body>
-<div class="wrap"><div class="card">
-<div class="hdr">خريطة الموقع (Sitemap)</div>
-<div class="box">
-<table><thead><tr><th>القسم</th><th>عدد الروابط</th><th>الملفات</th></tr></thead><tbody>
-${rows.map(r => `
-<tr>
-  <td>${xmlEsc(r.group)}</td>
-  <td>${r.total}</td>
-  <td>
-    ${r.links.map(l => {
-      const name = new URL(l.loc).pathname.replace('/','');
-      return `<a href="${xmlEsc(l.loc)}" target="_blank" rel="noopener nofollow">${xmlEsc(name)}</a><span class="badge">${l.count}</span>`;
-    }).join(' ')}
-  </td>
-</tr>`).join('')}
-</tbody></table>
-<p class="muted">ملف الإندكس: <a href="${xmlEsc(BASE_URL)}/sitemap_index.xml" target="_blank" rel="noopener nofollow">sitemap_index.xml</a></p>
-</div></div></div></body></html>`;
+  .muted{color:#94a3b8;font-size:14px}</style></head><body>
+  <div class="wrap"><div class="card"><div class="hdr">خريطة الموقع</div><div class="box">
+  <table><thead><tr><th>القسم</th><th>عدد الروابط</th><th>الملفات</th></tr></thead><tbody>
+  ${rows.map(r => `<tr><td>${r.group}</td><td>${r.total}</td><td>${
+    r.links.map(l => { const name = new URL(l.loc).pathname.replace('/',''); return `<a href="${l.loc}" target="_blank" rel="noopener nofollow">${name}</a><span class="badge">${l.count}</span>`; }).join(' ')
+  }</td></tr>`).join('')}
+  </tbody></table>
+  <p class="muted">الإندكس: <a href="${BASE_URL}/sitemap_index.xml" target="_blank" rel="noopener nofollow">sitemap_index.xml</a></p>
+  </div></div></div></body></html>`;
   res.type('html').send(html);
 });
-// =================== END SITEMAP PRO v2 ==================================
+// =================== END SITEMAP PRO v3 =====================
 
 
 
