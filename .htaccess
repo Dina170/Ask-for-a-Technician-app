@@ -1,56 +1,86 @@
+# ===========================
+# Canonical redirects (ONE HOP)
+# ===========================
 RewriteEngine On
 
-# تحويل كل الروابط من www إلى non-www مع https (Canonical دائم)
+# www -> non-www + HTTPS مباشرةً
 RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
 
-# إجبار الوصول عبر https دائماً (Canonical)
+# Force HTTPS لباقي الحالات (non-www على http)
 RewriteCond %{HTTPS} !=on
-RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
-# ضغط الملفات (Gzip)
+# ===========================
+# Remove trailing slash بدون كسر المجلدات
+# ===========================
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.+)/$ /$1 [R=301,L]
+
+# ===========================
+# Compression (gzip)
+# ===========================
 <IfModule mod_deflate.c>
-AddOutputFilterByType DEFLATE text/html text/plain text/xml application/xml application/xhtml+xml text/css text/javascript application/javascript application/x-javascript
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml application/xml application/xhtml+xml
+  AddOutputFilterByType DEFLATE text/css text/javascript application/javascript application/x-javascript
+  AddOutputFilterByType DEFLATE image/svg+xml application/json
 </IfModule>
 
-# تفعيل الكاش للصور والملفات الثابتة
+# ===========================
+# Caching (Expires + Cache-Control)
+# ===========================
 <IfModule mod_expires.c>
-ExpiresActive On
-ExpiresByType image/jpg "access plus 1 year"
-ExpiresByType image/jpeg "access plus 1 year"
-ExpiresByType image/gif "access plus 1 year"
-ExpiresByType image/png "access plus 1 year"
-ExpiresByType text/css "access plus 1 month"
-ExpiresByType text/javascript "access plus 1 month"
-ExpiresByType application/javascript "access plus 1 month"
+  ExpiresActive On
+  # Images
+  ExpiresByType image/jpg       "access plus 1 year"
+  ExpiresByType image/jpeg      "access plus 1 year"
+  ExpiresByType image/png       "access plus 1 year"
+  ExpiresByType image/gif       "access plus 1 year"
+  ExpiresByType image/webp      "access plus 1 year"
+  ExpiresByType image/avif      "access plus 1 year"
+  ExpiresByType image/svg+xml   "access plus 1 year"
+  # CSS / JS
+  ExpiresByType text/css        "access plus 1 month"
+  ExpiresByType text/javascript "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  # Fonts
+  ExpiresByType font/woff2      "access plus 1 year"
+  ExpiresByType font/woff       "access plus 1 year"
 </IfModule>
 
-# تخصيص صفحة خطأ 404
+<IfModule mod_headers.c>
+  <FilesMatch "\.(?:css|js)$">
+    Header set Cache-Control "public, max-age=2592000"  # 30d
+  </FilesMatch>
+  <FilesMatch "\.(?:png|jpe?g|gif|webp|avif|svg|woff2?)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"  # 1y
+  </FilesMatch>
+</IfModule>
+
+# ===========================
+# Security headers (خفيفة)
+# ===========================
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ===========================
+# 404 page (تأكد من وجود الملف)
+# ===========================
 ErrorDocument 404 /errors/404.html
 
-# منع استعراض محتويات المجلدات
+# ===========================
+# Disable directory listing
+# ===========================
 Options -Indexes
 
-# تفعيل HSTS
-<IfModule mod_headers.c>
-Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-</IfModule>
-
-# إشعار محركات البحث بالسماح بالأرشفة وفرض الكانونيكال
-Header set X-Robots-Tag "index, follow"
-
-# دعم sitemap لجوجل والزواحف
-<IfModule mod_rewrite.c>
-RewriteRule ^sitemap\.xml$ /sitemap.xml [L]
-</IfModule>
-
-# منع أرشفة صفحات الخصوصية أو الداخلية فقط
-<Files "privacy-policy.html">
-Header set X-Robots-Tag "noindex, nofollow"
-</Files>
-
-# قاعدة تمنع تكرار الروابط مع / أو بدون / في آخر الرابط (يفضل)
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^(.*)/$ /$1 [R=301,L]
-
-# يسمح فقط بالنسخة الموحدة للصفحة ويمنع أي تكرار لأي شكل آخر للرابط
+# ===========================
+# Robots / Sitemap
+# ===========================
+# لا تحتاج Rewrite: لو sitemap.xml موجود في الجذر بيتخدم مباشرة.
+# داخل robots.txt اكتبه كده (non-www + https):
+# Sitemap: https://imadaldin.com/sitemap.xml
