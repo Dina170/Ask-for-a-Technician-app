@@ -201,7 +201,6 @@ async function buildGroup(name){
   if (name === 'technicians')   return chunk((await fetchTechnicians()).map(x=>({loc:toAbs(x.path),lastmod:x.lastmod,images:x.images})), CHUNK_SIZE);
   if (name === 'posts')         return chunk((await fetchPosts()).map(x=>({loc:toAbs(x.path),lastmod:x.lastmod,images:x.images})), CHUNK_SIZE);
   if (name === 'neighborhoods') return chunk((await fetchNeighborhoods()).map(x=>({loc:toAbs(x.path),lastmod:x.lastmod,images:x.images})), CHUNK_SIZE);
-  if (name === 'jobs')          return chunk((await fetchJobs()).map(x=>({loc:toAbs(x.path),lastmod:x.lastmod,images:x.images})), CHUNK_SIZE);
   if (name === 'blog-categories')return chunk((await fetchBlogCategories()).map(x=>({loc:toAbs(x.path),lastmod:x.lastmod,images:x.images})), CHUNK_SIZE);
   return [];
 }
