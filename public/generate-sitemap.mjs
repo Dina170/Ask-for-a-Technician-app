@@ -1,114 +1,178 @@
-// public/.generate-sitemap.mjs
-// Node 18+ (فيه fetch مدمج). يشبّع خفيف على موقعك ويولّد sitemap.xml بجانب الملف.
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+// ===================== SITEMAP PRO (Index + Groups) =====================
+const fs = require('fs');
+const path = require('path');
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// لو Node 18+: fetch متوفر. غير كده هتحتاج node-fetch.
+const fetchFn = (...a) => (global.fetch ? global.fetch(...a) : Promise.reject(new Error('Need Node 18+')));
 
-// ===== إعدادات بسيطة عدّلها لو لزم =====
-const BASE_URL = 'https://www.imadaldin.com'; // عدّل الدومين لو مختلف
-const OUTPUT   = path.resolve(__dirname, './sitemap.xml'); // يكتب داخل public
-const MAX_PAGES = 1500;                       // حد أمان للزحف
-const POLITENESS_DELAY_MS = 120;              // تأخير بسيط بين الطلبات
-const EXCLUDE_PREFIXES = [
-  '/dashboard', '/admin', '/api', '/user', '/account',
-  '/login', '/register', '/cgi-bin'
+// مهم مع أي بروكسي (DigitalOcean App Platform)
+app.set('trust proxy', true);
+
+// ===== إعدادات عامة =====
+const BASE_URL   = process.env.SITE_URL || 'https://www.imadaldin.com';
+const PUBLIC_DIR = path.join(__dirname, 'public');
+const WRITE_FILES = true;                  // يكتب xml فعلية داخل public
+const CACHE_TTL_MS = 6 * 60 * 60 * 1000;  // 6 ساعات
+const CHUNK_SIZE  = 49000;                // تحت حد 50k
+const HEAD_LASTMOD = false;               // HEAD لكل URL (خليه false لتقليل الحمل)
+const HEAD_CONCURRENCY = 3;
+const CHILD_GROUPS = ['pages','services','posts']; // زوّد/قلّل حسب احتياجك
+
+// ===== مصادر الروابط =====
+// 1) صفحات ثابتة (روتات React الثابتة)
+const STATIC_PAGES = [
+  '/', '/about', '/contact', '/privacy-policy'
+  // زوّد اللي عندك هنا
 ];
-const STRIP_QUERYSTRING = true;               // تجاهل الاستعلامات لتقليل التكرار
 
-// ===== مساعدات =====
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-const sameHost = (u) => {
-  try { return new URL(u).host === new URL(BASE_URL).host; } catch { return false; }
-};
-function normalize(u) {
+// 2) APIs اختيارية (لو موجودة عندك) — رجّع slugs أو URLs
+async function fetchServices() {
   try {
-    const url = new URL(u, BASE_URL);
-    url.hash = '';
-    if (STRIP_QUERYSTRING) url.search = '';
-    if (url.pathname !== '/' && url.pathname.endsWith('/')) url.pathname = url.pathname.slice(0, -1);
-    return url.toString();
-  } catch { return null; }
+    const r = await fetchFn(`${BASE_URL}/api/services/slugs`, { redirect:'follow' });
+    if (!r.ok) return []; // لو مفيش API، يطلع فاضي
+    const data = await r.json();  // [{slug:"a"}, ...]
+    return data.map(x => `/services/${String(x.slug||'').replace(/^\/+/,'')}`).filter(Boolean);
+  } catch { return []; }
 }
-function isExcluded(u) {
+async function fetchPosts() {
   try {
-    const p = new URL(u).pathname;
-    return EXCLUDE_PREFIXES.some(pref => p.startsWith(pref));
-  } catch { return true; }
+    const r = await fetchFn(`${BASE_URL}/api/posts/slugs`, { redirect:'follow' });
+    if (!r.ok) return [];
+    const data = await r.json();
+    return data.map(x => `/blog/${String(x.slug||'').replace(/^\/+/,'')}`).filter(Boolean);
+  } catch { return []; }
 }
-function lastmodFromHeaders(h) {
-  const lm = h.get('last-modified');
-  return lm ? new Date(lm) : new Date();
-}
-function iso8601(d) { return (d instanceof Date ? d : new Date(d)).toISOString(); }
 
-// ===== الزحف الخفيف =====
-async function crawl(startUrl) {
-  const queue = [normalize(startUrl)];
-  const visited = new Set();
-  const urls = new Map(); // loc -> Date
+// ===== أدوات =====
+const nowISO = () => new Date().toISOString();
+const toAbs  = (p) => new URL(p, BASE_URL).toString();
+const unique = (arr) => Array.from(new Set(arr));
+const chunk  = (arr,size)=>Array.from({length:Math.ceil(arr.length/size)},(_,i)=>arr.slice(i*size,(i+1)*size));
+function xmlEscape(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-  while (queue.length && visited.size < MAX_PAGES) {
-    const current = queue.shift();
-    if (!current || visited.has(current) || isExcluded(current)) continue;
-    visited.add(current);
-
-    try {
-      const res = await fetch(current, { redirect: 'follow' });
-      if (!res.ok) continue;
-
-      urls.set(current, lastmodFromHeaders(res.headers));
-
-      const type = res.headers.get('content-type') || '';
-      if (!type.includes('text/html')) continue;
-
-      const html = await res.text();
-      const hrefs = Array.from(html.matchAll(/href\s*=\s*"(.*?)"/gi)).map(m => m[1]).filter(Boolean);
-
-      for (const h of hrefs) {
-        if (/^(mailto:|tel:|javascript:|#)/i.test(h)) continue;
-        const abs = normalize(h);
-        if (!abs) continue;
-        if (!sameHost(abs)) continue;
-        if (isExcluded(abs)) continue;
-        if (!visited.has(abs) && !queue.includes(abs)) queue.push(abs);
-      }
-      await sleep(POLITENESS_DELAY_MS);
-    } catch {
-      // تجاهل أخطاء الصفحة الواحدة
+// HEAD last-modified (اختياري)
+async function addLastMod(urls) {
+  if (!HEAD_LASTMOD) return urls.map(u => ({ loc:u, lastmod: nowISO() }));
+  const out = new Array(urls.length);
+  let i = 0;
+  async function worker(){
+    while (i < urls.length){
+      const idx = i++;
+      try {
+        const r = await fetchFn(urls[idx], { method:'HEAD', redirect:'follow' });
+        const lm = r.headers.get('last-modified');
+        out[idx] = { loc: urls[idx], lastmod: lm ? new Date(lm).toISOString() : nowISO() };
+      } catch { out[idx] = { loc: urls[idx], lastmod: nowISO() }; }
     }
   }
-  return urls;
+  await Promise.all(Array.from({length: HEAD_CONCURRENCY}, worker));
+  return out;
 }
 
-// ===== توليد XML =====
-function toXml(urlMap) {
-  const lines = [];
-  lines.push('<?xml version="1.0" encoding="UTF-8"?>');
-  lines.push('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
-  const entries = [...urlMap.entries()].sort((a,b) => a[0].localeCompare(b[0]));
-  for (const [loc, lm] of entries) {
-    const pathname = new URL(loc).pathname;
-    const depth = pathname === '/' ? 0 : pathname.split('/').filter(Boolean).length;
-    const changefreq = depth === 0 ? 'weekly' : (depth === 1 ? 'monthly' : 'monthly');
-    const priority   = depth === 0 ? '0.9'    : (depth === 1 ? '0.7'     : '0.5');
-
-    lines.push('  <url>');
-    lines.push(`    <loc>${loc}</loc>`);
-    lines.push(`    <lastmod>${iso8601(lm)}</lastmod>`);
-    lines.push(`    <changefreq>${changefreq}</changefreq>`);
-    lines.push(`    <priority>${priority}</priority>`);
-    lines.push('  </url>');
+function urlsToXml(items){
+  const L = ['<?xml version="1.0" encoding="UTF-8"?>',
+             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'];
+  for (const {loc,lastmod} of items){
+    L.push('  <url>');
+    L.push(`    <loc>${xmlEscape(loc)}</loc>`);
+    L.push(`    <lastmod>${xmlEscape(lastmod)}</lastmod>`);
+    L.push('  </url>');
   }
-  lines.push('</urlset>');
-  return lines.join('\n');
+  L.push('</urlset>');
+  return L.join('\n');
+}
+function indexToXml(sitemaps){
+  const L = ['<?xml version="1.0" encoding="UTF-8"?>',
+             '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'];
+  for (const {loc,lastmod} of sitemaps){
+    L.push('  <sitemap>');
+    L.push(`    <loc>${xmlEscape(loc)}</loc>`);
+    L.push(`    <lastmod>${xmlEscape(lastmod)}</lastmod>`);
+    L.push('  </sitemap>');
+  }
+  L.push('</sitemapindex>');
+  return L.join('\n');
 }
 
-// ===== تشغيل =====
-(async () => {
-  console.log('[sitemap] crawling:', BASE_URL);
-  const urlMap = await crawl(BASE_URL);
-  fs.writeFileSync(OUTPUT, toXml(urlMap), 'utf8');
-  console.log(`[sitemap] written: ${OUTPUT} (URLs: ${urlMap.size})`);
-})();
+// ===== البيلدر =====
+let CACHE = { builtAt:0, groups:{} }; // groups: { pages:[chunks...], services:[...], posts:[...] }
+
+async function buildGroup(name){
+  let paths = [];
+  if (name === 'pages')     paths = STATIC_PAGES;
+  else if (name === 'services') paths = await fetchServices();
+  else if (name === 'posts')    paths = await fetchPosts();
+
+  paths = unique(paths.map(p => p === '/' ? '/' : String(p).replace(/\/+$/,'').trim())).filter(Boolean);
+  const abs = paths.map(toAbs);
+  const withDates = await addLastMod(abs);
+  return chunk(withDates, CHUNK_SIZE);
+}
+
+async function buildAll(){
+  const groups = {};
+  for (const g of CHILD_GROUPS) groups[g] = await buildGroup(g);
+  CACHE = { builtAt: Date.now(), groups };
+
+  if (WRITE_FILES){
+    fs.mkdirSync(PUBLIC_DIR, { recursive:true });
+
+    // اكتب ملفات المجموعات
+    for (const g of Object.keys(groups)){
+      const chunks = groups[g];
+      if (!chunks.length) continue;
+      for (let i=0;i<chunks.length;i++){
+        const file = chunks.length===1 ? `sitemap-${g}.xml` : `sitemap-${g}-${i+1}.xml`;
+        fs.writeFileSync(path.join(PUBLIC_DIR, file), urlsToXml(chunks[i]), 'utf8');
+      }
+    }
+
+    // اكتب الـIndex
+    const entries = [];
+    for (const g of Object.keys(groups)){
+      const chunks = groups[g];
+      for (let i=0;i<chunks.length;i++){
+        const file = chunks.length===1 ? `sitemap-${g}.xml` : `sitemap-${g}-${i+1}.xml`;
+        entries.push({ loc: `${BASE_URL}/${file}`, lastmod: nowISO() });
+      }
+    }
+    fs.writeFileSync(path.join(PUBLIC_DIR, 'sitemap_index.xml'), indexToXml(entries), 'utf8');
+  }
+}
+
+// Lazy trigger + جدولة
+const due = () => (Date.now() - CACHE.builtAt) > CACHE_TTL_MS;
+let building = false;
+async function ensureBuilt(){
+  if (!due() || building) return;
+  building = true;
+  try { await buildAll(); console.log('[sitemap] rebuilt'); }
+  catch(e){ console.error('[sitemap]', e.message); }
+  finally { building = false; }
+}
+setTimeout(ensureBuilt, 10_000);                // بعد الإقلاع
+setInterval(ensureBuilt, CACHE_TTL_MS);         // كل 6 ساعات
+app.use((req,res,next)=>{ ensureBuilt().catch(()=>{}); next(); }); // Lazy trigger
+
+// ===== Routes (ديناميكي وسريع) =====
+app.get(['/sitemap.xml','/sitemap_index.xml'], async (req,res)=>{
+  await ensureBuilt();
+  const maps = [];
+  for (const g of Object.keys(CACHE.groups)){
+    const chunks = CACHE.groups[g];
+    for (let i=0;i<chunks.length;i++){
+      const child = chunks.length===1 ? `/sitemap-${g}.xml` : `/sitemap-${g}-${i+1}.xml`;
+      maps.push({ loc: `${BASE_URL}${child}`, lastmod: nowISO() });
+    }
+  }
+  res.type('application/xml').send(indexToXml(maps));
+});
+app.get(['/sitemap-:g.xml','/sitemap-:g-:n.xml'], async (req,res)=>{
+  await ensureBuilt();
+  const g = req.params.g;
+  const n = req.params.n ? (parseInt(req.params.n,10)-1) : 0;
+  const chunks = CACHE.groups[g] || [];
+  if (!chunks[n]) return res.sendStatus(404);
+  res.type('application/xml').send(urlsToXml(chunks[n]));
+});
+// =================== END SITEMAP PRO ===================
