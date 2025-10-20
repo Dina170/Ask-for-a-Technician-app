@@ -13,7 +13,26 @@ const app = express();
 app.use(express.static('public'));
 app.disable("x-powered-by");   // Remove X-Powered-By header for security
 
-app.use((req,res,next)=>{res.set('Strict-Transport-Security','max-age=31536000; includeSubDomains'); next();});
+// HSTS (اختياري في الإنتاج)
+if (process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    res.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    next();
+  });
+}
+// 🔁 التحويل الموحّد: non-www + https (قفزة واحدة)
+const PROD_HOST = 'imadaldin.com';
+app.use((req, res, next) => {
+  const host  = (req.headers.host || '').replace(/:\d+$/, '');
+  const proto = (req.headers['x-forwarded-proto'] || req.protocol || '').toLowerCase();
+
+  // الحالة الوحيدة المسموحة للدخول بدون تحويل
+  if (proto === 'https' && host === PROD_HOST) return next();
+
+  // أي شيء غير كده → 301 إلى النسخة الموحّدة
+  return res.redirect(301, `https://${PROD_HOST}${req.originalUrl}`);
+});
+
 
 // Routers
 const neighborhoodRouter = require("./routes/dashboard/neighborhood.route");
@@ -285,13 +304,3 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-app.set('trust proxy', true); // مهم على App Platform
-
-app.use((req, res, next) => {
-  const host  = (req.headers.host || '').replace(/:\d+$/, '');
-  const proto = (req.headers['x-forwarded-proto'] || req.protocol || '').toLowerCase();
-  if (proto !== 'https' || host !== 'imadaldin.com') {
-    return res.redirect(301, `https://imadaldin.com${req.originalUrl}`);
-  }
-  next();
-});
