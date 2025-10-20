@@ -282,3 +282,14 @@ app.get('/sitemap.xml', function (req, res) {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+app.set('trust proxy', true); // مهم على App Platform
+
+app.use((req, res, next) => {
+  const host  = (req.headers.host || '').replace(/:\d+$/, '');
+  const proto = (req.headers['x-forwarded-proto'] || req.protocol || '').toLowerCase();
+  if (proto !== 'https' || host !== 'imadaldin.com') {
+    return res.redirect(301, `https://imadaldin.com${req.originalUrl}`);
+  }
+  next();
+});
