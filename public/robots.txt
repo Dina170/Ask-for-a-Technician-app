@@ -26,4 +26,5 @@ Disallow: /?q=
 Disallow: /?search=
 
 
-Sitemap: https://www.imadaldin.com/sitemap.xml
+
+Sitemap: https://imadaldin.com/sitemap.xml
