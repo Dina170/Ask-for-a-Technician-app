@@ -13,6 +13,8 @@ const app = express();
 app.use(express.static('public'));
 app.disable("x-powered-by");   // Remove X-Powered-By header for security
 
+app.use((req,res,next)=>{res.set('Strict-Transport-Security','max-age=31536000; includeSubDomains'); next();});
+
 // Routers
 const neighborhoodRouter = require("./routes/dashboard/neighborhood.route");
 const jobRouter = require("./routes/dashboard/job.route");
