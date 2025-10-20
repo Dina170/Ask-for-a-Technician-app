@@ -35,8 +35,10 @@ app.use((req, res, next) => {
 
 
 // ===================== SITEMAP PRO v3 (No 404s) =====================
-const fs   = require('fs');
-const path = require('path');
+
+// ✳️ احذف السطرين دول لو fs/path متعرفة فوق بالفعل
+const fs   = require('fs');     // <-- احذفه لو موجود
+const path = require('path');   // <-- احذفه لو موجود
 
 const BASE_URL        = process.env.SITE_URL || 'https://imadaldin.com';
 const PUBLIC_DIR      = path.join(__dirname, 'public');
@@ -58,29 +60,38 @@ const unique = (a) => Array.from(new Set(a));
 const chunk  = (a,n)=>Array.from({length:Math.ceil(a.length/n)},(_,i)=>a.slice(i*n,(i+1)*n));
 const xmlEsc = (s)=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-// ========== جلب البيانات من الداتابيز (بدون أي Collections مش موجودة) ==========
+// ========== DB ==========
 async function fetchTechnicians() {
   try {
     const Technician = require('./models/technician');
-    // فقط اللي عنده slug فعلي
-    const docs = await Technician.find({ slug: { $exists:true, $ne:'' } }, { slug:1, updatedAt:1 }).lean();
-    return docs.map(d => ({ path: `/technicians/${String(d.slug)}`, lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO() }));
+    const docs = await Technician.find(
+      { slug: { $exists:true, $ne:'' } },
+      { slug:1, updatedAt:1 }
+    ).lean();
+    return docs.map(d => ({
+      path: `/technicians/${String(d.slug)}`,
+      lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO()
+    }));
   } catch { return []; }
 }
 
 async function fetchPosts() {
   try {
     const Post = require('./models/post');
-    // فقط اللي عنده slug فعلي (لو عندك published=true ضيفها هنا)
-    const docs = await Post.find({ slug: { $exists:true, $ne:'' } }, { slug:1, updatedAt:1 }).lean();
-    return docs.map(d => ({ path: `/blog/${String(d.slug)}`, lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO() }));
+    const docs = await Post.find(
+      { slug: { $exists:true, $ne:'' } },   // لو عندك published:true ضيفها هنا
+      { slug:1, updatedAt:1 }
+    ).lean();
+    return docs.map(d => ({
+      path: `/blog/${String(d.slug)}`,
+      lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO()
+    }));
   } catch { return []; }
 }
 
-// ========== التحقق أن الرابط شغال ==========
+// ========== HTTP 200 verify ==========
 async function verifyUrls(items){
   if (!VERIFY_HTTP_200 || typeof fetch !== 'function') return items;
-
   const out = [];
   let idx = 0;
   async function worker(){
@@ -92,17 +103,16 @@ async function verifyUrls(items){
         const t = setTimeout(()=>ctl.abort(), VERIFY_TIMEOUT);
         const res = await fetch(it.loc, { method:'HEAD', redirect:'follow', signal: ctl.signal });
         clearTimeout(t);
-        if (res.ok) out.push(it); // 2xx
-      } catch {/* تجاهل الروابط المعطوبة */}
+        if (res.ok) out.push(it); // 2xx فقط
+      } catch {}
     }
   }
   await Promise.all(Array.from({length:VERIFY_CONC}, worker));
-  // حافظ على نفس الترتيب الأصلي
-  const set = new Set(out.map(x=>x.loc));
-  return items.filter(x=>set.has(x.loc));
+  const ok = new Set(out.map(x=>x.loc));
+  return items.filter(x=>ok.has(x.loc));
 }
 
-// ========== كتابة XML (مع XSL) ==========
+// ========== XML ==========
 function urlsToXml(items){
   const L = [
     '<?xml version="1.0" encoding="UTF-8"?>',
@@ -118,6 +128,7 @@ function urlsToXml(items){
   L.push('</urlset>');
   return L.join('\n');
 }
+
 function indexToXml(sitemaps){
   const L = [
     '<?xml version="1.0" encoding="UTF-8"?>',
@@ -134,31 +145,27 @@ function indexToXml(sitemaps){
   return L.join('\n');
 }
 
-// ========== البناء والكاش ==========
-let CACHE = { builtAt:0, groups:{} }; // groups[g] = [ [items], [items] ...]
+// ========== Build & Cache ==========
+let CACHE = { builtAt:0, groups:{} }; // groups[g] = [ [items], [items] ... ]
 
 async function buildGroup(name){
   if (name === 'pages') {
-    let items = unique(STATIC_PAGES.map(p => p === '/' ? '/' : String(p).replace(/\/+$/,'').trim()))
-      .map(p => ({ loc: toAbs(p), lastmod: nowISO() }));
+    let items = unique(
+      STATIC_PAGES.map(p => p === '/' ? '/' : String(p).replace(/\/+$/,'').trim())
+    ).map(p => ({ loc: toAbs(p), lastmod: nowISO() }));
     items = await verifyUrls(items);
     return chunk(items, CHUNK_SIZE);
   }
-
   if (name === 'technicians') {
-    let raw   = await fetchTechnicians();
-    let items = raw.map(x => ({ loc: toAbs(x.path), lastmod: x.lastmod }));
+    let items = (await fetchTechnicians()).map(x => ({ loc: toAbs(x.path), lastmod: x.lastmod }));
     items = await verifyUrls(items);
     return chunk(items, CHUNK_SIZE);
   }
-
   if (name === 'posts') {
-    let raw   = await fetchPosts();
-    let items = raw.map(x => ({ loc: toAbs(x.path), lastmod: x.lastmod }));
+    let items = (await fetchPosts()).map(x => ({ loc: toAbs(x.path), lastmod: x.lastmod }));
     items = await verifyUrls(items);
     return chunk(items, CHUNK_SIZE);
   }
-
   return [];
 }
 
@@ -219,6 +226,7 @@ app.get(['/sitemap.xml','/sitemap_index.xml'], async (req,res)=>{
   }
   res.type('application/xml').send(indexToXml(maps));
 });
+
 app.get(['/sitemap-:g.xml','/sitemap-:g-:n.xml'], async (req,res)=>{
   await ensureBuilt();
   const g = req.params.g;
@@ -228,43 +236,6 @@ app.get(['/sitemap-:g.xml','/sitemap-:g-:n.xml'], async (req,res)=>{
   res.type('application/xml').send(urlsToXml(chunks[n]));
 });
 
-// صفحة بشرية اختيارية (لو عاجبك تحتفظ بيها)
-app.get('/sitemap', async (req,res)=>{
-  await ensureBuilt();
-  const groups = CACHE.groups;
-  const rows = [];
-  for (const g of Object.keys(groups)){
-    const chunks = groups[g];
-    let total = 0;
-    const links = [];
-    for (let i=0;i<chunks.length;i++){
-      const fname = chunks.length===1 ? `sitemap-${g}.xml` : `sitemap-${g}-${i+1}.xml`;
-      const loc = `${BASE_URL}/${fname}`;
-      const count = chunks[i].length;
-      total += count;
-      links.push({ loc, count });
-    }
-    rows.push({ group:g, total, links });
-  }
-  const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1"><title>خريطة الموقع</title>
-  <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0f172a;color:#e5e7eb;margin:0}
-  .wrap{max-width:1000px;margin:40px auto;padding:0 16px}.card{background:#111827;border:1px solid #1f2937;border-radius:14px}
-  .hdr{background:linear-gradient(90deg,#3b82f6,#22d3ee);padding:18px 20px;color:#081425;font-weight:800}
-  .box{padding:18px 20px}table{width:100%;border-collapse:collapse}th,td{padding:12px 10px;border-bottom:1px solid #1f2937;text-align:right}
-  th{color:#bfdbfe}a{color:#93c5fd;text-decoration:none}a:hover{text-decoration:underline}
-  .badge{display:inline-block;background:#0ea5e9;color:#031318;border-radius:999px;padding:2px 8px;font-size:12px;margin-inline-start:6px}
-  .muted{color:#94a3b8;font-size:14px}</style></head><body>
-  <div class="wrap"><div class="card"><div class="hdr">خريطة الموقع</div><div class="box">
-  <table><thead><tr><th>القسم</th><th>عدد الروابط</th><th>الملفات</th></tr></thead><tbody>
-  ${rows.map(r => `<tr><td>${r.group}</td><td>${r.total}</td><td>${
-    r.links.map(l => { const name = new URL(l.loc).pathname.replace('/',''); return `<a href="${l.loc}" target="_blank" rel="noopener nofollow">${name}</a><span class="badge">${l.count}</span>`; }).join(' ')
-  }</td></tr>`).join('')}
-  </tbody></table>
-  <p class="muted">الإندكس: <a href="${BASE_URL}/sitemap_index.xml" target="_blank" rel="noopener nofollow">sitemap_index.xml</a></p>
-  </div></div></div></body></html>`;
-  res.type('html').send(html);
-});
 // =================== END SITEMAP PRO v3 =====================
 
 
