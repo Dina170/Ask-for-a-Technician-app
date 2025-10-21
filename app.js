@@ -34,101 +34,126 @@ app.use((req, res, next) => {
 });
 
 
-// ===================== SITEMAP PRO v3 (No 404s) =====================
+// ===================== SITEMAP PRO v3.1 (No 404s, Posts + Neighborhoods) =====================
+// ⚠️ احذف السطرين لو متعرفة فوق
+const fs   = require('fs');
+const path = require('path');
 
-// ✳️ احذف السطرين دول لو fs/path متعرفة فوق بالفعل
-const fs   = require('fs');     // <-- احذفه لو موجود
-const path = require('path');   // <-- احذفه لو موجود
+const BASE_URL   = process.env.SITE_URL || 'https://imadaldin.com';
+const PUBLIC_DIR = path.join(__dirname, 'public');
 
-const BASE_URL        = process.env.SITE_URL || 'https://imadaldin.com';
-const PUBLIC_DIR      = path.join(__dirname, 'public');
-const WRITE_FILES     = true;                      // اكتب نسخ داخل public
-const CACHE_TTL_MS    = 6 * 60 * 60 * 1000;       // 6 ساعات
-const CHUNK_SIZE      = 49000;
-const GROUPS          = ['pages','technicians','posts'];
-const VERIFY_HTTP_200 = true;                      // ✅ تأكيد أن اللينك شغال
-const VERIFY_CONC     = 3;                         // أقصى توازي للتحقق
-const VERIFY_TIMEOUT  = 3500;                      // ms
+const WRITE_FILES    = true;
+const CACHE_TTL_MS   = 6 * 60 * 60 * 1000;   // 6 ساعات
+const CHUNK_SIZE     = 49000;
+const GROUPS         = ['pages','technicians','posts','neighborhoods'];
 
-// صفحات ثابتة — زوّد/عدّل عندك
+const VERIFY_CONC    = 3;
+const VERIFY_TIMEOUT = 5000;                 // ms
+
+// صفحات ثابتة (زود على مزاجك)
 const STATIC_PAGES = ['/', '/about', '/contact', '/privacy-policy'];
 
-// Helpers
+// ===== Helpers =====
 const nowISO = () => new Date().toISOString();
 const toAbs  = (p) => new URL(p, BASE_URL).toString();
 const unique = (a) => Array.from(new Set(a));
 const chunk  = (a,n)=>Array.from({length:Math.ceil(a.length/n)},(_,i)=>a.slice(i*n,(i+1)*n));
+const trimSlash = (s)=> s === '/' ? '/' : s.replace(/\/+$/,'').trim();
 const xmlEsc = (s)=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-// ========== DB ==========
+// تحقق أن URL شغال (HEAD ثم GET كاحتياط)
+async function isOk(url){
+  const ctl = new AbortController();
+  const timer = setTimeout(()=>ctl.abort(), VERIFY_TIMEOUT);
+  try {
+    let r = await fetch(url, { method:'HEAD', redirect:'follow', signal: ctl.signal });
+    if (!r.ok || r.status >= 400) {
+      r = await fetch(url, { method:'GET', redirect:'follow', signal: ctl.signal, headers:{'Accept':'text/html'} });
+    }
+    return r.ok && r.status < 400;
+  } catch { return false; }
+  finally { clearTimeout(timer); }
+}
+
+// جرّب أول مسار شغّال من لستة احتمالات
+async function resolveFirstWorkingUrl(slug, candidates){
+  for (const base of candidates){
+    const rel = `${trimSlash(base)}/${slug}`;
+    const abs = toAbs(rel);
+    if (await isOk(abs)) return { rel, abs };
+  }
+  return null;
+}
+
+// ===== DB fetchers (بدون إضافة أي وهمي) =====
 async function fetchTechnicians() {
   try {
     const Technician = require('./models/technician');
-    const docs = await Technician.find(
-      { slug: { $exists:true, $ne:'' } },
-      { slug:1, updatedAt:1 }
-    ).lean();
-    return docs.map(d => ({
-      path: `/technicians/${String(d.slug)}`,
-      lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO()
-    }));
+    const docs = await Technician.find({ slug: { $exists:true, $ne:'' } }, { slug:1, updatedAt:1 }).lean();
+    // مسار التكنيشن ثابت
+    return docs.map(d => ({ rel: `/technicians/${String(d.slug)}`, lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO() }));
   } catch { return []; }
 }
 
-async function fetchPosts() {
+async function fetchPostsResolved() {
   try {
     const Post = require('./models/post');
-    const docs = await Post.find(
-      { slug: { $exists:true, $ne:'' } },   // لو عندك published:true ضيفها هنا
-      { slug:1, updatedAt:1 }
-    ).lean();
-    return docs.map(d => ({
-      path: `/blog/${String(d.slug)}`,
-      lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO()
-    }));
+    const docs = await Post.find({ slug: { $exists:true, $ne:'' } }, { slug:1, updatedAt:1 }).lean();
+    const base = process.env.POST_BASE || null;
+    const candidates = base ? [base] : ['/blog','/posts','/post','/articles','/blogs'];
+
+    // نحلّي كل بوست لأوّل مسار شغال
+    const out = [];
+    let i = 0;
+    async function worker(){
+      while (i < docs.length){
+        const d = docs[i++];
+        const r = await resolveFirstWorkingUrl(String(d.slug), candidates);
+        if (r) out.push({ rel: r.rel, lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO() });
+      }
+    }
+    await Promise.all(Array.from({length:VERIFY_CONC}, worker));
+    return out;
   } catch { return []; }
 }
 
-// ========== HTTP 200 verify ==========
-async function verifyUrls(items){
-  if (!VERIFY_HTTP_200 || typeof fetch !== 'function') return items;
-  const out = [];
-  let idx = 0;
-  async function worker(){
-    while (idx < items.length){
-      const i = idx++;
-      const it = items[i];
-      try {
-        const ctl = new AbortController();
-        const t = setTimeout(()=>ctl.abort(), VERIFY_TIMEOUT);
-        const res = await fetch(it.loc, { method:'HEAD', redirect:'follow', signal: ctl.signal });
-        clearTimeout(t);
-        if (res.ok) out.push(it); // 2xx فقط
-      } catch {}
+async function fetchNeighborhoodsResolved() {
+  try {
+    const Neighborhood = require('./models/neighborhood');
+    const docs = await Neighborhood.find({ slug: { $exists:true, $ne:'' } }, { slug:1, updatedAt:1 }).lean();
+    const base = process.env.NEIGHBORHOOD_BASE || null;
+    const candidates = base ? [base] : ['/neighborhoods','/neighborhood','/areas','/districts'];
+
+    const out = [];
+    let i = 0;
+    async function worker(){
+      while (i < docs.length){
+        const d = docs[i++];
+        const r = await resolveFirstWorkingUrl(String(d.slug), candidates);
+        if (r) out.push({ rel: r.rel, lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO() });
+      }
     }
-  }
-  await Promise.all(Array.from({length:VERIFY_CONC}, worker));
-  const ok = new Set(out.map(x=>x.loc));
-  return items.filter(x=>ok.has(x.loc));
+    await Promise.all(Array.from({length:VERIFY_CONC}, worker));
+    return out;
+  } catch { return []; }
 }
 
-// ========== XML ==========
+// ===== XML =====
 function urlsToXml(items){
   const L = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
   ];
-  for (const {loc,lastmod} of items){
+  for (const it of items){
     L.push('  <url>');
-    L.push(`    <loc>${xmlEsc(loc)}</loc>`);
-    L.push(`    <lastmod>${xmlEsc(lastmod)}</lastmod>`);
+    L.push(`    <loc>${xmlEsc(it.loc)}</loc>`);
+    L.push(`    <lastmod>${xmlEsc(it.lastmod)}</lastmod>`);
     L.push('  </url>');
   }
   L.push('</urlset>');
   return L.join('\n');
 }
-
 function indexToXml(sitemaps){
   const L = [
     '<?xml version="1.0" encoding="UTF-8"?>',
@@ -145,27 +170,53 @@ function indexToXml(sitemaps){
   return L.join('\n');
 }
 
-// ========== Build & Cache ==========
-let CACHE = { builtAt:0, groups:{} }; // groups[g] = [ [items], [items] ... ]
+// ===== Build & Cache =====
+let CACHE = { builtAt:0, groups:{} }; // groups[g] = [ [ {loc,lastmod} ] , ...]
 
 async function buildGroup(name){
   if (name === 'pages') {
-    let items = unique(
-      STATIC_PAGES.map(p => p === '/' ? '/' : String(p).replace(/\/+$/,'').trim())
-    ).map(p => ({ loc: toAbs(p), lastmod: nowISO() }));
-    items = await verifyUrls(items);
-    return chunk(items, CHUNK_SIZE);
+    const items = unique(STATIC_PAGES.map(trimSlash))
+      .map(p => ({ loc: toAbs(p), lastmod: nowISO() }));
+    // تحقّق سريع توازيًا
+    const ok = [];
+    let i = 0;
+    async function worker(){
+      while (i < items.length){
+        const it = items[i++];
+        if (await isOk(it.loc)) ok.push(it);
+      }
+    }
+    await Promise.all(Array.from({length:VERIFY_CONC}, worker));
+    return chunk(ok, CHUNK_SIZE);
   }
+
   if (name === 'technicians') {
-    let items = (await fetchTechnicians()).map(x => ({ loc: toAbs(x.path), lastmod: x.lastmod }));
-    items = await verifyUrls(items);
-    return chunk(items, CHUNK_SIZE);
+    const raw = await fetchTechnicians();      // rel جاهزة
+    const ok  = [];
+    let i = 0;
+    async function worker(){
+      while (i < raw.length){
+        const r = raw[i++];
+        const abs = toAbs(r.rel);
+        if (await isOk(abs)) ok.push({ loc: abs, lastmod: r.lastmod });
+      }
+    }
+    await Promise.all(Array.from({length:VERIFY_CONC}, worker));
+    return chunk(ok, CHUNK_SIZE);
   }
+
   if (name === 'posts') {
-    let items = (await fetchPosts()).map(x => ({ loc: toAbs(x.path), lastmod: x.lastmod }));
-    items = await verifyUrls(items);
+    const raw = await fetchPostsResolved();    // already resolved & verified
+    const items = raw.map(r => ({ loc: toAbs(r.rel), lastmod: r.lastmod }));
     return chunk(items, CHUNK_SIZE);
   }
+
+  if (name === 'neighborhoods') {
+    const raw = await fetchNeighborhoodsResolved(); // already resolved & verified
+    const items = raw.map(r => ({ loc: toAbs(r.rel), lastmod: r.lastmod }));
+    return chunk(items, CHUNK_SIZE);
+  }
+
   return [];
 }
 
@@ -186,7 +237,6 @@ async function buildAll(){
         fs.writeFileSync(path.join(PUBLIC_DIR, fname), urlsToXml(chunks[i]), 'utf8');
       }
     }
-
     // index
     const entries = [];
     for (const g of Object.keys(groups)){
@@ -213,7 +263,7 @@ setTimeout(ensureBuilt, 10_000);
 setInterval(ensureBuilt, CACHE_TTL_MS);
 app.use((req,res,next)=>{ ensureBuilt().catch(()=>{}); next(); });
 
-// Routes
+// ===== Routes =====
 app.get(['/sitemap.xml','/sitemap_index.xml'], async (req,res)=>{
   await ensureBuilt();
   const maps = [];
@@ -226,7 +276,6 @@ app.get(['/sitemap.xml','/sitemap_index.xml'], async (req,res)=>{
   }
   res.type('application/xml').send(indexToXml(maps));
 });
-
 app.get(['/sitemap-:g.xml','/sitemap-:g-:n.xml'], async (req,res)=>{
   await ensureBuilt();
   const g = req.params.g;
@@ -235,8 +284,8 @@ app.get(['/sitemap-:g.xml','/sitemap-:g-:n.xml'], async (req,res)=>{
   if (!chunks[n]) return res.sendStatus(404);
   res.type('application/xml').send(urlsToXml(chunks[n]));
 });
+// =================== END SITEMAP PRO v3.1 =====================
 
-// =================== END SITEMAP PRO v3 =====================
 
 
 
