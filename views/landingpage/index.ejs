@@ -124,6 +124,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   </head>
 
 <body class="font-sans text-gray-800 flex flex-col min-h-screen">
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W89CTL3G"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
   <%- include("../layouts/header", { searchType: searchType }) %>
 
 
@@ -480,10 +486,6 @@ const technicianTitle = '<%= technicians[0] ? technicians[0].mainTitle : "" %>';
   gtag('config', 'G-D0E3ZSZ29C');
 </script>
 
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W89CTL3G"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
 
   </body>
 </html>
