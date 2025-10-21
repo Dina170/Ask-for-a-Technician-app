@@ -34,24 +34,28 @@ app.use((req, res, next) => {
 });
 
 
-// ===================== SITEMAP PRO v3.1 (No 404s, Posts + Neighborhoods) =====================
-// ⚠️ احذف السطرين لو متعرفة فوق
+// ===================== SITEMAP PRO v3.2 (pages + technicians + posts + technicians-areas) =====================
+// احذف السطرين لو متعرفة فوق
 const fs   = require('fs');
 const path = require('path');
 
-const BASE_URL   = process.env.SITE_URL || 'https://imadaldin.com';
-const PUBLIC_DIR = path.join(__dirname, 'public');
+const BASE_URL        = process.env.SITE_URL || 'https://imadaldin.com';
+const PUBLIC_DIR      = path.join(__dirname, 'public');
 
-const WRITE_FILES    = true;
-const CACHE_TTL_MS   = 6 * 60 * 60 * 1000;   // 6 ساعات
-const CHUNK_SIZE     = 49000;
-const GROUPS         = ['pages','technicians','posts','neighborhoods'];
+const WRITE_FILES     = true;
+const CACHE_TTL_MS    = 6 * 60 * 60 * 1000;   // 6 ساعات
+const CHUNK_SIZE      = 49000;
+const GROUPS          = ['pages','technicians','posts','technicians-areas']; // أضفنا technicians-areas
 
-const VERIFY_CONC    = 3;
-const VERIFY_TIMEOUT = 5000;                 // ms
+const VERIFY_CONC     = 3;
+const VERIFY_TIMEOUT  = 5000;
 
-// صفحات ثابتة (زود على مزاجك)
+// صفحات ثابتة
 const STATIC_PAGES = ['/', '/about', '/contact', '/privacy-policy'];
+
+// مسارات البوستات والحيّ/القوائم تحت التكنيشنز
+const POST_BASE         = process.env.POST_BASE || '/blog';
+const TECH_AREAS_SEG    = process.env.TECH_AREAS_SEG || 'عرض-الاحياء'; // << هنا الجزء العربي
 
 // ===== Helpers =====
 const nowISO = () => new Date().toISOString();
@@ -75,66 +79,38 @@ async function isOk(url){
   finally { clearTimeout(timer); }
 }
 
-// جرّب أول مسار شغّال من لستة احتمالات
-async function resolveFirstWorkingUrl(slug, candidates){
-  for (const base of candidates){
-    const rel = `${trimSlash(base)}/${slug}`;
-    const abs = toAbs(rel);
-    if (await isOk(abs)) return { rel, abs };
-  }
-  return null;
-}
-
-// ===== DB fetchers (بدون إضافة أي وهمي) =====
+// ===== DB fetchers (بدون أي وهمي) =====
 async function fetchTechnicians() {
   try {
     const Technician = require('./models/technician');
     const docs = await Technician.find({ slug: { $exists:true, $ne:'' } }, { slug:1, updatedAt:1 }).lean();
-    // مسار التكنيشن ثابت
-    return docs.map(d => ({ rel: `/technicians/${String(d.slug)}`, lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO() }));
+    return docs.map(d => ({
+      rel: `/technicians/${String(d.slug)}`,
+      lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO()
+    }));
   } catch { return []; }
 }
 
-async function fetchPostsResolved() {
+async function fetchPosts() {
   try {
     const Post = require('./models/post');
     const docs = await Post.find({ slug: { $exists:true, $ne:'' } }, { slug:1, updatedAt:1 }).lean();
-    const base = process.env.POST_BASE || null;
-    const candidates = base ? [base] : ['/blog','/posts','/post','/articles','/blogs'];
-
-    // نحلّي كل بوست لأوّل مسار شغال
-    const out = [];
-    let i = 0;
-    async function worker(){
-      while (i < docs.length){
-        const d = docs[i++];
-        const r = await resolveFirstWorkingUrl(String(d.slug), candidates);
-        if (r) out.push({ rel: r.rel, lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO() });
-      }
-    }
-    await Promise.all(Array.from({length:VERIFY_CONC}, worker));
-    return out;
+    return docs.map(d => ({
+      rel: `${trimSlash(POST_BASE)}/${String(d.slug)}`,
+      lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO()
+    }));
   } catch { return []; }
 }
 
-async function fetchNeighborhoodsResolved() {
+// قوائم الفنيين حسب الأحياء: /technicians/عرض-الاحياء/:slug  (مأخوذة من Neighborhood)
+async function fetchTechnicianAreaLists() {
   try {
     const Neighborhood = require('./models/neighborhood');
     const docs = await Neighborhood.find({ slug: { $exists:true, $ne:'' } }, { slug:1, updatedAt:1 }).lean();
-    const base = process.env.NEIGHBORHOOD_BASE || null;
-    const candidates = base ? [base] : ['/neighborhoods','/neighborhood','/areas','/districts'];
-
-    const out = [];
-    let i = 0;
-    async function worker(){
-      while (i < docs.length){
-        const d = docs[i++];
-        const r = await resolveFirstWorkingUrl(String(d.slug), candidates);
-        if (r) out.push({ rel: r.rel, lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO() });
-      }
-    }
-    await Promise.all(Array.from({length:VERIFY_CONC}, worker));
-    return out;
+    return docs.map(d => ({
+      rel: `/technicians/${TECH_AREAS_SEG}/${String(d.slug)}`,
+      lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO()
+    }));
   } catch { return []; }
 }
 
@@ -177,7 +153,7 @@ async function buildGroup(name){
   if (name === 'pages') {
     const items = unique(STATIC_PAGES.map(trimSlash))
       .map(p => ({ loc: toAbs(p), lastmod: nowISO() }));
-    // تحقّق سريع توازيًا
+
     const ok = [];
     let i = 0;
     async function worker(){
@@ -191,7 +167,7 @@ async function buildGroup(name){
   }
 
   if (name === 'technicians') {
-    const raw = await fetchTechnicians();      // rel جاهزة
+    const raw = await fetchTechnicians(); // rel جاهزة
     const ok  = [];
     let i = 0;
     async function worker(){
@@ -206,15 +182,33 @@ async function buildGroup(name){
   }
 
   if (name === 'posts') {
-    const raw = await fetchPostsResolved();    // already resolved & verified
-    const items = raw.map(r => ({ loc: toAbs(r.rel), lastmod: r.lastmod }));
-    return chunk(items, CHUNK_SIZE);
+    const raw = await fetchPosts();
+    const ok  = [];
+    let i = 0;
+    async function worker(){
+      while (i < raw.length){
+        const r = raw[i++];
+        const abs = toAbs(r.rel);
+        if (await isOk(abs)) ok.push({ loc: abs, lastmod: r.lastmod });
+      }
+    }
+    await Promise.all(Array.from({length:VERIFY_CONC}, worker));
+    return chunk(ok, CHUNK_SIZE);
   }
 
-  if (name === 'neighborhoods') {
-    const raw = await fetchNeighborhoodsResolved(); // already resolved & verified
-    const items = raw.map(r => ({ loc: toAbs(r.rel), lastmod: r.lastmod }));
-    return chunk(items, CHUNK_SIZE);
+  if (name === 'technicians-areas') {
+    const raw = await fetchTechnicianAreaLists();
+    const ok  = [];
+    let i = 0;
+    async function worker(){
+      while (i < raw.length){
+        const r = raw[i++];
+        const abs = toAbs(r.rel); // فيه عربي—URL هيتكوّد تلقائيًا
+        if (await isOk(abs)) ok.push({ loc: abs, lastmod: r.lastmod });
+      }
+    }
+    await Promise.all(Array.from({length:VERIFY_CONC}, worker));
+    return chunk(ok, CHUNK_SIZE);
   }
 
   return [];
@@ -284,8 +278,7 @@ app.get(['/sitemap-:g.xml','/sitemap-:g-:n.xml'], async (req,res)=>{
   if (!chunks[n]) return res.sendStatus(404);
   res.type('application/xml').send(urlsToXml(chunks[n]));
 });
-// =================== END SITEMAP PRO v3.1 =====================
-
+// =================== END SITEMAP PRO v3.2 =====================
 
 
 
