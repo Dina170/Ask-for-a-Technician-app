@@ -53,7 +53,7 @@ const PUBLIC_DIR      = path.join(__dirname, 'public');
 const WRITE_FILES     = true;
 const CACHE_TTL_MS    = 5 * 60 * 1000;   // 5 دقائق — تحديث شبه فوري
 const CHUNK_SIZE      = 49000;
-const GROUPS          = ['pages','technicians','posts']; // صفحات ثابتة + الفنيين + البوستات
+const GROUPS          = ['pages','technicians','blogs','posts']; // صفحات ثابتة + الفنيين + المدونات + البوستات
 
 const VERIFY_CONC     = 3;
 const VERIFY_TIMEOUT  = 5000;
@@ -62,7 +62,7 @@ const VERIFY_TIMEOUT  = 5000;
 const STATIC_PAGES = ['/', '/privacy-policy'];
 
 // مسارات البوستات والحيّ/القوائم تحت التكنيشنز
-const POST_BASE         = process.env.POST_BASE || '/blogs';
+const POST_BASE         = process.env.POST_BASE || '/posts';
 const TECH_AREAS_SEG    = process.env.TECH_AREAS_SEG || 'عرض-الاحياء'; // << هنا الجزء العربي
 
 // ===== Helpers =====
@@ -103,6 +103,29 @@ async function fetchPosts() {
   try {
     const Post = require('./models/post');
     const docs = await Post.find({ slug: { $exists:true, $ne:'' } }, { slug:1, updatedAt:1 }).lean();
+    return docs.map(d => ({
+      rel: `${trimSlash(POST_BASE)}/${String(d.slug)}`,
+      lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO()
+    }));
+  } catch { return []; }
+}
+
+async function fetchBlogs() {
+  try {
+    const Blog = require('./models/blog');
+    const docs = await Blog.find({ slug: { $exists:true, $ne:'' } }, { slug:1, updatedAt:1 }).lean();
+    return docs.map(d => ({
+      id: String(d._id),
+      slug: String(d.slug),
+      lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO()
+    }));
+  } catch { return []; }
+}
+
+async function fetchPostsByBlog(blogId) {
+  try {
+    const Post = require('./models/post');
+    const docs = await Post.find({ blog: blogId, slug: { $exists:true, $ne:'' } }, { slug:1, updatedAt:1 }).lean();
     return docs.map(d => ({
       rel: `${trimSlash(POST_BASE)}/${String(d.slug)}`,
       lastmod: d.updatedAt ? new Date(d.updatedAt).toISOString() : nowISO()
@@ -204,6 +227,23 @@ async function buildGroup(name){
     return chunk(ok, CHUNK_SIZE);
   }
 
+  if (name === 'blogs') {
+    const blogs = await fetchBlogs();
+    const items = [ { rel: '/blogs', lastmod: nowISO() },
+      ...blogs.map(b => ({ rel: `/blogs/${b.slug}`, lastmod: b.lastmod })) ];
+    const ok = [];
+    let i = 0;
+    async function worker(){
+      while (i < items.length){
+        const it = items[i++];
+        const abs = toAbs(it.rel);
+        if (await isOk(abs)) ok.push({ loc: abs, lastmod: it.lastmod });
+      }
+    }
+    await Promise.all(Array.from({length:VERIFY_CONC}, worker));
+    return chunk(ok, CHUNK_SIZE);
+  }
+
   if (name === 'technicians-areas') {
     const raw = await fetchTechnicianAreaLists();
     const ok  = [];
@@ -224,7 +264,31 @@ async function buildGroup(name){
 
 async function buildAll(){
   const groups = {};
+  // Build fixed groups first
   for (const g of GROUPS) groups[g] = await buildGroup(g);
+
+  // Build dynamic per-blog post sitemaps: sitemap-blog-<slug>.xml
+  try {
+    const blogs = await fetchBlogs();
+    for (const b of blogs){
+      const raw = await fetchPostsByBlog(b.id);
+      const ok  = [];
+      let i = 0;
+      async function worker(){
+        while (i < raw.length){
+          const r = raw[i++];
+          const abs = toAbs(r.rel);
+          if (await isOk(abs)) ok.push({ loc: abs, lastmod: r.lastmod });
+        }
+      }
+      await Promise.all(Array.from({length:VERIFY_CONC}, worker));
+      const groupName = `blog-${b.slug}`;
+      groups[groupName] = chunk(ok, CHUNK_SIZE);
+    }
+  } catch (e) {
+    console.error('[sitemap] blogs build error', e);
+  }
+
   CACHE = { builtAt: Date.now(), groups };
 
   if (WRITE_FILES){
