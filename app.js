@@ -14,15 +14,20 @@ app.use(express.static('public'));
 app.disable("x-powered-by");   // Remove X-Powered-By header for security
 
 // HSTS (اختياري في الإنتاج)
-if (process.env.NODE_ENV === 'production') {
-  app.use((req, res, next) => {
-    res.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-    next();
-  });
-}
+// if (process.env.NODE_ENV === 'production') {
+//   app.use((req, res, next) => {
+//     res.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+//     next();
+//   });
+// }
 // 🔁 التحويل الموحّد: non-www + https (قفزة واحدة)
 const PROD_HOST = 'imadaldin.com';
 app.use((req, res, next) => {
+  // Skip redirect in development environment
+  if (process.env.NODE_ENV === 'development') {
+    return next();
+  }
+
   const host  = (req.headers.host || '').replace(/:\d+$/, '');
   const proto = (req.headers['x-forwarded-proto'] || req.protocol || '').toLowerCase();
 
@@ -39,22 +44,22 @@ app.use((req, res, next) => {
 const fs   = require('fs');
 const path = require('path');
 
-const BASE_URL        = process.env.SITE_URL || 'https://imadaldin.com';
+const BASE_URL        = process.env.SITE_URL || 'http://localhost:3000';
 const PUBLIC_DIR      = path.join(__dirname, 'public');
 
 const WRITE_FILES     = true;
-const CACHE_TTL_MS    = 6 * 60 * 60 * 1000;   // 6 ساعات
+const CACHE_TTL_MS    = 5 * 60 * 1000;   // 5 دقائق — تحديث شبه فوري
 const CHUNK_SIZE      = 49000;
-const GROUPS          = ['pages','technicians','posts','technicians-areas']; // أضفنا technicians-areas
+const GROUPS          = ['pages','technicians','posts']; // صفحات ثابتة + الفنيين + البوستات
 
 const VERIFY_CONC     = 3;
 const VERIFY_TIMEOUT  = 5000;
 
-// صفحات ثابتة
-const STATIC_PAGES = ['/', '/about', '/contact', '/privacy-policy'];
+// صفحات ثابتة (حسب المطلوب)
+const STATIC_PAGES = ['/', '/privacy-policy'];
 
 // مسارات البوستات والحيّ/القوائم تحت التكنيشنز
-const POST_BASE         = process.env.POST_BASE || '/blog';
+const POST_BASE         = process.env.POST_BASE || '/blogs';
 const TECH_AREAS_SEG    = process.env.TECH_AREAS_SEG || 'عرض-الاحياء'; // << هنا الجزء العربي
 
 // ===== Helpers =====

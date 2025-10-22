@@ -1,4 +1,6 @@
-const { Schema, model } = require("mongoose");
+// const { Schema, model } = require("mongoose");
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
 const BlogSchema = new Schema({
   blog: { type: String, required: true, unique: true },
@@ -15,4 +17,5 @@ BlogSchema.pre("save", function (next) {
   next();
 });
 
-module.exports = model("Blog", BlogSchema);
+// module.exports = model("Blog", BlogSchema);
+module.exports = mongoose.models.Blog || mongoose.model("Blog", BlogSchema);
