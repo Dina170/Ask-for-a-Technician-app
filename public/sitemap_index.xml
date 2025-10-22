@@ -3,14 +3,26 @@
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
     <loc>http://localhost:3000/sitemap-pages.xml</loc>
-    <lastmod>2025-10-22T13:29:32.561Z</lastmod>
+    <lastmod>2025-10-22T13:56:53.992Z</lastmod>
   </sitemap>
   <sitemap>
     <loc>http://localhost:3000/sitemap-technicians.xml</loc>
-    <lastmod>2025-10-22T13:29:32.561Z</lastmod>
+    <lastmod>2025-10-22T13:56:53.992Z</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>http://localhost:3000/sitemap-blogs.xml</loc>
+    <lastmod>2025-10-22T13:56:53.992Z</lastmod>
   </sitemap>
   <sitemap>
     <loc>http://localhost:3000/sitemap-posts.xml</loc>
-    <lastmod>2025-10-22T13:29:32.561Z</lastmod>
+    <lastmod>2025-10-22T13:56:53.992Z</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>http://localhost:3000/sitemap-blog-test2.xml</loc>
+    <lastmod>2025-10-22T13:56:53.992Z</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>http://localhost:3000/sitemap-blog-كهربائى.xml</loc>
+    <lastmod>2025-10-22T13:56:53.992Z</lastmod>
   </sitemap>
 </sitemapindex>
