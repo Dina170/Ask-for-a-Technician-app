@@ -20,6 +20,8 @@ app.disable("x-powered-by");   // Remove X-Powered-By header for security
 //     next();
 //   });
 // }
+
+
 // 🔁 التحويل الموحّد: non-www + https (قفزة واحدة)
 const PROD_HOST = 'imadaldin.com';
 app.use((req, res, next) => {
@@ -44,9 +46,10 @@ app.use((req, res, next) => {
 const fs   = require('fs');
 const path = require('path');
 
-const BASE_URL        = process.env.SITE_URL || 'http://localhost:3000';
+const BASE_URL        = process.env.SITE_URL || 'https://imadaldin.com';
 const PUBLIC_DIR      = path.join(__dirname, 'public');
 
+// Cache
 const WRITE_FILES     = true;
 const CACHE_TTL_MS    = 5 * 60 * 1000;   // 5 دقائق — تحديث شبه فوري
 const CHUNK_SIZE      = 49000;
